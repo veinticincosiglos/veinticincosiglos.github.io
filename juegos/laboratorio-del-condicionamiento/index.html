@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Laboratorio del Condicionamiento</title>
+<style>
+  /* Reinicio mínimo: replica el entorno en el que se diseñó la página. */
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: dos experimentos en pestañas; sujeto y controles a la izquierda, instrumento y misiones a la derecha.
+   Mundo visual: laboratorio de psicología experimental — pizarra, instrumental de acero
+   y el trazo ámbar del quimógrafo con que Pávlov medía gotas de saliva.
+   Sujetos dibujados en pixel art sobre grilla de 26x20.
+   Azul acero = condicionamiento clásico. Naranja = operante. */
+:root {
+  --bg: #15191f;
+  --surface: #1e242c;
+  --surface-2: #272f39;
+  --fg: #e7ecf0;
+  --muted: #8d9bab;
+  --line: #333d49;
+  --amber: #d9a441;
+  --clasico: #5b9bc4;
+  --operante: #d9774b;
+  --ok: #68b08a;
+  --font-display: "IBM Plex Serif", Georgia, serif;
+  --font-ui: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #eef1f4; --surface: #ffffff; --surface-2: #e3e8ed;
+    --fg: #141a21; --muted: #5d6b7a; --line: #ccd5de;
+    --amber: #96661a; --clasico: #2f6b94; --operante: #a84e24; --ok: #2f7a55;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #eef1f4; --surface: #ffffff; --surface-2: #e3e8ed;
+  --fg: #141a21; --muted: #5d6b7a; --line: #ccd5de;
+  --amber: #96661a; --clasico: #2f6b94; --operante: #a84e24; --ok: #2f7a55;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-ui); font-size: 1rem; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+.wrap { max-width: 62rem; margin: 0 auto; padding-block: 2rem 3rem; }
+
+.eyebrow {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 0.6rem;
+}
+h1 {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(1.9rem, 5.5vw, 2.9rem); line-height: 1.08;
+  text-wrap: balance; margin: 0 0 0.75rem;
+}
+h2 {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(1.3rem, 4vw, 1.7rem); line-height: 1.18;
+  text-wrap: balance; margin: 0 0 0.5rem;
+}
+h3 {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 0.7rem;
+}
+p { margin: 0 0 1rem; max-width: 42rem; }
+.muted { color: var(--muted); }
+svg.sprite { display: block; image-rendering: pixelated; shape-rendering: crispEdges; height: auto; max-width: 100%; }
+
+/* ── progreso global ── */
+.globalbar {
+  display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 3px; padding: 0.7rem 1rem; margin: 1.5rem 0 0;
+}
+.globalbar .lbl {
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.globalbar .count {
+  font-family: var(--font-mono); font-size: 0.95rem; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.globalbar .track { flex: 1; min-width: 7rem; height: 7px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+.globalbar .track i { display: block; height: 100%; width: 0; background: var(--ok); transition: width 0.4s ease-out; }
+
+/* ── banner de victoria ── */
+.victory {
+  margin-top: 1rem; padding: 1.1rem 1.25rem; border-radius: 3px;
+  background: var(--surface); border: 1px solid var(--ok); border-left: 4px solid var(--ok);
+  display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+}
+.victory .seal {
+  font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--ok);
+  border: 1px solid var(--ok); border-radius: 2px; padding: 0.3rem 0.6rem;
+  flex: 0 0 auto;
+}
+.victory p { margin: 0; font-size: 0.95rem; min-width: 0; }
+
+/* ── pestañas ── */
+.tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 1.5rem 0 1.25rem; }
+button.tab {
+  font-family: var(--font-ui); font-size: 0.82rem; font-weight: 600;
+  color: var(--muted); background: transparent;
+  border: 1px solid var(--line); border-radius: 2px;
+  padding: 0.6rem 1rem; cursor: pointer;
+  transition: color 0.16s, border-color 0.16s, background 0.16s;
+}
+button.tab:hover { color: var(--fg); }
+button.tab:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+button.tab[aria-selected="true"] { color: var(--fg); background: var(--surface); }
+button.tab[data-k="1"][aria-selected="true"] { border-color: var(--clasico); }
+button.tab[data-k="2"][aria-selected="true"] { border-color: var(--operante); }
+button.tab[data-k="3"][aria-selected="true"] { border-color: var(--amber); }
+button.tab .tick { color: var(--ok); font-weight: 700; }
+
+/* ── banco de trabajo ── */
+.bench { display: grid; gap: 1.25rem; align-items: start; }
+@media (min-width: 54rem) { .bench { grid-template-columns: 1fr 1.12fr; } }
+.panel {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 3px; padding: 1.25rem; min-width: 0;
+}
+.panel.k1 { border-top: 3px solid var(--clasico); }
+.panel.k2 { border-top: 3px solid var(--operante); }
+
+/* sujeto */
+.subject {
+  display: flex; flex-direction: column; align-items: center;
+  background: var(--surface-2); border-radius: 2px;
+  padding: 1rem 0.5rem 0.75rem; margin-bottom: 1.25rem;
+}
+.subject .name {
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-top: 0.6rem;
+}
+
+/* medidor */
+.gauge { margin-bottom: 1.25rem; }
+.gauge .top {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted);
+  letter-spacing: 0.06em; margin-bottom: 0.35rem; gap: 0.5rem;
+}
+.gauge .val { font-size: 1.05rem; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+.bar { height: 10px; background: var(--surface-2); border-radius: 5px; overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; border-radius: 5px; transition: width 0.45s ease-out; }
+.bar.k1 > i { background: var(--clasico); }
+.bar.k2 > i { background: var(--operante); }
+
+/* controles */
+.acts { display: grid; gap: 0.5rem; }
+button.act {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  font-family: var(--font-ui); font-size: 0.9rem; line-height: 1.4;
+  color: var(--fg); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: 2px;
+  padding: 0.7rem 0.9rem; transition: border-color 0.16s, transform 0.1s;
+}
+button.act:hover:not([disabled]) { border-color: var(--fg); }
+button.act:active:not([disabled]) { transform: translateY(1px); }
+button.act:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+button.act[disabled] { opacity: 0.4; cursor: default; }
+button.act b { display: block; font-weight: 600; }
+button.act span { display: block; font-size: 0.76rem; color: var(--muted); font-family: var(--font-mono); }
+
+.reset {
+  font-family: var(--font-ui); font-size: 0.74rem; font-weight: 600;
+  letter-spacing: 0.06em; color: var(--muted); background: transparent;
+  border: 0; padding: 0.5rem 0; cursor: pointer; text-decoration: underline;
+  text-underline-offset: 3px; margin-top: 0.85rem;
+}
+.reset:hover { color: var(--fg); }
+/* Cuando reiniciar es la única vía que queda para una misión pendiente. */
+.reset.urge { color: var(--amber); font-weight: 700; text-decoration-thickness: 2px; }
+.missions li.aviso .tip { color: var(--amber); font-weight: 600; }
+.reset:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+/* lectura del instrumento */
+.readout {
+  background: var(--surface-2); border-radius: 2px;
+  padding: 0.9rem 1rem; margin-bottom: 1.1rem; min-height: 5.5rem;
+}
+.readout .tag {
+  display: inline-block; font-family: var(--font-mono); font-size: 0.66rem;
+  font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.15rem 0.45rem; border-radius: 2px; margin-bottom: 0.5rem;
+  border: 1px solid currentColor;
+}
+.readout p { margin: 0; font-size: 0.93rem; }
+.readout .formula {
+  font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted);
+  margin-top: 0.5rem; display: block;
+}
+
+/* misiones */
+.missions { margin-top: 1.25rem; }
+.missions ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+.missions li {
+  display: flex; gap: 0.6rem; align-items: flex-start;
+  font-size: 0.88rem; line-height: 1.4;
+  background: var(--surface-2); border-radius: 2px; padding: 0.55rem 0.7rem;
+  transition: opacity 0.2s;
+}
+.missions li .box {
+  flex: 0 0 auto; width: 15px; height: 15px; margin-top: 0.15rem;
+  border: 1.5px solid var(--line); border-radius: 2px;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  line-height: 12px; text-align: center; color: transparent;
+}
+.missions li.done .box { background: var(--ok); border-color: var(--ok); color: var(--bg); }
+.missions li.done { opacity: 0.6; }
+.missions li.done .txt { text-decoration: line-through; text-decoration-color: var(--muted); }
+.missions li .txt { min-width: 0; }
+.missions li .tip {
+  display: block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted);
+}
+.missions li.done .tip { display: none; }
+.stamp {
+  margin-top: 0.85rem; padding: 0.7rem 0.9rem; border-radius: 2px;
+  border: 1px dashed var(--ok); color: var(--ok);
+  font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* gráfico */
+.chart { background: var(--surface-2); border-radius: 2px; padding: 0.85rem; }
+svg.plot { display: block; width: 100%; height: auto; max-width: 100%; }
+.plot .axis { stroke: var(--line); stroke-width: 1; }
+.plot .grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; opacity: 0.6; }
+.plot text { font-family: var(--font-mono); font-size: 9px; fill: var(--muted); }
+.plot .lbl { font-size: 8px; letter-spacing: 0.08em; }
+.empty {
+  font-family: var(--font-mono); font-size: 0.76rem; color: var(--muted);
+  text-align: center; padding: 1.5rem 0.5rem;
+}
+
+/* tabla 2x2 */
+.quad { display: grid; grid-template-columns: auto 1fr 1fr; gap: 1px; background: var(--line);
+  border: 1px solid var(--line); border-radius: 3px; overflow: hidden; margin: 1.25rem 0; }
+.quad > div { background: var(--surface); padding: 0.75rem 0.85rem; min-width: 0; font-size: 0.88rem; }
+.quad .hd { background: var(--surface-2); font-size: 0.66rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.quad .rh { background: var(--surface-2); font-weight: 600; font-size: 0.8rem; }
+.quad b { color: var(--fg); }
+
+/* comparación final */
+.vs { display: grid; gap: 1rem; margin-top: 1.25rem; }
+@media (min-width: 42rem) { .vs { grid-template-columns: 1fr 1fr; } }
+.vs > div { background: var(--surface); border: 1px solid var(--line); border-radius: 3px; padding: 1.15rem; min-width: 0; }
+.vs .c1 { border-top: 3px solid var(--clasico); }
+.vs .c2 { border-top: 3px solid var(--operante); }
+.vs h4 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; margin: 0 0 0.2rem; }
+.vs .sub { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); margin: 0 0 0.8rem; letter-spacing: 0.06em; }
+.vs ul { margin: 0; padding-left: 1.1rem; font-size: 0.92rem; }
+.vs li { margin-bottom: 0.45rem; }
+.vs li:last-child { margin-bottom: 0; }
+.vs .heads { display: flex; justify-content: center; margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line);
+  font-size: 0.8rem; color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body><div id="cinta-sitio">
+  <a href="../../unidades/unidad-6.html"><span aria-hidden="true">&#8592;</span>&nbsp;Unidad 6</a>
+  <span class="nombre">Laboratorio del condicionamiento</span>
+  <a class="casa" href="../../index.html">Veinticinco siglos de pedagogía</a>
+</div>
+<style>
+#cinta-sitio {
+  --tira-hondo: #0F4139; --tira-acento: #F0C659;
+  font: 600 13px/1.2 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 10px max(14px, env(safe-area-inset-left, 0px));
+  background: var(--tira-hondo); color: #ffffffa8;
+  border-bottom: 2px solid var(--tira-acento);
+}
+#cinta-sitio a { color: var(--tira-acento); text-decoration: none; white-space: nowrap;
+  transition: opacity .18s ease; }
+#cinta-sitio a:hover { opacity: .75; text-decoration: underline; }
+#cinta-sitio .nombre { margin-right: auto; color: #ffffff9c; }
+#cinta-sitio .casa { font-weight: 400; color: #ffffff8a; }
+@media (max-width: 560px) { #cinta-sitio .nombre { display: none } }
+@media print { #cinta-sitio { display: none } }
+
+/* ── microinteracciones comunes ────────────────────────────────────── */
+button, [role="button"], .boton, summary {
+  transition: transform .18s ease, background-color .2s ease,
+              border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+button:not([disabled]):hover, [role="button"]:not([aria-disabled="true"]):hover {
+  transform: translateY(-1px);
+}
+button:not([disabled]):active, [role="button"]:active { transform: translateY(0); }
+:focus-visible { outline: 3px solid var(--tira-acento, #f0c169); outline-offset: 2px; }
+
+/* las barras de avance se mueven en vez de saltar */
+div[style*="width"] { transition: width .55s cubic-bezier(.2,.75,.3,1); }
+
+/* ── entrada y aparición ───────────────────────────────────────────── */
+html.realce .surge { opacity: 0; transform: translateY(14px); }
+html.realce .surge.puesto {
+  opacity: 1; transform: none;
+  transition: opacity .55s cubic-bezier(.2,.7,.3,1), transform .55s cubic-bezier(.2,.7,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.realce .surge, html.realce .surge.puesto { opacity: 1; transform: none; transition: none; }
+  button, [role="button"], .boton, summary, div[style*="width"] { transition: none !important; }
+  button:hover, [role="button"]:hover { transform: none; }
+}
+</style>
+<script>
+(function () {
+  // Nada de esto es necesario para jugar: si algo falla, el juego queda como estaba.
+  try {
+    var quieto = matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (quieto) return;
+    var raiz = document.documentElement;
+
+    function arrancar() {
+      // busca el envoltorio que de verdad contiene el juego
+      var caja = document.body, hijos;
+      for (var i = 0; i < 3; i++) {
+        hijos = [].filter.call(caja.children, function (e) {
+          return e.id !== "cinta-sitio" &&
+                 ["SCRIPT", "STYLE", "LINK", "NOSCRIPT", "TEMPLATE"].indexOf(e.tagName) < 0;
+        });
+        if (hijos.length > 1) break;
+        if (hijos.length === 1) caja = hijos[0]; else return;
+      }
+      if (!hijos || hijos.length < 2) return;
+
+      raiz.classList.add("realce");
+      hijos.forEach(function (e) { e.classList.add("surge"); });
+
+      var alto = innerHeight;
+      var tarde = [];
+      hijos.forEach(function (e, i) {
+        if (e.getBoundingClientRect().top < alto * 0.92) {
+          setTimeout(function () { e.classList.add("puesto"); }, 70 + i * 90);
+        } else { tarde.push(e); }
+      });
+
+      if (!tarde.length || !("IntersectionObserver" in window)) {
+        tarde.forEach(function (e) { e.classList.add("puesto"); });
+        return;
+      }
+      var ojo = new IntersectionObserver(function (es) {
+        es.forEach(function (x) {
+          if (!x.isIntersecting) return;
+          x.target.classList.add("puesto");
+          ojo.unobserve(x.target);
+        });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
+      tarde.forEach(function (e) { ojo.observe(e); });
+
+      // red de seguridad: pase lo que pase, a los 4 segundos todo está visible
+      setTimeout(function () {
+        hijos.forEach(function (e) { e.classList.add("puesto"); });
+      }, 4000);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", arrancar);
+    } else { arrancar(); }
+  } catch (e) { /* el juego sigue funcionando igual */ }
+})();
+</script>
+<div class="wrap">
+  <p class="eyebrow">Historia de la Pedagogía · Clase 6</p>
+  <h1>Laboratorio del condicionamiento</h1>
+  <p>Los dos experimentos que fundaron el conductismo, para hacerlos tú. Hay nueve misiones por completar: cinco con Pávlov y cuatro con Skinner. Termínalas todas y habrás reproducido los dos hallazgos centrales de la psicología conductista.</p>
+
+  <div class="globalbar">
+    <span class="lbl">Misiones</span>
+    <span class="count" id="gCount">0 / 9</span>
+    <span class="track"><i id="gTrack"></i></span>
+  </div>
+  <div id="victory"></div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" data-k="1" role="tab" aria-selected="true" type="button">1 · Pávlov · clásico <span class="tick" id="tick1"></span></button>
+    <button class="tab" data-k="2" role="tab" aria-selected="false" type="button">2 · Skinner · operante <span class="tick" id="tick2"></span></button>
+    <button class="tab" data-k="3" role="tab" aria-selected="false" type="button">3 · Qué comprobaste</button>
+  </div>
+
+  <!-- ══ EXPERIMENTO 1 ══ -->
+  <section id="exp1" role="tabpanel">
+    <div class="bench">
+      <div class="panel k1">
+        <h3>Sujeto experimental</h3>
+        <div class="subject">
+          <div id="dogBox"></div>
+          <div class="name">Perro · cánula salival</div>
+        </div>
+        <div class="gauge">
+          <div class="top"><span>Salivación ante la campana</span><span class="val" id="salVal">0%</span></div>
+          <div class="bar k1"><i id="salBar"></i></div>
+        </div>
+        <h3>Acciones</h3>
+        <div class="acts">
+          <button class="act" id="aBell" type="button"><b>Tocar solo la campana</b><span>estímulo neutro</span></button>
+          <button class="act" id="aFood" type="button"><b>Dar solo el alimento</b><span>estímulo incondicionado</span></button>
+          <button class="act" id="aPair" type="button"><b>Campana y luego alimento</b><span>emparejamiento</span></button>
+          <button class="act" id="aRest" type="button" disabled><b>Dejar pasar un día</b><span>intervalo de descanso</span></button>
+        </div>
+        <button class="reset" id="r1" type="button">Reiniciar el experimento</button>
+      </div>
+
+      <div class="panel">
+        <h3>Lectura del instrumento</h3>
+        <div class="readout" id="read1">
+          <span class="tag" style="color:var(--muted)">en espera</span>
+          <p>El perro no ha oído nunca la campana. Empieza por tocarla sola y observa si reacciona.</p>
+        </div>
+        <h3>Registro del quimógrafo</h3>
+        <div class="chart" id="chart1"></div>
+        <div class="missions">
+          <h3 style="margin-top:1.25rem">Misiones de este experimento</h3>
+          <ol id="miss1"></ol>
+          <div id="stamp1"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ EXPERIMENTO 2 ══ -->
+  <section id="exp2" role="tabpanel" hidden>
+    <div class="bench">
+      <div class="panel k2">
+        <h3>Sujeto experimental</h3>
+        <div class="subject">
+          <div id="ratBox"></div>
+          <div class="name">Rata · caja de condicionamiento</div>
+        </div>
+        <div class="gauge">
+          <div class="top"><span>Tasa de presión de la palanca</span><span class="val" id="rateVal">8/min</span></div>
+          <div class="bar k2"><i id="rateBar"></i></div>
+        </div>
+        <h3>La rata presionó la palanca. ¿Qué haces?</h3>
+        <div class="acts">
+          <button class="act" id="oRP" type="button"><b>Entregar una bolita de comida</b><span>+ se añade algo agradable</span></button>
+          <button class="act" id="oRN" type="button"><b>Apagar el ruido molesto de fondo</b><span>− se retira algo aversivo</span></button>
+          <button class="act" id="oCP" type="button"><b>Aplicar una descarga leve</b><span>+ se añade algo aversivo</span></button>
+          <button class="act" id="oCN" type="button"><b>Retirar la comida ya ganada</b><span>− se retira algo valorado</span></button>
+          <button class="act" id="oEX" type="button"><b>No hacer nada</b><span>sin consecuencia</span></button>
+        </div>
+        <button class="reset" id="r2" type="button">Reiniciar el experimento</button>
+      </div>
+
+      <div class="panel">
+        <h3>Lectura del instrumento</h3>
+        <div class="readout" id="read2">
+          <span class="tag" style="color:var(--muted)">en espera</span>
+          <p>La rata presiona la palanca de vez en cuando, por azar: ocho veces por minuto. Lo que decidas ahora determinará si esa conducta aumenta o desaparece.</p>
+        </div>
+        <h3>Registro acumulado</h3>
+        <div class="chart" id="chart2"></div>
+        <div class="missions">
+          <h3 style="margin-top:1.25rem">Misiones de este experimento</h3>
+          <ol id="miss2"></ol>
+          <div id="stamp2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:1.25rem">
+      <h3>Las cuatro consecuencias de Skinner</h3>
+      <div class="quad">
+        <div class="hd"></div>
+        <div class="hd">Se añade algo (+)</div>
+        <div class="hd">Se retira algo (−)</div>
+        <div class="rh">Aumenta la conducta</div>
+        <div><b>Reforzamiento positivo.</b> Elogio, punto, bolita de comida.</div>
+        <div><b>Reforzamiento negativo.</b> Se exonera del examen final, cesa el ruido.</div>
+        <div class="rh">Disminuye la conducta</div>
+        <div><b>Castigo positivo.</b> Una sanción, una descarga.</div>
+        <div><b>Castigo negativo.</b> Perder el recreo, retirar lo ganado.</div>
+      </div>
+      <p class="muted" style="margin:0;font-size:0.88rem">«Negativo» no significa malo: significa que algo se retira. Skinner sostuvo que es más eficaz reforzar la conducta deseada que castigar la indeseada.</p>
+    </div>
+  </section>
+
+  <!-- ══ SÍNTESIS ══ -->
+  <section id="exp3" role="tabpanel" hidden>
+    <h2>Qué comprobaste</h2>
+    <p class="muted">Los dos experimentos producen aprendizaje, pero no del mismo tipo ni por el mismo mecanismo.</p>
+    <div class="vs">
+      <div class="c1">
+        <div class="heads" id="headDog"></div>
+        <h4>Condicionamiento clásico</h4>
+        <p class="sub">Pávlov · E → R</p>
+        <ul>
+          <li>La conducta es <strong>respondiente</strong>: involuntaria y refleja.</li>
+          <li>El estímulo <strong>antecede</strong> a la respuesta: se aprende antes de responder.</li>
+          <li>Se asocian <strong>dos estímulos</strong> entre sí.</li>
+          <li>El sujeto es receptivo: el ambiente actúa sobre él.</li>
+          <li>Tú no podías hacer salivar al perro a voluntad: solo emparejar estímulos y esperar.</li>
+        </ul>
+      </div>
+      <div class="c2">
+        <div class="heads" id="headRat"></div>
+        <h4>Condicionamiento operante</h4>
+        <p class="sub">Skinner · R → C</p>
+        <ul>
+          <li>La conducta es <strong>operante</strong>: voluntaria y emitida por el organismo.</li>
+          <li>La consecuencia <strong>sigue</strong> a la respuesta: se aprende después de responder.</li>
+          <li>Se asocian <strong>conducta y efecto</strong>.</li>
+          <li>El sujeto opera: actúa sobre el ambiente.</li>
+          <li>Aquí la rata actuaba primero y tú solo decidías qué pasaba después.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 style="margin-top:2rem">Y en el aula</h2>
+    <div class="vs">
+      <div class="c1">
+        <h4>Lo que se condiciona sin querer</h4>
+        <p class="sub">clásico</p>
+        <p style="margin:0;font-size:0.93rem">Un alumno humillado al pasar al tablero asocia la clase con la amenaza. La ansiedad ante la evaluación, el bloqueo con las matemáticas o el rechazo a una asignatura no son fallas de aptitud: son respuestas condicionadas, y se apagan como se apagó la salivación del perro.</p>
+      </div>
+      <div class="c2">
+        <h4>Lo que se programa a propósito</h4>
+        <p class="sub">operante</p>
+        <p style="margin:0;font-size:0.93rem">En 1954 Skinner denunció que el aula reforzaba tarde, poco y mal. De ahí salieron los pasos pequeños, la respuesta activa y el refuerzo inmediato: la instrucción programada, antecedente directo del e-learning y de la evaluación por dominio.</p>
+      </div>
+    </div>
+
+    <p style="margin-top:1.75rem" class="muted">Pregunta para cerrar: cuando calificas con una nota, ¿estás reforzando la conducta de aprender o la de entregar a tiempo?</p>
+  </section>
+
+  <footer>Basado en la presentación <em>Psicología Conductista</em> de la sexta clase. Las curvas reproducen la forma de las de adquisición y extinción descritas por Pávlov y Skinner; los valores son ilustrativos.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var NS = "http://www.w3.org/2000/svg";
+
+  /* ══════════ pixel art ══════════
+     Rectángulos [x, y, ancho, alto, color] sobre grilla, pintados en orden. */
+  var P = {
+    pelo: "#c49a6c", peloOsc: "#9a7245", hocico: "#6f5133",
+    oscuro: "#241a12", acero: "#aab0b8", aceroOsc: "#767d87",
+    saliva: "#7fb8d9", cuero: "#5a4a3a",
+    rata: "#9aa0a8", rataOsc: "#6f757d", cola: "#c08f8f",
+    caja: "#4e555e", comida: "#d9a441", rejilla: "#3c424a"
+  };
+
+  function spriteDef(def, px, label) {
+    var s = '<svg class="sprite" viewBox="0 0 ' + def.w + ' ' + def.h +
+            '" width="' + (def.w * px) + '" height="' + (def.h * px) +
+            '" role="img" aria-label="' + label + '">';
+    for (var i = 0; i < def.parts.length; i++) {
+      var p = def.parts[i];
+      s += '<rect x="' + p[0] + '" y="' + p[1] + '" width="' + p[2] + '" height="' + p[3] + '" fill="' + p[4] + '"/>';
+    }
+    return s + '</svg>';
+  }
+
+  /* perro de perfil mirando a la izquierda, con arnés y cánula salival */
+  function dog(level) {
+    var parts = [
+      [5,2,2,3,P.peloOsc], [8,2,2,3,P.peloOsc],        /* orejas */
+      [3,4,9,7,P.pelo],                                 /* cabeza */
+      [1,7,3,3,P.hocico], [0,8,1,2,P.hocico],           /* hocico */
+      [5,6,1,1,P.oscuro],                               /* ojo */
+      [1,8,1,1,P.oscuro],                               /* nariz */
+      [11,5,12,8,P.pelo], [11,5,12,1,P.peloOsc],        /* cuerpo */
+      [13,13,2,5,P.pelo], [16,13,2,5,P.peloOsc],        /* patas delanteras */
+      [19,13,2,5,P.pelo], [22,13,2,5,P.peloOsc],        /* patas traseras */
+      [23,3,3,2,P.pelo], [25,1,1,2,P.pelo],             /* cola */
+      [11,5,1,8,P.cuero], [12,8,10,1,P.cuero],          /* arnés */
+      [2,11,1,4,P.acero], [1,15,3,3,P.aceroOsc], [2,16,1,1,P.acero]  /* cánula y frasco */
+    ];
+    if (level > 35) parts.push([1,11,1,1,P.saliva]);
+    if (level > 55) parts.push([1,12,1,2,P.saliva], [2,15,1,1,P.saliva]);
+    if (level > 75) parts.push([0,12,1,2,P.saliva], [2,14,1,1,P.saliva]);
+    return { w: 26, h: 20, parts: parts };
+  }
+
+  /* rata dentro de la caja de Skinner, junto a la palanca y el comedero */
+  function rat(level) {
+    var parts = [
+      /* caja */
+      [0,0,26,1,P.caja], [0,19,26,1,P.caja],
+      [0,0,1,20,P.caja], [25,0,1,20,P.caja],
+      [1,18,24,1,P.rejilla],
+      /* palanca y comedero a la izquierda */
+      [1,9,1,4,P.caja], [2,9,4,1,P.acero],
+      [1,14,4,3,P.caja], [2,15,2,1,P.comida],
+      /* rata */
+      [12,7,9,6,P.rata], [12,7,9,1,P.rataOsc],
+      [9,8,4,4,P.rata],                                 /* cabeza */
+      [12,8,1,4,P.rataOsc],                             /* separación con el cuerpo */
+      [10,6,2,2,P.rataOsc], [10,7,1,1,P.cola],          /* oreja */
+      [9,9,1,1,P.oscuro],                               /* ojo */
+      [8,10,1,2,P.rata], [8,11,1,1,P.cola],             /* hocico */
+      [13,13,2,4,P.rataOsc], [18,13,2,4,P.rataOsc],     /* patas */
+      [21,9,4,1,P.cola], [24,9,2,3,P.cola]              /* cola */
+    ];
+    if (level > 45) {
+      /* la pata delantera se estira hacia la palanca */
+      parts.push([7,10,2,1,P.rata], [6,10,1,1,P.cola]);
+    }
+    if (level > 70) parts.push([2,15,3,1,P.comida], [3,16,2,1,P.comida]);
+    return { w: 26, h: 20, parts: parts };
+  }
+
+  /* ══════════ gráfico ══════════ */
+  function plot(host, series, opts) {
+    host.innerHTML = "";
+    if (!series.length) {
+      var e = document.createElement("div");
+      e.className = "empty"; e.textContent = opts.emptyText;
+      host.appendChild(e); return;
+    }
+    var W = 420, H = 190, padL = 30, padR = 10, padT = 12, padB = 26;
+    var iw = W - padL - padR, ih = H - padT - padB;
+    var n = series.length;
+    var bw = Math.max(3, Math.min(26, iw / n - 3));
+    var step = iw / n;
+
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("class", "plot");
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", opts.aria);
+
+    [0, 50, 100].forEach(function (v) {
+      var y = padT + ih - (v / 100) * ih;
+      var g = document.createElementNS(NS, "line");
+      g.setAttribute("class", v === 0 ? "axis" : "grid");
+      g.setAttribute("x1", padL); g.setAttribute("x2", W - padR);
+      g.setAttribute("y1", y); g.setAttribute("y2", y);
+      svg.appendChild(g);
+      var t = document.createElementNS(NS, "text");
+      t.setAttribute("x", padL - 5); t.setAttribute("y", y + 3);
+      t.setAttribute("text-anchor", "end");
+      t.textContent = opts.fmt ? opts.fmt(v) : v;
+      svg.appendChild(t);
+    });
+
+    var ax = document.createElementNS(NS, "line");
+    ax.setAttribute("class", "axis");
+    ax.setAttribute("x1", padL); ax.setAttribute("x2", padL);
+    ax.setAttribute("y1", padT); ax.setAttribute("y2", padT + ih);
+    svg.appendChild(ax);
+
+    series.forEach(function (d, k) {
+      var h = Math.max(1.5, (d.v / 100) * ih);
+      var x = padL + k * step + (step - bw) / 2;
+      var rect = document.createElementNS(NS, "rect");
+      rect.setAttribute("x", x); rect.setAttribute("y", padT + ih - h);
+      rect.setAttribute("width", bw); rect.setAttribute("height", h);
+      rect.setAttribute("fill", d.c); rect.setAttribute("rx", "1");
+      var ttl = document.createElementNS(NS, "title");
+      ttl.textContent = "Ensayo " + (k + 1) + ": " + d.label;
+      rect.appendChild(ttl);
+      svg.appendChild(rect);
+    });
+
+    var xl = document.createElementNS(NS, "text");
+    xl.setAttribute("class", "lbl");
+    xl.setAttribute("x", padL + iw / 2); xl.setAttribute("y", H - 6);
+    xl.setAttribute("text-anchor", "middle");
+    xl.textContent = "ENSAYOS (" + n + ")";
+    svg.appendChild(xl);
+    host.appendChild(svg);
+  }
+
+  function say(host, tagText, tagColor, html, formula) {
+    host.innerHTML = "<span class='tag' style='color:" + tagColor + "'>" + tagText + "</span>" +
+      "<p>" + html + "</p>" + (formula ? "<span class='formula'>" + formula + "</span>" : "");
+  }
+
+  var cs = getComputedStyle(document.documentElement);
+  function tok(n, f) { return (cs.getPropertyValue(n) || "").trim() || f; }
+  var C_CLAS = tok("--clasico", "#5b9bc4"), C_OPER = tok("--operante", "#d9774b"),
+      C_AMB = tok("--amber", "#d9a441"), C_MUT = tok("--muted", "#8d9bab");
+
+  /* ══════════ misiones ══════════ */
+  var MISSIONS = {
+    1: [
+      { id: "neutro",   t: "Comprueba que la campana no significa nada todavía", tip: "Tócala antes de emparejarla con el alimento" },
+      { id: "innato",   t: "Registra el reflejo innato", tip: "Presenta el alimento solo" },
+      { id: "condic",   t: "Condiciona la respuesta hasta el 70 %", tip: "Empareja campana y alimento varias veces" },
+      { id: "exting",   t: "Apaga la respuesta por debajo del 25 %", tip: "Toca la campana sin dar alimento" },
+      { id: "recup",    t: "Provoca una recuperación espontánea", tip: "Deja pasar un día después de haber extinguido" }
+    ],
+    2: [
+      { id: "subir",    t: "Lleva la tasa de respuesta por encima de 60/min", tip: "Refuerza la conducta varias veces seguidas" },
+      { id: "dosref",   t: "Usa los dos tipos de reforzamiento", tip: "Añade algo agradable y retira algo molesto" },
+      { id: "castigo",  t: "Suprime la conducta con castigo, de 60 a menos de 20", tip: "Primero súbela, después castígala" },
+      { id: "exting2",  t: "Extingue una conducta sin castigarla", tip: "Súbela por encima de 40 y luego no hagas nada, varias veces" }
+    ]
+  };
+  var done = {};
+
+  function renderMissions(k) {
+    var ol = document.getElementById("miss" + k);
+    ol.innerHTML = "";
+    MISSIONS[k].forEach(function (m) {
+      var li = document.createElement("li");
+      var clases = done[m.id] ? ["done"] : [];
+      var tip = m.tip;
+      /* La campana solo es neutra antes del primer emparejamiento. Si el
+         estudiante ya emparejó, esta misión queda fuera de alcance hasta que
+         reinicie, así que hay que decírselo en vez de dejarlo atascado. */
+      if (m.id === "neutro" && !done.neutro && pair > 0) {
+        tip = "El perro ya asoció la campana con el alimento, así que ya no la oye como algo neutro. Pulsa «Reiniciar el experimento» aquí al lado y tócala sola: no pierdes ninguna misión cumplida.";
+        clases.push("aviso");
+      }
+      if (clases.length) li.className = clases.join(" ");
+      li.innerHTML = "<span class='box' aria-hidden='true'>✓</span>" +
+        "<span class='txt'>" + m.t + "<span class='tip'>" + tip + "</span></span>";
+      ol.appendChild(li);
+    });
+    if (k === 1) {
+      var btnR1 = document.getElementById("r1");
+      if (btnR1) { btnR1.className = "reset" + ((!done.neutro && pair > 0) ? " urge" : ""); }
+    }
+    var all = MISSIONS[k].every(function (m) { return done[m.id]; });
+    var otro = (k === 1) ? 2 : 1;
+    var faltaOtro = !MISSIONS[otro].every(function (m) { return done[m.id]; });
+    var nombreOtro = (otro === 1) ? "1 · Pávlov" : "2 · Skinner";
+    document.getElementById("stamp" + k).innerHTML = all
+      ? "<div class='stamp'>Experimento " + k + " completado" +
+        (faltaOtro ? " · ahora pasa a la pestaña <strong>" + nombreOtro + "</strong>, donde están las misiones que faltan" : "") +
+        "</div>" : "";
+    document.getElementById("tick" + k).textContent = all ? "✓" : "";
+    updateGlobal();
+  }
+
+  function updateGlobal() {
+    var total = MISSIONS[1].length + MISSIONS[2].length;
+    var n = 0;
+    [1, 2].forEach(function (k) {
+      MISSIONS[k].forEach(function (m) { if (done[m.id]) n++; });
+    });
+    document.getElementById("gCount").textContent = n + " / " + total;
+    document.getElementById("gTrack").style.width = (n / total * 100) + "%";
+    var box = document.getElementById("victory");
+    if (n === total && !box.innerHTML) {
+      box.innerHTML = "<div class='victory'><span class='seal'>Laboratorio completado</span>" +
+        "<p>Reprodujiste la adquisición, la extinción y la recuperación espontánea de un reflejo, y después modelaste una conducta con las cuatro consecuencias. Pasa a la tercera pestaña para ver en qué se diferencian los dos aprendizajes que acabas de producir.</p></div>";
+    } else if (n < total) {
+      box.innerHTML = "";
+    }
+  }
+
+  function complete(id) {
+    if (done[id]) return;
+    done[id] = true;
+    renderMissions(MISSIONS[1].some(function (m) { return m.id === id; }) ? 1 : 2);
+  }
+
+  /* ══════════ EXPERIMENTO 1 · Pávlov ══════════ */
+  var pair = 0, sal = 0, peak = 0, t1 = [];
+  var salVal = document.getElementById("salVal"), salBar = document.getElementById("salBar"),
+      read1 = document.getElementById("read1"), chart1 = document.getElementById("chart1"),
+      dogBox = document.getElementById("dogBox"), aRest = document.getElementById("aRest");
+
+  function draw1() {
+    salVal.textContent = Math.round(sal) + "%";
+    salBar.style.width = sal + "%";
+    dogBox.innerHTML = spriteDef(dog(sal), 5, "Perro del experimento, con la cánula salival conectada");
+    plot(chart1, t1, {
+      emptyText: "Sin ensayos registrados todavía",
+      aria: "Nivel de salivación ante la campana en cada ensayo",
+      fmt: function (v) { return v + "%"; }
+    });
+  }
+
+  document.getElementById("aBell").addEventListener("click", function () {
+    if (pair === 0) {
+      t1.push({ v: 2, c: C_MUT, label: "campana sola, sin respuesta" });
+      say(read1, "estímulo neutro", C_MUT,
+        "La campana suena y el perro no saliva. Por ahora es un <strong>estímulo neutro</strong>: no significa nada para él.",
+        "EN → (sin respuesta)");
+      complete("neutro");
+    } else {
+      t1.push({ v: sal, c: C_CLAS, label: "campana sola, salivación " + Math.round(sal) + "%" });
+      var before = Math.round(sal);
+      sal = sal * 0.72;
+      aRest.disabled = false;
+      say(read1, "respuesta condicionada", C_CLAS,
+        "La campana sola provoca salivación del <strong>" + before + "%</strong>. Pero acabas de presentarla sin alimento, así que la respuesta se debilita: esto es la <strong>extinción</strong>. Repítelo y verás caer la curva.",
+        "EC → RC    (sin EI: la asociación se debilita)");
+      if (sal < 25 && peak >= 70) complete("exting");
+    }
+    draw1();
+  });
+
+  document.getElementById("aFood").addEventListener("click", function () {
+    t1.push({ v: 100, c: C_AMB, label: "alimento, salivación 100%" });
+    say(read1, "reflejo innato", C_AMB,
+      "El alimento provoca salivación completa sin ningún aprendizaje previo. Es la relación natural con la que empieza todo: <strong>estímulo incondicionado</strong> y <strong>respuesta incondicionada</strong>.",
+      "EI → RI");
+    complete("innato");
+    draw1();
+  });
+
+  document.getElementById("aPair").addEventListener("click", function () {
+    var primeroEmparejado = (pair === 0);
+    pair++;
+    sal = 95 * (1 - Math.exp(-0.42 * pair));
+    if (sal > peak) peak = sal;
+    t1.push({ v: 100, c: C_AMB, label: "emparejamiento " + pair });
+    var pct = Math.round(sal);
+    say(read1, "emparejamiento " + pair, C_AMB,
+      pair < 3
+        ? "Campana y alimento juntos por " + (pair === 1 ? "primera" : pair === 2 ? "segunda" : "tercera") + " vez. La asociación se está formando: si tocaras ahora solo la campana, el perro salivaría un <strong>" + pct + "%</strong>."
+        : "Van " + pair + " emparejamientos. La campana ya es un <strong>estímulo condicionado</strong>: por sí sola provocaría un <strong>" + pct + "%</strong> de salivación. Prueba a tocarla sola.",
+      "EN + EI → RI    (tras repetirlo: EN se vuelve EC)");
+    if (sal >= 70) complete("condic");
+    if (primeroEmparejado) renderMissions(1);   /* la pista de «neutro» cambia */
+    draw1();
+  });
+
+  aRest.addEventListener("click", function () {
+    var before = Math.round(sal);
+    sal = sal + (peak - sal) * 0.38;
+    t1.push({ v: sal, c: C_CLAS, label: "tras el descanso, salivación " + Math.round(sal) + "%" });
+    say(read1, "recuperación espontánea", C_CLAS,
+      "Pasó un día sin ensayos y la respuesta subió del <strong>" + before + "%</strong> al <strong>" + Math.round(sal) +
+      "%</strong> sin que emparejaras nada. El aprendizaje no se había borrado: estaba <strong>inhibido</strong>. Por eso Pávlov distinguió extinción de olvido.",
+      "descanso → reaparece la RC");
+    aRest.disabled = true;
+    if (done.exting) complete("recup");
+    draw1();
+  });
+
+  document.getElementById("r1").addEventListener("click", function () {
+    pair = 0; sal = 0; peak = 0; t1 = [];
+    aRest.disabled = true;
+    renderMissions(1);   /* vuelve a estar al alcance la misión de la campana neutra */
+    say(read1, "en espera", C_MUT, "Experimento reiniciado. El perro no ha oído nunca la campana.");
+    draw1();
+  });
+
+  /* ══════════ EXPERIMENTO 2 · Skinner ══════════ */
+  var rate = 8, t2 = [], usedRP = false, usedRN = false, maxRate = 8;
+  var rateVal = document.getElementById("rateVal"), rateBar = document.getElementById("rateBar"),
+      read2 = document.getElementById("read2"), chart2 = document.getElementById("chart2"),
+      ratBox = document.getElementById("ratBox");
+
+  function draw2() {
+    rateVal.textContent = Math.round(rate) + "/min";
+    rateBar.style.width = rate + "%";
+    ratBox.innerHTML = spriteDef(rat(rate), 5, "Rata en la caja de condicionamiento, junto a la palanca");
+    plot(chart2, t2, {
+      emptyText: "Sin ensayos registrados todavía",
+      aria: "Tasa de presión de la palanca en cada ensayo",
+      fmt: function (v) { return v; }
+    });
+  }
+
+  function consequence(kind) {
+    var before = Math.round(rate), txt, tag, color, formula;
+    if (kind === "RP") {
+      rate = rate + (100 - rate) * 0.30; usedRP = true;
+      tag = "reforzamiento positivo"; color = C_OPER;
+      txt = "Añadiste algo agradable después de la conducta, y la tasa subió de <strong>" + before + "</strong> a <strong>" + Math.round(rate) + " presiones por minuto</strong>. La rata presiona más porque presionar le resultó útil.";
+      formula = "R → C agradable    (la conducta aumenta)";
+    } else if (kind === "RN") {
+      rate = rate + (100 - rate) * 0.24; usedRN = true;
+      tag = "reforzamiento negativo"; color = C_OPER;
+      txt = "Retiraste algo molesto, y la tasa también subió: de <strong>" + before + "</strong> a <strong>" + Math.round(rate) + "</strong>. Fíjate en que «negativo» no quiere decir castigo: la conducta aumenta igual, porque quitar lo aversivo también refuerza.";
+      formula = "R → cesa lo aversivo    (la conducta aumenta)";
+    } else if (kind === "CP") {
+      rate = rate * 0.62;
+      tag = "castigo positivo"; color = C_AMB;
+      txt = "Añadiste algo aversivo y la tasa cayó de <strong>" + before + "</strong> a <strong>" + Math.round(rate) + "</strong>. Funciona, pero Skinner advirtió que el castigo suprime la conducta sin enseñar cuál sería la correcta.";
+      formula = "R → C aversiva    (la conducta disminuye)";
+    } else if (kind === "CN") {
+      rate = rate * 0.70;
+      tag = "castigo negativo"; color = C_AMB;
+      txt = "Retiraste algo valorado y la tasa bajó de <strong>" + before + "</strong> a <strong>" + Math.round(rate) + "</strong>. Es el equivalente de quedarse sin recreo: se quita algo que importaba.";
+      formula = "R → se retira lo valorado    (la conducta disminuye)";
+    } else {
+      rate = rate * 0.82;
+      tag = "extinción"; color = C_MUT;
+      txt = "Sin ninguna consecuencia, la conducta decae por sí sola: de <strong>" + before + "</strong> a <strong>" + Math.round(rate) + "</strong>. Dejar de reforzar basta para que una conducta desaparezca.";
+      formula = "R → (nada)    (la conducta se extingue)";
+    }
+    if (rate > 100) rate = 100;
+    if (rate < 1) rate = 1;
+    if (rate > maxRate) maxRate = rate;
+
+    t2.push({ v: rate, c: color, label: tag + ", " + Math.round(rate) + "/min" });
+    say(read2, tag, color, txt, formula);
+
+    if (rate > 60) complete("subir");
+    if (usedRP && usedRN) complete("dosref");
+    if ((kind === "CP" || kind === "CN") && maxRate >= 60 && rate < 20) complete("castigo");
+    if (kind === "EX" && maxRate >= 40 && rate < 15) complete("exting2");
+
+    draw2();
+  }
+
+  document.getElementById("oRP").addEventListener("click", function () { consequence("RP"); });
+  document.getElementById("oRN").addEventListener("click", function () { consequence("RN"); });
+  document.getElementById("oCP").addEventListener("click", function () { consequence("CP"); });
+  document.getElementById("oCN").addEventListener("click", function () { consequence("CN"); });
+  document.getElementById("oEX").addEventListener("click", function () { consequence("EX"); });
+
+  document.getElementById("r2").addEventListener("click", function () {
+    rate = 8; t2 = []; usedRP = false; usedRN = false; maxRate = 8;
+    say(read2, "en espera", C_MUT, "Experimento reiniciado. La rata vuelve a presionar la palanca ocho veces por minuto, por azar.");
+    draw2();
+  });
+
+  /* ══════════ pestañas ══════════ */
+  var tabs = document.querySelectorAll("button.tab");
+  var panes = { "1": document.getElementById("exp1"), "2": document.getElementById("exp2"), "3": document.getElementById("exp3") };
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].addEventListener("click", function (ev) {
+      var k = ev.currentTarget.dataset.k;
+      for (var j = 0; j < tabs.length; j++) {
+        tabs[j].setAttribute("aria-selected", tabs[j].dataset.k === k ? "true" : "false");
+      }
+      Object.keys(panes).forEach(function (key) { panes[key].hidden = (key !== k); });
+    });
+  }
+
+  document.getElementById("headDog").innerHTML = spriteDef(dog(80), 3, "");
+  document.getElementById("headRat").innerHTML = spriteDef(rat(80), 3, "");
+
+  renderMissions(1);
+  renderMissions(2);
+  draw1();
+  draw2();
+})();
+</script>
+</body>
+</html>

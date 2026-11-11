@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espartano o Ateniense</title>
+<script>
+/* Puente SCORM 1.2 con Moodle. Sin LMS alrededor, no interfiere en nada. */
+(function () {
+  "use strict";
+  var api = null, iniciada = false, completada = false;
+
+  function buscar(w) {
+    var n = 0;
+    while (w && n++ < 12) {
+      /* Leer una propiedad de un marco de otro origen lanza excepción en vez de
+         devolver vacío, así que cada intento va protegido y la búsqueda sigue. */
+      try { if (w.API) { return w.API; } } catch (e) {}
+      try { w = (w.parent && w.parent !== w) ? w.parent : null; } catch (e) { w = null; }
+    }
+    return null;
+  }
+  function obtener() {
+    if (api) { return api; }
+    api = buscar(window);
+    if (!api) { try { if (window.opener) { api = buscar(window.opener); } } catch (e) {} }
+    return api;
+  }
+  function iniciar() {
+    if (iniciada) { return true; }
+    var a = obtener();
+    if (!a) { return false; }
+    try {
+      a.LMSInitialize("");
+      iniciada = true;
+      var est = a.LMSGetValue("cmi.core.lesson_status");
+      if (!est || est === "not attempted" || est === "") {
+        a.LMSSetValue("cmi.core.lesson_status", "incomplete");
+      }
+      a.LMSCommit("");
+      return true;
+    } catch (e) { return false; }
+  }
+
+  window.scormCompletar = function () {
+    if (completada) { return; }
+    if (!iniciar()) { return; }
+    try {
+      api.LMSSetValue("cmi.core.lesson_status", "completed");
+      api.LMSCommit("");
+      completada = true;
+    } catch (e) {}
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", iniciar);
+  } else { iniciar(); }
+
+  window.addEventListener("pagehide", function () {
+    if (!iniciada || !api) { return; }
+    try { api.LMSCommit(""); api.LMSFinish(""); } catch (e) {}
+  });
+})();
+</script>
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Layout: una sola columna centrada; el simulador avanza por pantallas sucesivas.
+   Mundo visual: cerámica ática — barniz negro, arcilla roja, ocre.
+   Los dos personajes son pixel art de 22x28, dibujados por rectángulos sobre grilla.
+   Esparta toma el rojo del escudo; Atenas, el verde del olivo de Atenea. */
+:root {
+  --bg: #16130f;
+  --surface: #211c16;
+  --surface-2: #2b241c;
+  --fg: #f2e8d8;
+  --muted: #a3917a;
+  --line: #3a3027;
+  --clay: #c2512e;
+  --ochre: #d8a04d;
+  --esparta: #c2512e;
+  --atenas: #8a9a4b;
+  --font-display: "Cinzel", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-body: "Spectral", Georgia, "Times New Roman", serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f4ede0; --surface: #ebe1d0; --surface-2: #e0d4bf;
+    --fg: #1d1811; --muted: #6b5c48; --line: #cdbda4;
+    --clay: #a83e1e; --ochre: #9a6b1c;
+    --esparta: #a83e1e; --atenas: #5e6b2c;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f4ede0; --surface: #ebe1d0; --surface-2: #e0d4bf;
+  --fg: #1d1811; --muted: #6b5c48; --line: #cdbda4;
+  --clay: #a83e1e; --ochre: #9a6b1c;
+  --esparta: #a83e1e; --atenas: #5e6b2c;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+.wrap { max-width: 44rem; margin: 0 auto; padding-block: 2rem 3rem; }
+
+.eyebrow {
+  font-family: var(--font-display); font-size: 0.75rem; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ochre); margin: 0 0 0.75rem;
+}
+h1 {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1.9rem, 6vw, 3rem); line-height: 1.1;
+  text-wrap: balance; margin: 0 0 1rem;
+}
+h2 {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1.3rem, 4vw, 1.75rem); line-height: 1.2;
+  text-wrap: balance; margin: 0 0 0.75rem;
+}
+p { margin: 0 0 1rem; }
+.lede { font-size: 1.1875rem; }
+.muted { color: var(--muted); }
+
+/* ── sprites ── */
+svg.sprite { display: block; image-rendering: pixelated; shape-rendering: crispEdges; height: auto; }
+.duel {
+  display: flex; align-items: flex-end; justify-content: center;
+  gap: clamp(1rem, 6vw, 3rem); margin: 1.5rem 0 1.75rem;
+  padding: 1.25rem 0.5rem 1rem; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 3px;
+}
+.fighter { text-align: center; }
+.fighter .cap {
+  font-family: var(--font-display); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; margin-top: 0.6rem;
+}
+.fighter.sp .cap { color: var(--esparta); }
+.fighter.at .cap { color: var(--atenas); }
+.versus {
+  font-family: var(--font-display); font-size: 1.1rem; color: var(--muted);
+  align-self: center; padding-bottom: 1.5rem;
+}
+
+/* marcador con los dos personajes durante el quiz */
+.tug {
+  display: flex; align-items: center; gap: 0.75rem;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 3px; padding: 0.6rem 0.85rem; margin-bottom: 1.25rem;
+}
+.tug .mini { flex: 0 0 auto; opacity: 0.45; transition: opacity 0.3s; }
+.tug .mini.lead { opacity: 1; }
+.tug .track { flex: 1; min-width: 0; }
+.tug .labels {
+  display: flex; justify-content: space-between;
+  font-family: var(--font-display); font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.3rem;
+}
+.tug .labels .l { color: var(--esparta); }
+.tug .labels .r { color: var(--atenas); }
+.tug .bar { height: 7px; background: var(--line); border-radius: 4px; overflow: hidden; display: flex; }
+.tug .bar i { display: block; height: 100%; transition: width 0.4s ease-out; }
+.tug .bar i.s { background: var(--esparta); }
+.tug .bar i.a { background: var(--atenas); }
+
+/* ── progreso ── */
+.meter { display: flex; gap: 0.3rem; margin: 0 0 1.5rem; }
+.meter i { flex: 1; height: 3px; border-radius: 2px; background: var(--line); transition: background 0.3s; }
+.meter i.done { background: var(--ochre); }
+.meter i.now { background: var(--fg); }
+
+/* ── preguntas ── */
+.qnum {
+  font-family: var(--font-display); font-size: 0.75rem;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 0.5rem;
+}
+.scene {
+  font-style: italic; color: var(--muted);
+  border-left: 2px solid var(--line); padding-left: 1rem; margin: 0 0 1.5rem;
+}
+.opts { display: grid; gap: 0.75rem; }
+button.opt {
+  display: block; width: 100%; text-align: left;
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.5;
+  color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 3px;
+  padding: 1rem 1.15rem; cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, transform 0.18s;
+}
+button.opt:hover { border-color: var(--ochre); background: var(--surface-2); }
+button.opt:focus-visible { outline: 2px solid var(--ochre); outline-offset: 2px; }
+button.opt:active { transform: translateY(1px); }
+button.opt[disabled] { cursor: default; opacity: 0.55; }
+button.opt.chosen { border-color: var(--ochre); background: var(--surface-2); opacity: 1; }
+
+/* ── retroalimentación ── */
+.feedback {
+  margin-top: 1.25rem; padding: 1rem 1.15rem;
+  background: var(--surface); border-radius: 3px;
+  border-left: 3px solid var(--ochre);
+  display: flex; gap: 1rem; align-items: flex-start;
+}
+.feedback .who { flex: 0 0 auto; }
+.feedback .body { min-width: 0; }
+.feedback .tag {
+  font-family: var(--font-display); font-size: 0.7rem;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  display: block; margin-bottom: 0.4rem;
+}
+.tag.sp { color: var(--esparta); }
+.tag.at { color: var(--atenas); }
+.feedback p { margin: 0; }
+.feedback .term { font-style: italic; }
+
+.row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+button.go {
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 0.8125rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--bg); background: var(--ochre);
+  border: 0; border-radius: 3px; padding: 0.85rem 1.6rem; cursor: pointer;
+  transition: opacity 0.18s;
+}
+button.go:hover { opacity: 0.85; }
+button.go:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+button.ghost {
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 0.8125rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--fg); background: transparent;
+  border: 1px solid var(--line); border-radius: 3px;
+  padding: 0.85rem 1.6rem; cursor: pointer;
+}
+button.ghost:hover { border-color: var(--ochre); }
+button.ghost:focus-visible { outline: 2px solid var(--ochre); outline-offset: 2px; }
+
+/* ── resultado ── */
+.verdict {
+  text-align: center; padding: 1.75rem 1rem 1.5rem;
+  border: 1px solid var(--line); border-radius: 3px;
+  background: var(--surface); margin-bottom: 2rem;
+}
+.verdict .hero { display: flex; justify-content: center; margin-bottom: 0.75rem; }
+.verdict .city {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(2rem, 9vw, 3.4rem); line-height: 1; margin: 0.35rem 0 0.75rem;
+}
+.city.sp { color: var(--esparta); }
+.city.at { color: var(--atenas); }
+.city.mix { color: var(--ochre); }
+.tally {
+  display: flex; justify-content: center; gap: 2rem;
+  font-variant-numeric: tabular-nums; margin-top: 1.25rem;
+  padding-top: 1.25rem; border-top: 1px solid var(--line);
+}
+.tally div { text-align: center; }
+.tally b { display: block; font-family: var(--font-display); font-size: 1.6rem; line-height: 1; }
+.tally span {
+  font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  font-family: var(--font-display); color: var(--muted);
+}
+
+/* ── comparativa ── */
+.cmp { border-top: 1px solid var(--line); margin-top: 2.5rem; padding-top: 2rem; }
+.cmp-grid { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+.cmp-grid > div { background: var(--surface); padding: 0.9rem 1rem; min-width: 0; }
+.cmp-grid .hd {
+  font-family: var(--font-display); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; background: var(--surface-2);
+}
+.cmp-grid .hd.sp { color: var(--esparta); }
+.cmp-grid .hd.at { color: var(--atenas); }
+.cmp-grid .hd .ico { display: block; margin-bottom: 0.4rem; }
+.cmp-grid .asp { font-size: 0.82rem; color: var(--muted); font-family: var(--font-display); letter-spacing: 0.04em; }
+@media (min-width: 40rem) { .cmp-grid { grid-template-columns: 7.5rem 1fr 1fr; } }
+@media (max-width: 39.99rem) { .cmp-grid > .asp { background: var(--surface-2); font-weight: 600; } }
+
+footer {
+  margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+  font-size: 0.85rem; color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body><div id="cinta-sitio">
+  <a href="../../unidades/unidad-1.html"><span aria-hidden="true">&#8592;</span>&nbsp;Unidad 1</a>
+  <span class="nombre">Espartano o ateniense</span>
+  <a class="casa" href="../../index.html">Veinticinco siglos de pedagogía</a>
+</div>
+<style>
+#cinta-sitio {
+  --tira-hondo: #A83E18; --tira-acento: #F0C169;
+  font: 600 13px/1.2 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 10px max(14px, env(safe-area-inset-left, 0px));
+  background: var(--tira-hondo); color: #ffffffa8;
+  border-bottom: 2px solid var(--tira-acento);
+}
+#cinta-sitio a { color: var(--tira-acento); text-decoration: none; white-space: nowrap;
+  transition: opacity .18s ease; }
+#cinta-sitio a:hover { opacity: .75; text-decoration: underline; }
+#cinta-sitio .nombre { margin-right: auto; color: #ffffff9c; }
+#cinta-sitio .casa { font-weight: 400; color: #ffffff8a; }
+@media (max-width: 560px) { #cinta-sitio .nombre { display: none } }
+@media print { #cinta-sitio { display: none } }
+
+/* ── microinteracciones comunes ────────────────────────────────────── */
+button, [role="button"], .boton, summary {
+  transition: transform .18s ease, background-color .2s ease,
+              border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+button:not([disabled]):hover, [role="button"]:not([aria-disabled="true"]):hover {
+  transform: translateY(-1px);
+}
+button:not([disabled]):active, [role="button"]:active { transform: translateY(0); }
+:focus-visible { outline: 3px solid var(--tira-acento, #f0c169); outline-offset: 2px; }
+
+/* las barras de avance se mueven en vez de saltar */
+div[style*="width"] { transition: width .55s cubic-bezier(.2,.75,.3,1); }
+
+/* ── entrada y aparición ───────────────────────────────────────────── */
+html.realce .surge { opacity: 0; transform: translateY(14px); }
+html.realce .surge.puesto {
+  opacity: 1; transform: none;
+  transition: opacity .55s cubic-bezier(.2,.7,.3,1), transform .55s cubic-bezier(.2,.7,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.realce .surge, html.realce .surge.puesto { opacity: 1; transform: none; transition: none; }
+  button, [role="button"], .boton, summary, div[style*="width"] { transition: none !important; }
+  button:hover, [role="button"]:hover { transform: none; }
+}
+</style>
+<script>
+(function () {
+  // Nada de esto es necesario para jugar: si algo falla, el juego queda como estaba.
+  try {
+    var quieto = matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (quieto) return;
+    var raiz = document.documentElement;
+
+    function arrancar() {
+      // busca el envoltorio que de verdad contiene el juego
+      var caja = document.body, hijos;
+      for (var i = 0; i < 3; i++) {
+        hijos = [].filter.call(caja.children, function (e) {
+          return e.id !== "cinta-sitio" &&
+                 ["SCRIPT", "STYLE", "LINK", "NOSCRIPT", "TEMPLATE"].indexOf(e.tagName) < 0;
+        });
+        if (hijos.length > 1) break;
+        if (hijos.length === 1) caja = hijos[0]; else return;
+      }
+      if (!hijos || hijos.length < 2) return;
+
+      raiz.classList.add("realce");
+      hijos.forEach(function (e) { e.classList.add("surge"); });
+
+      var alto = innerHeight;
+      var tarde = [];
+      hijos.forEach(function (e, i) {
+        if (e.getBoundingClientRect().top < alto * 0.92) {
+          setTimeout(function () { e.classList.add("puesto"); }, 70 + i * 90);
+        } else { tarde.push(e); }
+      });
+
+      if (!tarde.length || !("IntersectionObserver" in window)) {
+        tarde.forEach(function (e) { e.classList.add("puesto"); });
+        return;
+      }
+      var ojo = new IntersectionObserver(function (es) {
+        es.forEach(function (x) {
+          if (!x.isIntersecting) return;
+          x.target.classList.add("puesto");
+          ojo.unobserve(x.target);
+        });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
+      tarde.forEach(function (e) { ojo.observe(e); });
+
+      // red de seguridad: pase lo que pase, a los 4 segundos todo está visible
+      setTimeout(function () {
+        hijos.forEach(function (e) { e.classList.add("puesto"); });
+      }, 4000);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", arrancar);
+    } else { arrancar(); }
+  } catch (e) { /* el juego sigue funcionando igual */ }
+})();
+</script>
+<div class="wrap">
+  <!-- ░░ INICIO ░░ -->
+  <section id="intro">
+    <p class="eyebrow">Historia de la Pedagogía · Clase 1</p>
+    <h1>Fundas una ciudad. ¿Cómo educas a sus hijos?</h1>
+
+    <div class="duel">
+      <div class="fighter sp"><div id="heroSp"></div><div class="cap">Esparta</div></div>
+      <div class="versus">vs</div>
+      <div class="fighter at"><div id="heroAt"></div><div class="cap">Atenas</div></div>
+    </div>
+
+    <p class="lede">Estás en el siglo V a.&nbsp;C. Tu colonia acaba de levantar sus murallas y debes decidir cómo se formarán sus ciudadanos. Tomarás ocho decisiones, las mismas que separaron a Esparta de Atenas.</p>
+    <p class="muted">Cada respuesta te dirá qué hacía realmente cada <em>polis</em>. Al final sabrás a cuál de las dos se parece tu ciudad.</p>
+    <div class="row"><button class="go" id="start" type="button">Empezar</button></div>
+  </section>
+
+  <!-- ░░ QUIZ ░░ -->
+  <section id="quiz" hidden>
+    <div class="tug">
+      <div class="mini" id="miniSp"></div>
+      <div class="track">
+        <div class="labels"><span class="l">Esparta</span><span class="r">Atenas</span></div>
+        <div class="bar"><i class="s" id="barSp"></i><i class="a" id="barAt"></i></div>
+      </div>
+      <div class="mini" id="miniAt"></div>
+    </div>
+
+    <div class="meter" id="meter" aria-hidden="true"></div>
+    <p class="qnum" id="qnum"></p>
+    <h2 id="qtext"></h2>
+    <p class="scene" id="qscene"></p>
+    <div class="opts" id="opts"></div>
+    <div id="fb"></div>
+  </section>
+
+  <!-- ░░ RESULTADO ░░ -->
+  <section id="result" hidden>
+    <div class="verdict">
+      <div class="hero" id="heroBig"></div>
+      <p class="eyebrow" style="margin-bottom:0">Tu ciudad se parece a</p>
+      <p class="city" id="city"></p>
+      <p class="muted" id="verdictText" style="max-width:30rem;margin:0 auto"></p>
+      <div class="tally">
+        <div><b class="city sp" id="spScore" style="font-size:1.6rem"></b><span>Esparta</span></div>
+        <div><b class="city at" id="atScore" style="font-size:1.6rem"></b><span>Atenas</span></div>
+      </div>
+    </div>
+
+    <h2>Lo que hizo cada <em>polis</em></h2>
+    <p class="muted">Las dos ciudades partían del mismo ideal —formar al ciudadano— y llegaron a sistemas opuestos.</p>
+    <div class="cmp">
+      <div class="cmp-grid">
+        <div class="hd"></div>
+        <div class="hd sp"><span class="ico" id="icoSp"></span>Esparta · la Agogé</div>
+        <div class="hd at"><span class="ico" id="icoAt"></span>Atenas · la Paideia</div>
+
+        <div class="asp">Quién educa</div>
+        <div>El Estado, desde los 7 años, en cuarteles comunales (<em>agelai</em>) vigilados por los <em>paidónomos</em>.</div>
+        <div>La familia, que contrata y paga maestros privados.</div>
+
+        <div class="asp">Ideal</div>
+        <div>El soldado-ciudadano: obediencia y resistencia al dolor.</div>
+        <div>La <em>kalokagathía</em>: equilibrio entre cuerpo y alma.</div>
+
+        <div class="asp">Contenidos</div>
+        <div>Endurecimiento físico y danza con fines de maniobra militar. Letras y cálculo, lo mínimo.</div>
+        <div>Tres maestros: <em>gramatistes</em> (letras), <em>kitharistes</em> (música), <em>paidotribes</em> (ejercicio).</div>
+
+        <div class="asp">Las mujeres</div>
+        <div>Preparación gimnástica pública y obligatoria, para engendrar hijos fuertes.</div>
+        <div>Formación doméstica, limitada a la administración del <em>oikos</em>.</div>
+
+        <div class="asp">A los 18</div>
+        <div>Continúa la vida militar; el ciudadano es soldado de por vida.</div>
+        <div>La <em>efebía</em>: dos años de servicio cívico y militar antes de la ciudadanía plena.</div>
+
+        <div class="asp">Resultado</div>
+        <div>Soldados excepcionales, con el pensamiento crítico suprimido.</div>
+        <div>Ciudadanos deliberantes, pero solo los varones libres que podían pagarlo.</div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:2.5rem">Para pensar</h2>
+    <p>Ninguna de las dos educaba a todos: Esparta excluía a los ilotas y Atenas, a esclavos, metecos y mujeres. Cuando hoy decimos que la escuela debe formar «ciudadanos integrales», ¿de cuál de los dos modelos estamos hablando?</p>
+
+    <div class="row"><button class="ghost" id="again" type="button">Volver a empezar</button></div>
+    <footer>Basado en la presentación <em>Paideia Griega</em> de la primera clase. Los términos en cursiva aparecen allí.</footer>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ══════════ pixel art ══════════
+     Cada sprite es una lista de rectángulos [x, y, ancho, alto, color] sobre
+     una grilla de 22x28. Se pintan en orden, así que las capas posteriores tapan. */
+
+  var PAL = {
+    bronce:  "#c08a3e", bronceOsc: "#8a5f28", bronceClr: "#d9a85c",
+    rojo:    "#b5342a", rojoOsc:   "#8a2219",
+    piel:    "#d9a877", pielOsc:   "#b5854f",
+    oscuro:  "#241a12",
+    madera:  "#7a5a35", acero:     "#c9ccd1",
+    crema:   "#e8dcc0", cremaOsc:  "#c4b492",
+    olivo:   "#7d8c4a", olivoOsc:  "#566128",
+    pelo:    "#5a4433"
+  };
+
+  var HOPLITA = { w: 22, h: 28, parts: [
+    /* cresta transversal */
+    [8,0,6,1,PAL.rojoOsc], [7,1,8,2,PAL.rojo],
+    /* casco corintio */
+    [6,3,10,6,PAL.bronce], [6,3,10,1,PAL.bronceClr],
+    [6,4,10,1,PAL.bronceOsc],                       /* borde que separa la visera */
+    [7,5,2,2,PAL.oscuro], [13,5,2,2,PAL.oscuro],   /* ranuras de los ojos */
+    [10,5,2,4,PAL.oscuro],                          /* ranura nasal */
+    [7,9,8,2,PAL.bronceOsc],                        /* carrilleras */
+    /* cuerpo */
+    [9,11,4,1,PAL.piel],
+    [4,12,2,10,PAL.rojo],                           /* capa */
+    [6,12,10,7,PAL.bronce],                         /* coraza */
+    [6,14,10,1,PAL.bronceOsc], [6,17,10,1,PAL.bronceOsc],
+    [16,13,2,6,PAL.piel],                           /* brazo de la lanza */
+    /* piernas */
+    [7,19,3,6,PAL.piel], [12,19,3,6,PAL.piel],
+    [7,22,3,3,PAL.bronceOsc], [12,22,3,3,PAL.bronceOsc],  /* grebas */
+    [6,25,4,2,PAL.oscuro], [12,25,4,2,PAL.oscuro],
+    /* lanza, con la punta unida a la vara */
+    [18,0,1,2,PAL.acero], [17,2,3,1,PAL.acero], [18,3,1,22,PAL.madera],
+    /* escudo circular, encima del torso */
+    [3,12,5,1,PAL.bronceOsc],
+    [2,13,7,1,PAL.bronce],
+    [1,14,9,1,PAL.bronce],
+    [1,15,9,1,PAL.bronce],
+    [1,16,9,1,PAL.bronce],
+    [1,17,9,1,PAL.bronce],
+    [1,18,9,1,PAL.bronce],
+    [2,19,7,1,PAL.bronce],
+    [3,20,5,1,PAL.bronceOsc],
+    /* lambda del escudo */
+    [5,14,1,1,PAL.rojoOsc],
+    [4,15,1,1,PAL.rojoOsc], [6,15,1,1,PAL.rojoOsc],
+    [4,16,1,1,PAL.rojoOsc], [6,16,1,1,PAL.rojoOsc],
+    [3,17,1,1,PAL.rojoOsc], [7,17,1,1,PAL.rojoOsc],
+    [3,18,1,1,PAL.rojoOsc], [7,18,1,1,PAL.rojoOsc]
+  ]};
+
+  var CIUDADANO = { w: 22, h: 28, parts: [
+    /* corona de olivo */
+    [6,2,10,1,PAL.olivo], [5,3,1,1,PAL.olivoOsc], [16,3,1,1,PAL.olivoOsc],
+    [8,1,2,1,PAL.olivoOsc], [12,1,2,1,PAL.olivoOsc],
+    /* cabeza */
+    [7,3,8,3,PAL.pelo],
+    [8,6,6,4,PAL.piel],
+    [9,7,1,1,PAL.oscuro], [12,7,1,1,PAL.oscuro],
+    [10,8,2,1,PAL.pielOsc],
+    [8,10,6,2,PAL.pelo],                            /* barba */
+    [10,12,2,1,PAL.piel],
+    /* himatión */
+    [6,13,10,9,PAL.crema], [6,13,10,1,PAL.cremaOsc],
+    [8,15,1,6,PAL.cremaOsc], [12,15,1,6,PAL.cremaOsc],
+    [6,21,10,1,PAL.cremaOsc],
+    /* brazos */
+    [4,14,2,5,PAL.piel], [16,14,2,5,PAL.piel],
+    /* rollo de papiro, sujeto por la mano izquierda */
+    [3,18,2,1,PAL.pielOsc],
+    [1,16,5,2,PAL.crema], [1,16,1,2,PAL.cremaOsc], [5,16,1,2,PAL.cremaOsc],
+    /* lira en la mano derecha */
+    [17,11,4,1,PAL.madera],
+    [17,12,1,7,PAL.madera], [20,12,1,7,PAL.madera],
+    [18,13,1,5,PAL.cremaOsc], [19,13,1,5,PAL.cremaOsc],
+    [17,19,4,1,PAL.madera],
+    /* piernas */
+    [7,22,3,4,PAL.piel], [12,22,3,4,PAL.piel],
+    [6,26,4,1,PAL.madera], [12,26,4,1,PAL.madera]
+  ]};
+
+  function sprite(def, px, label) {
+    var w = def.w * px, h = def.h * px;
+    var s = '<svg class="sprite" viewBox="0 0 ' + def.w + ' ' + def.h +
+            '" width="' + w + '" height="' + h + '" role="img" aria-label="' + label + '">';
+    for (var i = 0; i < def.parts.length; i++) {
+      var p = def.parts[i];
+      s += '<rect x="' + p[0] + '" y="' + p[1] + '" width="' + p[2] + '" height="' + p[3] + '" fill="' + p[4] + '"/>';
+    }
+    return s + '</svg>';
+  }
+
+  document.getElementById("heroSp").innerHTML = sprite(HOPLITA, 5, "Hoplita espartano con casco de cresta, escudo con la letra lambda y lanza");
+  document.getElementById("heroAt").innerHTML = sprite(CIUDADANO, 5, "Ciudadano ateniense con corona de olivo, rollo de papiro y lira");
+  document.getElementById("miniSp").innerHTML = sprite(HOPLITA, 2, "Esparta");
+  document.getElementById("miniAt").innerHTML = sprite(CIUDADANO, 2, "Atenas");
+  document.getElementById("icoSp").innerHTML = sprite(HOPLITA, 2, "");
+  document.getElementById("icoAt").innerHTML = sprite(CIUDADANO, 2, "");
+
+  /* ══════════ contenido ══════════ */
+  var Q = [
+    { q: "¿Quién se hace cargo del niño a los siete años?",
+      scene: "Un padre te pregunta a quién debe entregar a su hijo el día que cumpla siete.",
+      a: { t: "Al Estado. Ingresa a un cuartel comunal y deja la casa.", side: "sp",
+           fb: "Así era la <span class='term'>agogé</span>. A los 7 años los varones dejaban a su familia e ingresaban en las <span class='term'>agelai</span>, bajo supervisión de inspectores estatales llamados <span class='term'>paidónomos</span>." },
+      b: { t: "A un maestro que la familia elija y pague.", side: "at",
+           fb: "La escolarización ateniense era privada y la costeaba cada familia. Un esclavo doméstico, el <span class='term'>paidagogos</span>, acompañaba al niño y vigilaba su conducta." } },
+
+    { q: "¿Qué debe pesar más en su formación?",
+      scene: "El consejo discute qué hará fuerte a la ciudad.",
+      a: { t: "Resistir el dolor y obedecer sin dudar.", side: "sp",
+           fb: "El régimen espartano priorizaba el endurecimiento físico y la obediencia incondicional, incluso mediante azotes rituales públicos." },
+      b: { t: "Equilibrar el cuerpo, el alma y el intelecto.", side: "at",
+           fb: "Es la <span class='term'>kalokagathía</span>, «ser bello y bueno»: un equilibrio dinámico entre cuerpo y alma, ideal supremo de la educación ateniense." } },
+
+    { q: "¿Cuánto espacio le das a leer y escribir?",
+      scene: "Hay que decidir si la ciudad financia maestros de letras.",
+      a: { t: "Lo indispensable. Las letras no ganan batallas.", side: "sp",
+           fb: "Correcto para Esparta: la instrucción en letras y cálculo era mínima. Todo el currículo giraba en torno a la preparación militar." },
+      b: { t: "Es el centro: leer, escribir, contar y recitar poetas.", side: "at",
+           fb: "De eso se encargaba el <span class='term'>gramatistes</span>: lectura, escritura, cuentas básicas y recitación de los poetas." } },
+
+    { q: "¿Para qué sirve la música en tu ciudad?",
+      scene: "Un maestro de lira pide autorización para abrir escuela.",
+      a: { t: "Para marchar en formación y mover la falange.", side: "sp",
+           fb: "En Esparta la música y la danza se usaban únicamente con fines de maniobrabilidad militar dentro de la <span class='term'>falange</span>." },
+      b: { t: "Para dar ritmo y medida al alma del joven.", side: "at",
+           fb: "El <span class='term'>kitharistes</span> enseñaba canto coral, lira y cítara precisamente para «imbuir ritmo al alma»." } },
+
+    { q: "¿Las niñas reciben formación pública?",
+      scene: "Las madres de la colonia preguntan por sus hijas.",
+      a: { t: "Sí: entrenamiento gimnástico e hípico obligatorio.", side: "sp",
+           fb: "Las espartanas recibían preparación física pública y obligatoria, con un fin explícito del Estado: engendrar hijos sanos y fuertes." },
+      b: { t: "No: se forman en casa para administrar el hogar.", side: "at",
+           fb: "En Atenas la educación femenina se limitaba al ámbito doméstico y al <span class='term'>oikos</span>. Hubo excepciones notables, como la escuela de Safo en Lesbos o Aspasia de Mileto." } },
+
+    { q: "Un joven desobedece. ¿Cómo se corrige?",
+      scene: "El caso llega a tu tribunal.",
+      a: { t: "Con dolor ritualizado, ante toda la comunidad.", side: "sp",
+           fb: "La resistencia al dolor se entrenaba con azotes rituales públicos: el castigo era parte del método, no su fracaso." },
+      b: { t: "Lo vigila a diario un acompañante que le corrige modales.", side: "at",
+           fb: "Ese era el oficio del <span class='term'>paidagogos</span>: vigilar la conducta y los modales del niño, a veces con castigo corporal, pero sin el carácter ritual espartano." } },
+
+    { q: "¿Qué ocurre cuando cumple dieciocho?",
+      scene: "La primera promoción de tu ciudad llega a la mayoría de edad.",
+      a: { t: "Sigue en el cuartel: será soldado toda su vida.", side: "sp",
+           fb: "En Esparta el ciudadano era soldado profesional de por vida; no había un final de la formación militar." },
+      b: { t: "Hace dos años de servicio cívico y militar, y ya es ciudadano.", side: "at",
+           fb: "Es la <span class='term'>efebía</span>: servicio militar y cívico estatal que cerraba la formación e integraba al joven en el cuerpo ciudadano." } },
+
+    { q: "Por último: ¿quién paga todo esto?",
+      scene: "El tesorero espera tu orden.",
+      a: { t: "La ciudad. La educación es asunto del Estado.", side: "sp",
+           fb: "Esparta fue la excepción griega: el Estado organizaba y costeaba la educación, y por eso podía imponerla a todos los varones." },
+      b: { t: "Cada familia, según lo que pueda.", side: "at",
+           fb: "Y esa es la grieta del modelo ateniense: la escuela era de pago, así que la mayoría de la población quedaba fuera de la <span class='term'>paideia</span> propiamente dicha." } }
+  ];
+
+  var i = 0, sp = 0, at = 0, answered = false;
+
+  var el = {
+    intro: document.getElementById("intro"), quiz: document.getElementById("quiz"),
+    result: document.getElementById("result"), meter: document.getElementById("meter"),
+    qnum: document.getElementById("qnum"), qtext: document.getElementById("qtext"),
+    qscene: document.getElementById("qscene"), opts: document.getElementById("opts"),
+    fb: document.getElementById("fb"), city: document.getElementById("city"),
+    verdictText: document.getElementById("verdictText"),
+    spScore: document.getElementById("spScore"), atScore: document.getElementById("atScore"),
+    barSp: document.getElementById("barSp"), barAt: document.getElementById("barAt"),
+    miniSp: document.getElementById("miniSp"), miniAt: document.getElementById("miniAt"),
+    heroBig: document.getElementById("heroBig")
+  };
+
+  for (var m = 0; m < Q.length; m++) el.meter.appendChild(document.createElement("i"));
+  var bars = el.meter.querySelectorAll("i");
+
+  function paintMeter() {
+    for (var k = 0; k < bars.length; k++) {
+      bars[k].className = k < i ? "done" : (k === i ? "now" : "");
+    }
+  }
+
+  function paintTug() {
+    var total = Q.length;
+    el.barSp.style.width = (sp / total * 100) + "%";
+    el.barAt.style.width = (at / total * 100) + "%";
+    el.miniSp.classList.toggle("lead", sp >= at && sp > 0);
+    el.miniAt.classList.toggle("lead", at >= sp && at > 0);
+  }
+
+  function render() {
+    answered = false;
+    paintMeter();
+    paintTug();
+    var q = Q[i];
+    el.qnum.textContent = "Decisión " + (i + 1) + " de " + Q.length;
+    el.qtext.textContent = q.q;
+    el.qscene.textContent = q.scene;
+    el.opts.innerHTML = "";
+    el.fb.innerHTML = "";
+    ["a", "b"].forEach(function (key) {
+      var b = document.createElement("button");
+      b.className = "opt"; b.type = "button"; b.textContent = q[key].t;
+      b.addEventListener("click", function () { choose(key, b); });
+      el.opts.appendChild(b);
+    });
+  }
+
+  function choose(key, btn) {
+    if (answered) return;
+    answered = true;
+    var o = Q[i][key];
+    if (o.side === "sp") sp++; else at++;
+    paintTug();
+
+    var all = el.opts.querySelectorAll("button");
+    for (var k = 0; k < all.length; k++) all[k].disabled = true;
+    btn.classList.add("chosen");
+
+    var box = document.createElement("div");
+    box.className = "feedback";
+    box.innerHTML =
+      "<div class='who'>" + sprite(o.side === "sp" ? HOPLITA : CIUDADANO, 3, "") + "</div>" +
+      "<div class='body'><span class='tag " + o.side + "'>" +
+      (o.side === "sp" ? "Así era Esparta" : "Así era Atenas") + "</span><p>" + o.fb + "</p></div>";
+
+    var row = document.createElement("div");
+    row.className = "row";
+    var next = document.createElement("button");
+    next.className = "go"; next.type = "button";
+    next.textContent = (i === Q.length - 1) ? "Ver el resultado" : "Siguiente decisión";
+    next.addEventListener("click", function () {
+      i++;
+      if (i >= Q.length) finish(); else render();
+    });
+    row.appendChild(next);
+    el.fb.appendChild(box);
+    el.fb.appendChild(row);
+    next.focus();
+  }
+
+  function finish() {
+    el.quiz.hidden = true;
+    el.result.hidden = false;
+    if (window.scormCompletar) { window.scormCompletar(); }   /* veredicto alcanzado */
+    el.spScore.textContent = sp;
+    el.atScore.textContent = at;
+
+    var city = el.city, txt = el.verdictText;
+    if (sp >= 6) {
+      city.textContent = "Esparta"; city.className = "city sp";
+      el.heroBig.innerHTML = sprite(HOPLITA, 7, "Hoplita espartano");
+      txt.textContent = "Construiste un Estado que forma soldados. Tu ciudad será temida en el campo de batalla y tendrá poco que decir en la asamblea.";
+    } else if (at >= 6) {
+      city.textContent = "Atenas"; city.className = "city at";
+      el.heroBig.innerHTML = sprite(CIUDADANO, 7, "Ciudadano ateniense");
+      txt.textContent = "Construiste una ciudad de ciudadanos deliberantes. Formarás oradores y filósofos, pero solo entre quienes puedan pagar la escuela.";
+    } else {
+      city.textContent = "Ninguna de las dos"; city.className = "city mix";
+      el.heroBig.innerHTML = "<div style='display:flex;gap:1.5rem;align-items:flex-end'>" +
+        sprite(HOPLITA, 5, "Hoplita espartano") + sprite(CIUDADANO, 5, "Ciudadano ateniense") + "</div>";
+      txt.textContent = "Tu ciudad mezcla el control estatal espartano con el ideal ateniense de formación integral. Es, en el fondo, la combinación que intentan casi todos los sistemas educativos modernos.";
+    }
+    el.result.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("start").addEventListener("click", function () {
+    el.intro.hidden = true; el.quiz.hidden = false; render();
+  });
+  document.getElementById("again").addEventListener("click", function () {
+    i = 0; sp = 0; at = 0;
+    el.result.hidden = true; el.quiz.hidden = false; render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
+</script>
+</body>
+</html>

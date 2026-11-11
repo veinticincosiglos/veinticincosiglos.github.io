@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revisión del sitio</title>
+<style>
+  :root { --papel:#faf7f2; --tinta:#1d1a16; --suave:#6a635a; --linea:#e3dcd1;
+          --bien:#0e7a4e; --mal:#b4301c; --caja:#fff; }
+  @media (prefers-color-scheme: dark) { :root { --papel:#14120f; --tinta:#ece6dc;
+    --suave:#a59c8f; --linea:#2e2a24; --caja:#1c1915; color-scheme: dark; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--papel); color:var(--tinta); font:16px/1.6 Inter,
+    system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .centro { max-width: 54rem; margin:0 auto; padding: 2.4rem max(18px, env(safe-area-inset-left,0px)); }
+  h1 { font-size:1.9rem; margin:0 0 .4rem; letter-spacing:-.01em; }
+  .plomo { color:var(--suave); margin:0 0 2rem; }
+  #marcador { border:1px solid var(--linea); border-radius:12px; background:var(--caja);
+    padding:1.3rem 1.4rem; margin-bottom:1.6rem; }
+  #titular { font-size:1.25rem; font-weight:700; margin:0 0 .3rem; }
+  #detalle { color:var(--suave); margin:0; font-size:.95rem; }
+  .barra { height:9px; border-radius:99px; background:var(--linea); overflow:hidden; margin:1rem 0 0; }
+  .barra i { display:block; height:100%; width:0; background:var(--bien);
+    transition: width .3s ease, background-color .3s ease; }
+  h2 { font-size:.76rem; letter-spacing:.2em; text-transform:uppercase; color:var(--suave);
+    margin:2rem 0 .7rem; }
+  ul { list-style:none; margin:0; padding:0; border:1px solid var(--linea);
+    border-radius:12px; overflow:hidden; background:var(--caja); }
+  li { display:flex; gap:.8rem; align-items:center; padding:.6rem .95rem;
+    border-bottom:1px solid var(--linea); font-size:.9rem; }
+  li:last-child { border-bottom:0; }
+  .signo { flex:0 0 1.3rem; text-align:center; font-weight:700; }
+  .ok .signo { color:var(--bien); } .falla .signo { color:var(--mal); }
+  .falla { background: color-mix(in srgb, var(--mal) 7%, transparent); }
+  .ruta { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.85rem;
+    word-break:break-all; margin-right:auto; }
+  .peso { color:var(--suave); font-size:.8rem; white-space:nowrap; }
+  button { font:inherit; font-weight:600; font-size:.9rem; border:1px solid var(--linea);
+    background:var(--caja); color:inherit; padding:.6rem 1.1rem; border-radius:999px;
+    cursor:pointer; }
+  button:hover { border-color: var(--suave); }
+  #copiar { margin-top:1rem; }
+  .aviso { border-left:4px solid #d1a02a; background:color-mix(in srgb,#d1a02a 9%,transparent);
+    padding:1rem 1.1rem; border-radius:0 8px 8px 0; margin-bottom:1.6rem; font-size:.94rem; }
+  a { color: inherit; }
+</style>
+</head>
+<body><div class="centro">
+
+<h1>Revisión del sitio</h1>
+<p class="plomo">Esta página comprueba, uno por uno, que todos los archivos del sitio
+estén donde deben y se puedan abrir. No forma parte del sitio: es solo para revisar.</p>
+
+<div id="aviso-archivo" class="aviso" hidden>
+  <b>Estás abriendo esta página con doble clic</b>, no por el servidor local. Así la
+  comprobación de los juegos y las presentaciones no funciona (el navegador lo prohíbe).
+  Cierra esta pestaña y abre el sitio con <b>VER EL SITIO.bat</b> para una revisión completa.
+  Las imágenes sí se comprueban igual.
+</div>
+
+<div id="marcador">
+  <p id="titular">Comprobando…</p>
+  <p id="detalle">Esto tarda unos segundos.</p>
+  <div class="barra"><i id="avance"></i></div>
+  <button id="copiar" hidden>Copiar el resultado</button>
+</div>
+
+<div id="listas"></div>
+
+<script>
+const PIEZAS = {"Páginas del sitio": ["404.html", "acerca.html", "archipielago.html", "escritos.html", "index.html", "escritos/jugar-no-es-premio.html", "unidades/unidad-1.html", "unidades/unidad-2.html", "unidades/unidad-3.html", "unidades/unidad-4.html", "unidades/unidad-5.html", "unidades/unidad-6.html", "unidades/unidad-7.html", "unidades/unidad-8.html"], "Imágenes": ["icono.svg", "recursos/img/archipielago.jpg", "recursos/img/banner-1.png", "recursos/img/banner-2.png", "recursos/img/banner-3.png", "recursos/img/banner-4.png", "recursos/img/banner-5.png", "recursos/img/banner-6.png", "recursos/img/banner-7.png", "recursos/img/banner-8.png", "recursos/img/motivo-1.png", "recursos/img/motivo-2.png", "recursos/img/motivo-3.png", "recursos/img/motivo-4.png", "recursos/img/motivo-5.png", "recursos/img/motivo-6.png", "recursos/img/motivo-7.png", "recursos/img/motivo-8.png", "recursos/img/portada-1.jpg", "recursos/img/portada-2.jpg", "recursos/img/portada-3.jpg", "recursos/img/portada-4.jpg", "recursos/img/portada-5.jpg", "recursos/img/portada-6.jpg", "recursos/img/portada-7.jpg", "recursos/img/portada-8.jpg"], "Presentaciones": ["recursos/pdf/unidad-1.pdf", "recursos/pdf/unidad-2.pdf", "recursos/pdf/unidad-3.pdf", "recursos/pdf/unidad-4.pdf", "recursos/pdf/unidad-5.pdf", "recursos/pdf/unidad-6.pdf", "recursos/pdf/unidad-7.pdf", "recursos/pdf/unidad-8.pdf"], "Juegos": ["juegos/cuatro-imperios/index.html", "juegos/quien-dijo-que/index.html", "juegos/las-seis-estaciones/index.html", "juegos/el-circulo-de-cultura/index.html", "juegos/el-lunes-por-la-manana/index.html", "juegos/del-claustro-a-la-universidad/index.html", "juegos/esparta-o-ateniense/index.html", "juegos/archipielago/index.html", "juegos/laboratorio-del-condicionamiento/index.html"], "Diseño": ["css/sitio.css", "js/sitio.js"]};
+
+const esArchivo = location.protocol === "file:";
+if (esArchivo) document.getElementById("aviso-archivo").hidden = false;
+
+function probarImagen(url) {
+  return new Promise(res => {
+    const i = new Image();
+    i.onload  = () => res({ ok: true,  nota: i.naturalWidth + "×" + i.naturalHeight });
+    i.onerror = () => res({ ok: false, nota: "no carga" });
+    i.src = url + "?v=" + Date.now();
+  });
+}
+
+async function probarArchivo(url) {
+  if (esArchivo) return { ok: null, nota: "no se puede comprobar así" };
+  try {
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) return { ok: false, nota: "error " + r.status };
+    const largo = r.headers.get("content-length");
+    const buf = largo ? null : await r.arrayBuffer();
+    const n = largo ? +largo : (buf ? buf.byteLength : 0);
+    return { ok: true, nota: n > 1048576 ? (n/1048576).toFixed(1) + " MB"
+                                         : Math.round(n/1024) + " KB" };
+  } catch (e) { return { ok: false, nota: "no responde" }; }
+}
+
+(async function () {
+  const listas = document.getElementById("listas");
+  const avance = document.getElementById("avance");
+  const total = Object.values(PIEZAS).reduce((a, g) => a + g.length, 0);
+  let hechas = 0, fallidas = [];
+
+  for (const [grupo, archivos] of Object.entries(PIEZAS)) {
+    const h = document.createElement("h2"); h.textContent = grupo; listas.appendChild(h);
+    const ul = document.createElement("ul"); listas.appendChild(ul);
+    for (const ruta of archivos) {
+      const esImg = /\.(png|jpe?g|svg|webp|gif)$/i.test(ruta);
+      const r = esImg ? await probarImagen(ruta) : await probarArchivo(ruta);
+      const li = document.createElement("li");
+      li.className = r.ok === false ? "falla" : (r.ok === null ? "" : "ok");
+      li.innerHTML = '<span class="signo">' + (r.ok === false ? "✕" : r.ok === null ? "–" : "✓")
+        + '</span><span class="ruta"></span><span class="peso"></span>';
+      li.querySelector(".ruta").textContent = ruta;
+      li.querySelector(".peso").textContent = r.nota;
+      ul.appendChild(li);
+      if (r.ok === false) fallidas.push(ruta + "  (" + r.nota + ")");
+      hechas++;
+      avance.style.width = (hechas / total * 100) + "%";
+    }
+  }
+
+  const titular = document.getElementById("titular");
+  const detalle = document.getElementById("detalle");
+  if (!fallidas.length) {
+    titular.textContent = "Todo correcto";
+    detalle.textContent = hechas + " archivos comprobados y ninguno falla.";
+  } else {
+    avance.style.background = "var(--mal)";
+    titular.textContent = fallidas.length + (fallidas.length === 1
+      ? " archivo no carga" : " archivos no cargan");
+    detalle.textContent = "Están marcados en rojo más abajo. Copia el resultado y mándamelo.";
+    const b = document.getElementById("copiar");
+    b.hidden = false;
+    b.onclick = async () => {
+      const texto = "No cargan:\n" + fallidas.join("\n");
+      try { await navigator.clipboard.writeText(texto); b.textContent = "Copiado"; }
+      catch (e) { prompt("Copia esto:", texto); }
+    };
+  }
+})();
+</script>
+</div></body></html>

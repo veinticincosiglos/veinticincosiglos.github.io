@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quién Dijo Qué</title>
+<style>
+  /* Reinicio mínimo: replica el entorno en el que se diseñó la página. */
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Franklin:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: dos columnas de fichas que el estudiante empareja por clic, en tres rondas.
+   Mundo visual: taller de imprenta — papel, tinta y el verde de encuadernación.
+   Libre Caslon: el tipo de la Ilustración. */
+:root {
+  --bg: #efece3;
+  --surface: #faf8f3;
+  --surface-2: #e4e0d4;
+  --fg: #1c1a16;
+  --muted: #6d675a;
+  --line: #ccc5b4;
+  --ink: #2b2820;
+  --bind: #4a6140;
+  --rubric: #a63a2c;
+  --font-display: "Libre Caslon Display", Georgia, "Times New Roman", serif;
+  --font-ui: "Libre Franklin", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17161a; --surface: #201f24; --surface-2: #2a2930;
+    --fg: #ece9e1; --muted: #9b958a; --line: #3a383f;
+    --ink: #ece9e1; --bind: #7ea06d; --rubric: #d4705f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17161a; --surface: #201f24; --surface-2: #2a2930;
+  --fg: #ece9e1; --muted: #9b958a; --line: #3a383f;
+  --ink: #ece9e1; --bind: #7ea06d; --rubric: #d4705f;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-ui); font-size: 1rem; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+.wrap { max-width: 56rem; margin: 0 auto; padding-block: 2rem 3rem; }
+
+.eyebrow {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 0.6rem;
+}
+h1 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(2rem, 6vw, 3.1rem); line-height: 1.05;
+  text-wrap: balance; margin: 0 0 0.75rem;
+}
+h2 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(1.35rem, 4vw, 1.8rem); line-height: 1.15;
+  text-wrap: balance; margin: 0 0 0.6rem;
+}
+p { margin: 0 0 1rem; max-width: 40rem; }
+.muted { color: var(--muted); }
+
+/* ── cabecera de ronda ── */
+.roundbar {
+  display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap;
+  border-bottom: 2px solid var(--ink); padding-bottom: 0.6rem;
+  margin: 2rem 0 0.25rem;
+}
+.roundbar h2 { margin: 0; }
+.roundbar .rno {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--bind);
+}
+.roundbar .score {
+  margin-left: auto; font-size: 0.78rem; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.hint { font-size: 0.9rem; color: var(--muted); margin: 0.6rem 0 1.25rem; }
+
+/* ── tablero ── */
+.board { display: grid; gap: 1rem; }
+@media (min-width: 46rem) { .board { grid-template-columns: 1fr 1fr; } }
+.col { min-width: 0; }
+.col > h3 {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted);
+  margin: 0 0 0.6rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--line);
+}
+.stack { display: grid; gap: 0.6rem; }
+
+button.tile {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  font-family: var(--font-ui); font-size: 0.95rem; line-height: 1.45;
+  color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 2px;
+  padding: 0.85rem 1rem;
+  transition: border-color 0.16s, background 0.16s, opacity 0.25s, transform 0.12s;
+}
+button.tile:hover:not([disabled]) { border-color: var(--ink); }
+#left button.tile { display: flex; align-items: center; gap: 0.8rem; }
+#left button.tile .fig { flex: 0 0 auto; line-height: 0; }
+#left button.tile .meta { min-width: 0; }
+svg.sprite { display: block; image-rendering: pixelated; shape-rendering: crispEdges; }
+button.tile:focus-visible { outline: 2px solid var(--bind); outline-offset: 2px; }
+button.tile[aria-pressed="true"] {
+  border-color: var(--ink); border-width: 2px; background: var(--surface-2);
+  padding: calc(0.85rem - 1px) calc(1rem - 1px);
+}
+button.tile.matched {
+  opacity: 0.5; cursor: default; border-color: var(--bind);
+  border-left-width: 4px; padding-left: calc(1rem - 3px);
+}
+button.tile.wrong { border-color: var(--rubric); animation: nudge 0.3s; }
+@keyframes nudge {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+button.tile .who {
+  display: block; font-family: var(--font-display); font-size: 1.15rem;
+  line-height: 1.2; margin-bottom: 0.15rem;
+}
+button.tile .when {
+  display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em;
+  color: var(--muted); font-variant-numeric: tabular-nums;
+}
+button.tile .work { display: block; font-style: italic; color: var(--muted); font-size: 0.85rem; margin-top: 0.3rem; }
+
+/* ── mensajes ── */
+.msg {
+  margin-top: 1.25rem; padding: 0.95rem 1.1rem; border-radius: 2px;
+  background: var(--surface); border-left: 3px solid var(--bind);
+  font-size: 0.95rem;
+}
+.msg.bad { border-left-color: var(--rubric); }
+.msg b {
+  display: block; font-size: 0.66rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem;
+}
+.msg p { margin: 0; max-width: none; }
+
+.row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.5rem; }
+button.go {
+  font-family: var(--font-ui); font-weight: 700; font-size: 0.78rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--bg); background: var(--ink);
+  border: 0; border-radius: 2px; padding: 0.8rem 1.5rem; cursor: pointer;
+}
+button.go:hover { opacity: 0.87; }
+button.go:focus-visible { outline: 2px solid var(--bind); outline-offset: 2px; }
+button.ghost {
+  font-family: var(--font-ui); font-weight: 700; font-size: 0.78rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--fg); background: transparent;
+  border: 1px solid var(--line); border-radius: 2px;
+  padding: 0.8rem 1.5rem; cursor: pointer;
+}
+button.ghost:hover { border-color: var(--ink); }
+button.ghost:focus-visible { outline: 2px solid var(--bind); outline-offset: 2px; }
+
+/* ── cierre ── */
+.final {
+  margin-top: 2rem; padding: 1.75rem 1.5rem; border-radius: 2px;
+  background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--bind);
+}
+.final .big {
+  font-family: var(--font-display); font-size: clamp(1.8rem, 6vw, 2.6rem);
+  line-height: 1.1; margin: 0 0 0.5rem;
+}
+.shifts { display: grid; gap: 0.85rem; margin-top: 1.25rem; }
+@media (min-width: 42rem) { .shifts { grid-template-columns: repeat(3, 1fr); } }
+.shifts > div { background: var(--surface-2); border-radius: 2px; padding: 0.9rem 1rem; min-width: 0; }
+.shifts h4 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 400; margin: 0 0 0.3rem; }
+.shifts p { margin: 0; font-size: 0.88rem; }
+
+footer {
+  margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line);
+  font-size: 0.8rem; color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
+}
+</style>
+</head>
+<body><div id="cinta-sitio">
+  <a href="../../unidades/unidad-5.html"><span aria-hidden="true">&#8592;</span>&nbsp;Unidad 5</a>
+  <span class="nombre">Quién dijo qué</span>
+  <a class="casa" href="../../index.html">Veinticinco siglos de pedagogía</a>
+</div>
+<style>
+#cinta-sitio {
+  --tira-hondo: #8E5F22; --tira-acento: #EFD09A;
+  font: 600 13px/1.2 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 10px max(14px, env(safe-area-inset-left, 0px));
+  background: var(--tira-hondo); color: #ffffffa8;
+  border-bottom: 2px solid var(--tira-acento);
+}
+#cinta-sitio a { color: var(--tira-acento); text-decoration: none; white-space: nowrap;
+  transition: opacity .18s ease; }
+#cinta-sitio a:hover { opacity: .75; text-decoration: underline; }
+#cinta-sitio .nombre { margin-right: auto; color: #ffffff9c; }
+#cinta-sitio .casa { font-weight: 400; color: #ffffff8a; }
+@media (max-width: 560px) { #cinta-sitio .nombre { display: none } }
+@media print { #cinta-sitio { display: none } }
+
+/* ── microinteracciones comunes ────────────────────────────────────── */
+button, [role="button"], .boton, summary {
+  transition: transform .18s ease, background-color .2s ease,
+              border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+button:not([disabled]):hover, [role="button"]:not([aria-disabled="true"]):hover {
+  transform: translateY(-1px);
+}
+button:not([disabled]):active, [role="button"]:active { transform: translateY(0); }
+:focus-visible { outline: 3px solid var(--tira-acento, #f0c169); outline-offset: 2px; }
+
+/* las barras de avance se mueven en vez de saltar */
+div[style*="width"] { transition: width .55s cubic-bezier(.2,.75,.3,1); }
+
+/* ── entrada y aparición ───────────────────────────────────────────── */
+html.realce .surge { opacity: 0; transform: translateY(14px); }
+html.realce .surge.puesto {
+  opacity: 1; transform: none;
+  transition: opacity .55s cubic-bezier(.2,.7,.3,1), transform .55s cubic-bezier(.2,.7,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.realce .surge, html.realce .surge.puesto { opacity: 1; transform: none; transition: none; }
+  button, [role="button"], .boton, summary, div[style*="width"] { transition: none !important; }
+  button:hover, [role="button"]:hover { transform: none; }
+}
+</style>
+<script>
+(function () {
+  // Nada de esto es necesario para jugar: si algo falla, el juego queda como estaba.
+  try {
+    var quieto = matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (quieto) return;
+    var raiz = document.documentElement;
+
+    function arrancar() {
+      // busca el envoltorio que de verdad contiene el juego
+      var caja = document.body, hijos;
+      for (var i = 0; i < 3; i++) {
+        hijos = [].filter.call(caja.children, function (e) {
+          return e.id !== "cinta-sitio" &&
+                 ["SCRIPT", "STYLE", "LINK", "NOSCRIPT", "TEMPLATE"].indexOf(e.tagName) < 0;
+        });
+        if (hijos.length > 1) break;
+        if (hijos.length === 1) caja = hijos[0]; else return;
+      }
+      if (!hijos || hijos.length < 2) return;
+
+      raiz.classList.add("realce");
+      hijos.forEach(function (e) { e.classList.add("surge"); });
+
+      var alto = innerHeight;
+      var tarde = [];
+      hijos.forEach(function (e, i) {
+        if (e.getBoundingClientRect().top < alto * 0.92) {
+          setTimeout(function () { e.classList.add("puesto"); }, 70 + i * 90);
+        } else { tarde.push(e); }
+      });
+
+      if (!tarde.length || !("IntersectionObserver" in window)) {
+        tarde.forEach(function (e) { e.classList.add("puesto"); });
+        return;
+      }
+      var ojo = new IntersectionObserver(function (es) {
+        es.forEach(function (x) {
+          if (!x.isIntersecting) return;
+          x.target.classList.add("puesto");
+          ojo.unobserve(x.target);
+        });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
+      tarde.forEach(function (e) { ojo.observe(e); });
+
+      // red de seguridad: pase lo que pase, a los 4 segundos todo está visible
+      setTimeout(function () {
+        hijos.forEach(function (e) { e.classList.add("puesto"); });
+      }, 4000);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", arrancar);
+    } else { arrancar(); }
+  } catch (e) { /* el juego sigue funcionando igual */ }
+})();
+</script>
+<div class="wrap">
+  <p class="eyebrow">Historia de la Pedagogía · Clase 5</p>
+  <h1>Quién dijo qué</h1>
+  <p>Nueve autores entre el siglo XV y el XVIII, cada uno con una idea que cambió la forma de enseñar. Empareja cada nombre con su aporte: toca un autor y después la idea que le corresponde.</p>
+
+  <div id="game">
+    <div class="roundbar">
+      <span class="rno" id="rno"></span>
+      <h2 id="rtitle"></h2>
+      <span class="score" id="score"></span>
+    </div>
+    <p class="hint" id="hint"></p>
+
+    <div class="board">
+      <div class="col">
+        <h3>Autores</h3>
+        <div class="stack" id="left"></div>
+      </div>
+      <div class="col">
+        <h3>Su aporte</h3>
+        <div class="stack" id="right"></div>
+      </div>
+    </div>
+
+    <div id="msg" aria-live="polite"></div>
+    <div class="row" id="controls"></div>
+  </div>
+
+  <div id="end" hidden>
+    <div class="final">
+      <p class="eyebrow" style="margin-bottom:0.2rem">Completaste las tres rondas</p>
+      <p class="big" id="finalScore"></p>
+      <p class="muted" id="finalText" style="margin-bottom:0"></p>
+      <div class="shifts">
+        <div>
+          <h4>Del texto al método</h4>
+          <p>El humanismo devolvió las fuentes al aula y Comenio convirtió la enseñanza en un problema técnico con reglas propias.</p>
+        </div>
+        <div>
+          <h4>Del adulto al niño</h4>
+          <p>Erasmo, Locke y Rousseau desplazaron el centro desde la materia que se enseña hacia el sujeto que aprende.</p>
+        </div>
+        <div>
+          <h4>De la Iglesia al Estado</h4>
+          <p>La Reforma hizo pública la instrucción y la Ilustración la volvió derecho y deber del Estado.</p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="ghost" id="restart" type="button">Jugar de nuevo</button>
+    </div>
+  </div>
+
+  <footer>Basado en la presentación <em>La Edad Moderna</em> de la quinta clase.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var ROUNDS = [
+    {
+      title: "Humanismo y Reforma",
+      pairs: [
+        { who: "Erasmo de Rotterdam", when: "1466 – 1536", work: "De pueris, 1529",
+          idea: "Condenó el castigo físico y sostuvo que al niño se le educa con afecto y juego, porque los hombres no nacen, se hacen.",
+          note: "Defendió volver a las fuentes clásicas y formar el juicio antes que la memoria." },
+        { who: "Juan Luis Vives", when: "1492 – 1540", work: "De tradendis disciplinis, 1531",
+          idea: "Propuso observar al alumno antes de enseñarle, adaptar el método a su capacidad y reclamó instrucción también para las mujeres.",
+          note: "Pidió además atención pública a los pobres: la enseñanza como asunto de la ciudad." },
+        { who: "Martín Lutero", when: "1483 – 1546", work: "Carta a los magistrados, 1524",
+          idea: "Pidió a las ciudades fundar y sostener escuelas para niños y niñas: si cada creyente debe leer la Biblia, cada creyente debe saber leer.",
+          note: "En 1530 defendió además la obligatoriedad de la asistencia. Es la primera defensa moderna de la escolaridad universal." }
+      ]
+    },
+    {
+      title: "Contrarreforma y realismo",
+      pairs: [
+        { who: "Juan Calvino", when: "1509 – 1564", work: "Academia de Ginebra, 1559",
+          idea: "Organizó en su ciudad un sistema escolar articulado por niveles, financiado y vigilado por la autoridad civil.",
+          note: "Con él la educación se vuelve asunto público, sostenido por la ciudad." },
+        { who: "La Compañía de Jesús", when: "Promulgada en 1599", work: "Ratio Studiorum",
+          idea: "Fijó el primer sistema escolar graduado: clases sucesivas con contenidos, tiempos y exámenes definidos, y un profesor por asignatura.",
+          note: "Gratuita y de alcance internacional, fue el modelo escolar europeo durante dos siglos." },
+        { who: "Juan Amós Comenio", when: "1592 – 1670", work: "Didáctica Magna, 1632",
+          idea: "Quiso enseñar todo a todos, sin distinción de sexo, condición ni fortuna, con un método que parte de los sentidos y respeta el orden de la naturaleza.",
+          note: "En 1658 publicó el Orbis Sensualium Pictus, el primer manual ilustrado de la historia." }
+      ]
+    },
+    {
+      title: "La Ilustración",
+      pairs: [
+        { who: "John Locke", when: "1632 – 1704", work: "Pensamientos sobre la educación, 1693",
+          idea: "Partió de la mente como hoja en blanco: todo lo que somos viene de la experiencia y del hábito, así que importa más el carácter que la erudición.",
+          note: "Prefería el razonamiento al castigo, y la salud del cuerpo a la acumulación de saberes." },
+        { who: "Jean-Jacques Rousseau", when: "1712 – 1778", work: "Emilio, 1762",
+          idea: "Invirtió el punto de partida: el niño no es un adulto incompleto sino un ser con sus propias formas de ver y sentir, que la educación debe proteger.",
+          note: "Propuso una educación negativa, donde instruye la experiencia y no el discurso del maestro." },
+        { who: "Moreno y Escandón", when: "1736 – 1792", work: "Plan de estudios, 1774",
+          idea: "Presentó en la Nueva Granada un plan para una universidad pública y secular, con cátedras de física, matemáticas y trigonometría.",
+          note: "Incorporaba el sistema copernicano que Mutis había expuesto ese mismo año. La Corona nunca aprobó su ejecución plena: solo rigió entre 1774 y 1779." }
+      ]
+    }
+  ];
+
+  var r = 0, solved = 0, hits = 0, misses = 0, pick = null;
+
+  var el = {
+    game: document.getElementById("game"),
+    end: document.getElementById("end"),
+    rno: document.getElementById("rno"),
+    rtitle: document.getElementById("rtitle"),
+    score: document.getElementById("score"),
+    hint: document.getElementById("hint"),
+    left: document.getElementById("left"),
+    right: document.getElementById("right"),
+    msg: document.getElementById("msg"),
+    controls: document.getElementById("controls")
+  };
+
+  function shuffle(a) {
+    var out = a.slice();
+    for (var i = out.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = out[i]; out[i] = out[j]; out[j] = t;
+    }
+    return out;
+  }
+
+
+  /* ══════════ retratos en pixel art, 20x24, mismo trazo que el taller ══════════ */
+  var C = {
+    piel: "#d9a877", pielS: "#b5854f", ojo: "#2a1f16",
+    negro: "#2b2b33", negroS: "#1c1c22",
+    lino: "#e8e4d8", linoS: "#c2bdae",
+    marron: "#6b5338", madera: "#8a6a42",
+    vino: "#7a3530", azul: "#44607e",
+    canoso: "#b4b4bc", castano: "#53402f", gris: "#8a8a92",
+    oro: "#c9a227", habito: "#36363e", papel: "#ddd6c0"
+  };
+  function base(parts) { return { w: 20, h: 24, parts: parts }; }
+
+  /* Erasmo · bonete ancho de humanista, cuello de piel, libro en las manos */
+  var ERASMO = base([
+    [4,2,12,3,C.negro], [4,2,12,1,C.negroS], [6,5,8,1,C.negro],
+    [7,6,6,6,C.piel],
+    [8,8,1,1,C.ojo], [11,8,1,1,C.ojo], [9,10,2,1,C.pielS],
+    [5,12,10,3,C.marron], [5,12,10,1,"#4e3c28"],
+    [5,15,10,8,C.negro], [5,15,10,1,C.negroS],
+    [3,17,2,6,C.negro], [15,17,2,6,C.negro],
+    [6,20,8,3,C.papel], [6,20,8,1,C.linoS], [9,20,2,3,C.madera]
+  ]);
+
+  /* Vives · gorro humanista, barba corta, libro bajo el brazo */
+  var VIVES = base([
+    [6,2,8,3,C.negro], [5,4,10,1,C.negroS],
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo],
+    [6,12,8,2,C.lino],
+    [5,14,10,9,"#3a3a46"], [5,14,10,1,C.negroS],
+    [3,16,2,7,"#3a3a46"], [15,16,2,7,"#3a3a46"],
+    [8,10,4,2,C.castano], [9,12,2,1,C.castano],
+    [1,18,5,4,C.papel], [1,18,5,1,C.linoS], [3,18,1,4,C.madera]
+  ]);
+
+  /* Lutero · la boina grande de Cranach y la toga de doctor */
+  var LUTERO = base([
+    [3,2,14,3,C.negro], [3,2,14,1,C.negroS], [5,5,10,1,C.negroS],
+    [7,6,6,6,C.piel],
+    [8,8,1,1,C.ojo], [11,8,1,1,C.ojo], [9,10,2,1,C.pielS],
+    [5,12,10,11,C.negro], [5,12,10,1,C.negroS],
+    [9,13,2,10,C.negroS],
+    [3,14,2,9,C.negro], [15,14,2,9,C.negro],
+    [7,12,6,1,C.lino]
+  ]);
+
+  /* Calvino · gorro de Ginebra, barba en punta y las dos bandas blancas */
+  var CALVINO = base([
+    [6,2,8,3,"#22222a"], [5,4,10,1,"#16161c"],
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo],
+    [5,13,10,10,"#22222a"], [5,13,10,1,"#16161c"],
+    [3,15,2,8,"#22222a"], [15,15,2,8,"#22222a"],
+    [8,10,4,3,C.castano], [9,13,2,3,C.castano],
+    [8,17,1,4,C.lino], [11,17,1,4,C.lino]
+  ]);
+
+  /* La Compañía de Jesús · birrete de cuatro picos, sotana y el monograma */
+  var JESUITA = base([
+    [9,0,2,2,C.negro], [6,2,8,2,C.negro], [5,4,10,1,C.negroS],
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo], [9,9,2,1,C.pielS],
+    [5,11,10,12,C.negro], [5,11,10,1,C.negroS],
+    [3,14,2,9,C.negro], [15,14,2,9,C.negro],
+    [9,12,2,11,C.negroS],
+    [9,15,2,7,C.oro], [7,17,6,2,C.oro]
+  ]);
+
+  /* Moreno y Escandón · peluca corta del XVIII, chorrera y el plan enrollado */
+  var MORENO = base([
+    [5,2,10,3,C.canoso], [5,2,10,1,"#cfcfd6"],
+    [4,4,2,5,C.canoso], [14,4,2,5,C.canoso],
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo], [9,9,2,1,C.pielS],
+    [8,11,4,3,C.lino],
+    [5,13,10,10,"#3a4a3a"], [5,13,10,1,"#2c3a2c"],
+    [3,15,2,8,"#3a4a3a"], [15,15,2,8,"#3a4a3a"],
+    [7,14,1,8,C.oro], [12,14,1,8,C.oro],
+    [15,18,4,2,C.papel], [15,18,4,1,C.linoS]
+  ]);
+
+  /* Los tres que ya existían en el taller de la clase 4, tal cual */
+  var COMENIO = base([
+    [5,2,10,3,C.negro], [5,2,10,1,C.negroS],            /* gorro académico */
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo],
+    [5,11,10,9,C.negro], [5,11,10,1,C.negroS],          /* toga */
+    [3,13,2,7,C.negro], [15,13,2,7,C.negro],            /* brazos */
+    [7,11,6,4,C.canoso], [8,15,4,2,C.canoso], [9,17,2,1,C.canoso],  /* barba larga */
+    [3,20,14,3,C.papel], [3,20,14,1,C.linoS],           /* libro abierto */
+    [9,20,2,3,C.madera],
+    [4,21,4,1,C.gris], [12,21,4,1,C.gris]
+  ]);
+  var LOCKE = base([
+    [5,2,10,4,C.canoso], [5,2,10,1,"#cfcfd6"],          /* peluca */
+    [3,5,3,9,C.canoso], [14,5,3,9,C.canoso],            /* bucles laterales */
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo],
+    [9,9,2,1,C.pielS],
+    [7,11,6,2,C.lino],                                  /* corbatín */
+    [9,13,2,2,C.lino],
+    [5,14,10,9,C.vino], [5,14,10,1,"#8f4039"],
+    [9,15,2,8,"#5e2824"],
+    [3,16,2,7,C.vino], [15,16,2,7,C.vino],
+    [8,16,1,6,C.oro], [11,16,1,6,C.oro]                 /* botonadura */
+  ]);
+  var ROUSSEAU = base([
+    [5,1,10,4,C.marron], [5,1,10,1,"#4e3c28"],          /* gorro de piel */
+    [4,4,12,1,C.marron],
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo],
+    [9,9,2,1,C.pielS],
+    [7,11,6,2,C.lino],
+    [5,13,10,10,C.azul], [5,13,10,1,"#33485f"],
+    [9,14,2,9,"#33485f"],
+    [3,15,2,8,C.azul], [15,15,2,8,C.azul],
+    [8,15,1,7,C.oro], [11,15,1,7,C.oro],
+    [1,18,5,4,C.papel], [1,18,5,1,C.linoS], [3,18,1,4,C.madera]  /* el Emilio en la mano */
+  ]);
+
+  var RETRATOS = {
+    "Erasmo de Rotterdam": ERASMO,
+    "Juan Luis Vives": VIVES,
+    "Mart\u00edn Lutero": LUTERO,
+    "Juan Calvino": CALVINO,
+    "La Compa\u00f1\u00eda de Jes\u00fas": JESUITA,
+    "Juan Am\u00f3s Comenio": COMENIO,
+    "John Locke": LOCKE,
+    "Jean-Jacques Rousseau": ROUSSEAU,
+    "Moreno y Escand\u00f3n": MORENO
+  };
+
+  function retrato(nombre, px) {
+    var def = RETRATOS[nombre];
+    if (!def) { return ""; }
+    var s = '<svg class="sprite" viewBox="0 0 ' + def.w + ' ' + def.h +
+            '" width="' + (def.w * px) + '" height="' + (def.h * px) +
+            '" role="img" aria-label="Retrato de ' + nombre + '">';
+    for (var i = 0; i < def.parts.length; i++) {
+      var p = def.parts[i];
+      s += '<rect x="' + p[0] + '" y="' + p[1] + '" width="' + p[2] +
+           '" height="' + p[3] + '" fill="' + p[4] + '"/>';
+    }
+    return s + '</svg>';
+  }
+
+  function renderRound() {
+    var round = ROUNDS[r];
+    solved = 0; pick = null;
+    el.rno.textContent = "Ronda " + (r + 1) + " de " + ROUNDS.length;
+    el.rtitle.textContent = round.title;
+    el.hint.textContent = "Toca un autor y después su aporte. Son " + round.pairs.length + " parejas.";
+    el.msg.innerHTML = "";
+    el.controls.innerHTML = "";
+    updateScore();
+
+    el.left.innerHTML = "";
+    el.right.innerHTML = "";
+
+    round.pairs.forEach(function (p, idx) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "tile";
+      b.dataset.idx = String(idx);
+      b.setAttribute("aria-pressed", "false");
+      b.innerHTML = "<span class='fig'>" + retrato(p.who, 3) + "</span>" +
+                    "<span class='meta'><span class='who'>" + p.who + "</span><span class='when'>" + p.when +
+                    "</span><span class='work'>" + p.work + "</span></span>";
+      b.addEventListener("click", function () { tapAuthor(b); });
+      el.left.appendChild(b);
+    });
+
+    shuffle(round.pairs.map(function (p, idx) { return idx; })).forEach(function (idx) {
+      var p = round.pairs[idx];
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "tile";
+      b.dataset.idx = String(idx);
+      b.textContent = p.idea;
+      b.addEventListener("click", function () { tapIdea(b); });
+      el.right.appendChild(b);
+    });
+  }
+
+  function updateScore() {
+    el.score.textContent = "Aciertos " + hits + " · Fallos " + misses;
+  }
+
+  function clearPick() {
+    if (pick) { pick.setAttribute("aria-pressed", "false"); pick = null; }
+  }
+
+  function tapAuthor(b) {
+    if (b.disabled) return;
+    if (pick === b) { clearPick(); return; }
+    clearPick();
+    pick = b;
+    b.setAttribute("aria-pressed", "true");
+    el.msg.innerHTML = "";
+  }
+
+  function tapIdea(b) {
+    if (b.disabled) return;
+    if (!pick) {
+      el.msg.innerHTML = "<div class='msg'><b>Cómo se juega</b><p>Elige primero un autor de la columna izquierda.</p></div>";
+      return;
+    }
+    var round = ROUNDS[r];
+    var ai = pick.dataset.idx, bi = b.dataset.idx;
+    var p = round.pairs[ai];
+
+    if (ai === bi) {
+      pick.classList.add("matched"); pick.disabled = true; pick.setAttribute("aria-pressed", "false");
+      b.classList.add("matched"); b.disabled = true;
+      pick = null; hits++; solved++;
+      updateScore();
+      el.msg.innerHTML = "<div class='msg'><b>Correcto · " + p.who + "</b><p>" + p.note + "</p></div>";
+      if (solved === round.pairs.length) roundDone();
+    } else {
+      misses++;
+      updateScore();
+      var wrongA = pick;
+      wrongA.classList.add("wrong"); b.classList.add("wrong");
+      setTimeout(function () { wrongA.classList.remove("wrong"); b.classList.remove("wrong"); }, 320);
+      el.msg.innerHTML = "<div class='msg bad'><b>Todavía no</b><p>Esa idea no es de " + p.who +
+        ". Fíjate en la obra y en el año: te dicen de qué discusión venía cada autor.</p></div>";
+      clearPick();
+    }
+  }
+
+  function roundDone() {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "go";
+    btn.textContent = (r === ROUNDS.length - 1) ? "Ver el resultado" : "Siguiente ronda";
+    btn.addEventListener("click", function () {
+      r++;
+      if (r >= ROUNDS.length) finish();
+      else { renderRound(); el.rtitle.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    });
+    el.controls.appendChild(btn);
+    btn.focus();
+  }
+
+  function finish() {
+    el.game.hidden = true;
+    el.end.hidden = false;
+    var total = hits + misses;
+    document.getElementById("finalScore").textContent = hits + " de 9 al primer intento";
+    document.getElementById("finalText").textContent = misses === 0
+      ? "Sin un solo fallo: tienes clara la secuencia completa, del humanismo a la Ilustración."
+      : "Necesitaste " + total + " intentos para las nueve parejas. Los autores que más cuesta ubicar suelen ser los de la Contrarreforma, porque su aporte es institucional y no una idea de autor.";
+    el.end.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("restart").addEventListener("click", function () {
+    r = 0; hits = 0; misses = 0;
+    el.end.hidden = true;
+    el.game.hidden = false;
+    renderRound();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  renderRound();
+})();
+</script>
+</body>
+</html>

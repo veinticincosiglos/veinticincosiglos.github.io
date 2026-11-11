@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Del Claustro a la Universidad</title>
+<style>
+  /* Reinicio mínimo: replica el entorno en el que se diseñó la página. */
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;600;700&display=swap">
+<style>
+/* Layout: cinta de hitos navegable arriba, ficha del hito seleccionado abajo.
+   Mundo visual: salterio iluminado — fondo de lapislázuli, pan de oro y rúbrica bermellón.
+   Tipografía Cardo, diseñada para estudios medievales. */
+:root {
+  --bg: #131b31;
+  --surface: #1c2742;
+  --surface-2: #253152;
+  --fg: #ece3cd;
+  --muted: #9ba5c2;
+  --line: #2f3c60;
+  --gold: #c9a227;
+  --rubric: #c1453a;
+  --font-display: "Cardo", Georgia, "Times New Roman", serif;
+  --font-ui: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f3eee1; --surface: #fffdf6; --surface-2: #e9e1cd;
+    --fg: #1b1710; --muted: #6a6251; --line: #d3c8ae;
+    --gold: #8a6a10; --rubric: #a8302a;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f3eee1; --surface: #fffdf6; --surface-2: #e9e1cd;
+  --fg: #1b1710; --muted: #6a6251; --line: #d3c8ae;
+  --gold: #8a6a10; --rubric: #a8302a;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-display); font-size: 1.0625rem; line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+.wrap { max-width: 54rem; margin: 0 auto; padding-block: 2rem 3rem; }
+
+.eyebrow {
+  font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gold); margin: 0 0 0.6rem;
+}
+h1 {
+  font-weight: 700; font-size: clamp(1.9rem, 6vw, 3rem);
+  line-height: 1.08; text-wrap: balance; margin: 0 0 0.75rem;
+}
+h2 {
+  font-weight: 700; font-size: clamp(1.3rem, 4vw, 1.7rem);
+  line-height: 1.2; text-wrap: balance; margin: 0 0 0.6rem;
+}
+p { margin: 0 0 1rem; max-width: 40rem; }
+.muted { color: var(--muted); }
+
+/* ── cinta de hitos ── */
+.ribbon-outer {
+  margin: 1.75rem 0 1.5rem;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.ribbon { overflow-x: auto; overscroll-behavior-x: contain; }
+.track { display: flex; align-items: stretch; min-width: min-content; }
+.phase {
+  display: flex; align-items: center; padding: 0 0.85rem;
+  font-family: var(--font-ui); font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  writing-mode: vertical-rl; text-orientation: mixed;
+  background: var(--surface-2); border-right: 1px solid var(--line);
+  white-space: nowrap;
+}
+button.node {
+  flex: 0 0 auto; width: 6.5rem; padding: 0.9rem 0.5rem 1rem;
+  background: transparent; border: 0; border-right: 1px solid var(--line);
+  cursor: pointer; text-align: center; color: var(--muted);
+  font-family: var(--font-ui); transition: background 0.18s, color 0.18s;
+}
+button.node:hover { background: var(--surface-2); color: var(--fg); }
+button.node:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+button.node .yr {
+  display: block; font-size: 0.95rem; font-weight: 700;
+  font-variant-numeric: tabular-nums; margin-bottom: 0.45rem;
+}
+button.node .pip {
+  display: block; width: 9px; height: 9px; margin: 0 auto 0.45rem;
+  border-radius: 50%; border: 1.5px solid var(--line); background: var(--bg);
+  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+}
+button.node .lbl { display: block; font-size: 0.68rem; line-height: 1.3; }
+button.node[aria-current="true"] { background: var(--surface-2); color: var(--fg); }
+button.node[aria-current="true"] .yr { color: var(--gold); }
+button.node[aria-current="true"] .pip {
+  background: var(--gold); border-color: var(--gold); transform: scale(1.3);
+}
+button.node.visited .pip { background: var(--line); }
+
+/* ── controles ── */
+.nav { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+button.arrow {
+  font-family: var(--font-ui); font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fg); background: transparent;
+  border: 1px solid var(--line); border-radius: 2px;
+  padding: 0.55rem 1rem; cursor: pointer;
+}
+button.arrow:hover:not([disabled]) { border-color: var(--gold); }
+button.arrow[disabled] { opacity: 0.4; cursor: default; }
+button.arrow:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.counter {
+  font-family: var(--font-ui); font-size: 0.75rem; color: var(--muted);
+  font-variant-numeric: tabular-nums; margin-left: auto;
+}
+
+/* ── ficha del hito ── */
+.entry {
+  background: var(--surface); border: 1px solid var(--line);
+  border-left: 4px solid var(--gold); border-radius: 3px;
+  padding: 1.6rem 1.5rem;
+}
+.entry .kind {
+  font-family: var(--font-ui); font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--rubric); margin: 0 0 0.5rem;
+}
+.entry .year {
+  font-size: clamp(2rem, 7vw, 3rem); font-weight: 700; line-height: 1;
+  color: var(--gold); font-variant-numeric: tabular-nums; margin: 0 0 0.3rem;
+}
+.entry h3 {
+  font-size: clamp(1.3rem, 4vw, 1.75rem); font-weight: 700;
+  line-height: 1.15; margin: 0 0 0.9rem; text-wrap: balance;
+}
+.entry p { margin: 0 0 0.9rem; }
+.entry p:last-child { margin-bottom: 0; }
+.entry .why {
+  font-family: var(--font-ui); font-size: 0.9rem; line-height: 1.55;
+  background: var(--surface-2); border-radius: 3px;
+  padding: 0.85rem 1rem; margin-top: 1.1rem;
+}
+.entry .why b {
+  display: block; font-size: 0.65rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem;
+}
+
+/* ── autores ── */
+.authors { margin-top: 3rem; border-top: 1px solid var(--line); padding-top: 2rem; }
+.two { display: grid; gap: 1rem; margin-top: 1.25rem; }
+@media (min-width: 40rem) { .two { grid-template-columns: 1fr 1fr; } }
+.two > div {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 3px; padding: 1.25rem; min-width: 0;
+}
+.two h4 { font-size: 1.2rem; font-weight: 700; margin: 0 0 0.15rem; }
+.two .dates {
+  font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  margin: 0 0 0.8rem; font-variant-numeric: tabular-nums;
+}
+.two p { margin: 0 0 0.75rem; font-size: 1rem; }
+.two p:last-child { margin: 0; }
+.two .thesis { color: var(--gold); font-style: italic; }
+
+footer {
+  margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line);
+  font-family: var(--font-ui); font-size: 0.8rem; color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
+  .ribbon { scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body><div id="cinta-sitio">
+  <a href="../../unidades/unidad-3.html"><span aria-hidden="true">&#8592;</span>&nbsp;Unidad 3</a>
+  <span class="nombre">Del claustro a la universidad</span>
+  <a class="casa" href="../../index.html">Veinticinco siglos de pedagogía</a>
+</div>
+<style>
+#cinta-sitio {
+  --tira-hondo: #7A4E23; --tira-acento: #E7C86E;
+  font: 600 13px/1.2 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 10px max(14px, env(safe-area-inset-left, 0px));
+  background: var(--tira-hondo); color: #ffffffa8;
+  border-bottom: 2px solid var(--tira-acento);
+}
+#cinta-sitio a { color: var(--tira-acento); text-decoration: none; white-space: nowrap;
+  transition: opacity .18s ease; }
+#cinta-sitio a:hover { opacity: .75; text-decoration: underline; }
+#cinta-sitio .nombre { margin-right: auto; color: #ffffff9c; }
+#cinta-sitio .casa { font-weight: 400; color: #ffffff8a; }
+@media (max-width: 560px) { #cinta-sitio .nombre { display: none } }
+@media print { #cinta-sitio { display: none } }
+
+/* ── microinteracciones comunes ────────────────────────────────────── */
+button, [role="button"], .boton, summary {
+  transition: transform .18s ease, background-color .2s ease,
+              border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+button:not([disabled]):hover, [role="button"]:not([aria-disabled="true"]):hover {
+  transform: translateY(-1px);
+}
+button:not([disabled]):active, [role="button"]:active { transform: translateY(0); }
+:focus-visible { outline: 3px solid var(--tira-acento, #f0c169); outline-offset: 2px; }
+
+/* las barras de avance se mueven en vez de saltar */
+div[style*="width"] { transition: width .55s cubic-bezier(.2,.75,.3,1); }
+
+/* ── entrada y aparición ───────────────────────────────────────────── */
+html.realce .surge { opacity: 0; transform: translateY(14px); }
+html.realce .surge.puesto {
+  opacity: 1; transform: none;
+  transition: opacity .55s cubic-bezier(.2,.7,.3,1), transform .55s cubic-bezier(.2,.7,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.realce .surge, html.realce .surge.puesto { opacity: 1; transform: none; transition: none; }
+  button, [role="button"], .boton, summary, div[style*="width"] { transition: none !important; }
+  button:hover, [role="button"]:hover { transform: none; }
+}
+</style>
+<script>
+(function () {
+  // Nada de esto es necesario para jugar: si algo falla, el juego queda como estaba.
+  try {
+    var quieto = matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (quieto) return;
+    var raiz = document.documentElement;
+
+    function arrancar() {
+      // busca el envoltorio que de verdad contiene el juego
+      var caja = document.body, hijos;
+      for (var i = 0; i < 3; i++) {
+        hijos = [].filter.call(caja.children, function (e) {
+          return e.id !== "cinta-sitio" &&
+                 ["SCRIPT", "STYLE", "LINK", "NOSCRIPT", "TEMPLATE"].indexOf(e.tagName) < 0;
+        });
+        if (hijos.length > 1) break;
+        if (hijos.length === 1) caja = hijos[0]; else return;
+      }
+      if (!hijos || hijos.length < 2) return;
+
+      raiz.classList.add("realce");
+      hijos.forEach(function (e) { e.classList.add("surge"); });
+
+      var alto = innerHeight;
+      var tarde = [];
+      hijos.forEach(function (e, i) {
+        if (e.getBoundingClientRect().top < alto * 0.92) {
+          setTimeout(function () { e.classList.add("puesto"); }, 70 + i * 90);
+        } else { tarde.push(e); }
+      });
+
+      if (!tarde.length || !("IntersectionObserver" in window)) {
+        tarde.forEach(function (e) { e.classList.add("puesto"); });
+        return;
+      }
+      var ojo = new IntersectionObserver(function (es) {
+        es.forEach(function (x) {
+          if (!x.isIntersecting) return;
+          x.target.classList.add("puesto");
+          ojo.unobserve(x.target);
+        });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
+      tarde.forEach(function (e) { ojo.observe(e); });
+
+      // red de seguridad: pase lo que pase, a los 4 segundos todo está visible
+      setTimeout(function () {
+        hijos.forEach(function (e) { e.classList.add("puesto"); });
+      }, 4000);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", arrancar);
+    } else { arrancar(); }
+  } catch (e) { /* el juego sigue funcionando igual */ }
+})();
+</script>
+<div class="wrap">
+  <p class="eyebrow">Historia de la Pedagogía · Clase 3</p>
+  <h1>Del claustro a la universidad</h1>
+  <p>Mil años separan la caída de Roma de la primera universidad. Recorre los catorce hitos que llevaron del monje copista al gremio de maestros y estudiantes. Usa la cinta, las flechas o el teclado.</p>
+
+  <div class="ribbon-outer">
+    <div class="ribbon" id="ribbon">
+      <div class="track" id="track"></div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="arrow" id="prev" type="button">‹ Anterior</button>
+    <button class="arrow" id="next" type="button">Siguiente ›</button>
+    <span class="counter" id="counter"></span>
+  </div>
+
+  <article class="entry" id="entry" aria-live="polite"></article>
+
+  <section class="authors">
+    <h2>Los dos maestros que pensaron el oficio</h2>
+    <p class="muted">La universidad medieval heredó su pregunta central de dos autores que respondieron de manera distinta a lo mismo: ¿puede un ser humano enseñarle algo a otro?</p>
+    <div class="two">
+      <div>
+        <h4>San Agustín</h4>
+        <p class="dates">354 – 430 · Obispo de Hipona</p>
+        <p>En <em>De Magistro</em> sostiene que ninguna palabra enseña por sí misma. El signo solo advierte; quien comprende lo hace consultando la verdad que habita en su interior. Ese maestro interior es Cristo.</p>
+        <p class="thesis">«Cree para comprender, comprende para creer.»</p>
+      </div>
+      <div>
+        <h4>Santo Tomás de Aquino</h4>
+        <p class="dates">1225 – 1274 · Maestro en París</p>
+        <p>Responde a Agustín en <em>De veritate</em>: el maestro es causa instrumental. No infunde el saber, pero tampoco sobra. Obra como el médico, que no crea la salud sino que ayuda a la naturaleza a alcanzarla.</p>
+        <p class="thesis">El alumno ya puede entender; el maestro pone en marcha esa capacidad.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>Basado en la presentación <em>La Educación Medieval</em> de la tercera clase. Las fechas de fundación corresponden al año en que cada estudio general comenzó a funcionar, que no siempre coincide con el de su reconocimiento oficial.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var T = [
+    { yr: "389", lbl: "De Magistro", kind: "Pensamiento", phase: "Antes del claustro",
+      title: "Agustín escribe De Magistro",
+      body: "<p>En un diálogo con su hijo Adeodato, Agustín de Hipona examina si las palabras pueden transmitir conocimiento y concluye que no: el signo solo dirige la atención hacia la cosa. Quien aprende, aprende consultando la verdad interior.</p>",
+      why: "Fija la pregunta que la pedagogía occidental discutirá durante mil años: qué hace exactamente un maestro." },
+
+    { yr: "476", lbl: "Cae Roma", kind: "Contexto", phase: "Antes del claustro",
+      title: "Fin del Imperio romano de Occidente",
+      body: "<p>Con el colapso de la administración imperial desaparecen las escuelas municipales de retórica y gramática. La Iglesia queda como guardiana casi exclusiva del saber escrito.</p>",
+      why: "La educación deja de formar ciudadanos para formar creyentes, clérigos y administradores." },
+
+    { yr: "c. 530", lbl: "Regla de San Benito", kind: "Institución", phase: "El claustro",
+      title: "La lectura se vuelve obligación diaria",
+      body: "<p>La Regla benedictina prescribe horas fijas de lectura para cada monje. Para cumplirla hace falta saber leer, tener libros y repararlos: nacen la escuela del monasterio y el <em>scriptorium</em>.</p>",
+      why: "Sin esa obligación cotidiana no se habrían copiado los manuscritos que salvaron la literatura antigua." },
+
+    { yr: "789", lbl: "Admonitio generalis", kind: "Política", phase: "El claustro",
+      title: "Carlomagno ordena abrir escuelas",
+      body: "<p>El capitular manda que cada monasterio y catedral abra una escuela. Carlomagno llama a su corte al monje inglés Alcuino de York, que dirige la escuela palatina de Aquisgrán y fija el programa de las siete artes liberales.</p>",
+      why: "Es el primer programa educativo de alcance imperial del Occidente medieval, y de él sale la letra carolina que hizo legibles los manuscritos." },
+
+    { yr: "1088", lbl: "Bolonia", kind: "Fundación", phase: "La universidad",
+      title: "Bolonia, el primer estudio general",
+      body: "<p>Nace en torno al redescubrimiento del Derecho romano. Son los propios estudiantes quienes se organizan en corporación, contratan a los maestros y les fijan las condiciones: si el profesor falta a clase, lo multan.</p>",
+      why: "Inaugura el modelo meridional, gobernado por estudiantes y centrado en el Derecho." },
+
+    { yr: "c. 1150", lbl: "París", kind: "Fundación", phase: "La universidad",
+      title: "París, la corporación de maestros",
+      body: "<p>De las escuelas catedralicias de Notre-Dame surge un gremio de maestros —no de alumnos— que regula quién puede enseñar. Es la gran escuela de Teología de la cristiandad.</p>",
+      why: "Inaugura el modelo septentrional, gobernado por maestros, que seguirán Oxford y casi toda Europa del norte." },
+
+    { yr: "1167", lbl: "Oxford", kind: "Fundación", phase: "La universidad",
+      title: "Oxford se consolida",
+      body: "<p>Hay registro de enseñanza en Oxford desde 1096, pero la escuela se consolida cuando los estudiantes ingleses abandonan París tras un conflicto diplomático y regresan en bloque.</p>",
+      why: "Muestra el arma política de la universidad medieval: la <em>dispersio</em>, marcharse en masa de una ciudad." },
+
+    { yr: "1208", lbl: "Palencia", kind: "Fundación", phase: "La universidad",
+      title: "Palencia, la primera peninsular",
+      body: "<p>Alfonso VIII funda el primer estudio general de la península ibérica. Duró poco: a finales del siglo XIII se deshizo por falta de salarios para los maestros, y sus estudiantes se trasladaron a Salamanca.</p>",
+      why: "Recuerda que la universidad medieval dependía de un patrono que pagara, y moría si dejaba de hacerlo." },
+
+    { yr: "1209", lbl: "Cambridge", kind: "Fundación", phase: "La universidad",
+      title: "Cambridge, por escisión de Oxford",
+      body: "<p>Tras la muerte de dos escolares en un enfrentamiento con los vecinos de Oxford, un grupo de maestros y estudiantes abandona la ciudad y se instala en Cambridge.</p>",
+      why: "Segunda <em>dispersio</em> de la lista: la tensión entre la ciudad y el gremio académico funda universidades." },
+
+    { yr: "1218", lbl: "Salamanca", kind: "Fundación", phase: "La universidad",
+      title: "Salamanca, estudio general del reino de León",
+      body: "<p>Alfonso IX la instituye con cátedras de Derecho, Medicina, Lógica, Gramática y Música. En 1254 recibe de Alfonso X el título de universidad, uno de los primeros concedidos formalmente.</p>",
+      why: "Es la más antigua de las universidades hispanas que siguen en funcionamiento, y la primera con estudios de Medicina." },
+
+    { yr: "1222", lbl: "Padua", kind: "Fundación", phase: "La universidad",
+      title: "Padua, por escisión de Bolonia",
+      body: "<p>Un grupo de maestros y estudiantes boloñeses se traslada a Padua buscando mayores libertades. La nueva ciudad les garantiza privilegios para retenerlos.</p>",
+      why: "Las ciudades compiten por alojar universidades: el gremio académico ya es un activo económico." },
+
+    { yr: "1231", lbl: "Parens scientiarum", kind: "Política", phase: "La universidad",
+      title: "La bula que consagra la autonomía",
+      body: "<p>Tras una huelga de dos años en París, Gregorio IX promulga <em>Parens scientiarum</em>: reconoce a la universidad el derecho de darse sus propios estatutos, de suspender las clases y de juzgar a sus miembros.</p>",
+      why: "Es la carta magna de la autonomía universitaria, el privilegio que distingue a la universidad de cualquier escuela anterior." },
+
+    { yr: "c. 1256", lbl: "De veritate", kind: "Pensamiento", phase: "La universidad",
+      title: "Tomás de Aquino responde a Agustín",
+      body: "<p>Siendo maestro en París, Tomás dedica una cuestión disputada al problema del maestro. Concede a Agustín que nadie puede poner el saber en otro, pero sostiene que el maestro es causa instrumental real: dispone los signos y el orden que ponen en marcha el entendimiento del alumno.</p>",
+      why: "Rehabilita el oficio docente dentro de la propia institución universitaria, y con Aristóteles como herramienta." },
+
+    { yr: "1290", lbl: "Coímbra", kind: "Fundación", phase: "La universidad",
+      title: "Coímbra cierra el siglo",
+      body: "<p>Fundada en Lisboa por el rey Dionisio y trasladada después a Coímbra. Entre 1200 y 1400 se fundan en Europa 52 universidades, 29 de ellas erigidas por papas.</p>",
+      why: "La universidad deja de ser una rareza italiana y se convierte en la institución estándar del saber europeo." }
+  ];
+
+  var i = 0;
+  var visited = {};
+  var track = document.getElementById("track");
+  var ribbon = document.getElementById("ribbon");
+  var entry = document.getElementById("entry");
+  var counter = document.getElementById("counter");
+  var prevBtn = document.getElementById("prev");
+  var nextBtn = document.getElementById("next");
+
+  // construir la cinta, agrupando por fase
+  var lastPhase = null;
+  T.forEach(function (t, idx) {
+    if (t.phase !== lastPhase) {
+      var p = document.createElement("div");
+      p.className = "phase";
+      p.textContent = t.phase;
+      track.appendChild(p);
+      lastPhase = t.phase;
+    }
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "node";
+    b.dataset.idx = String(idx);
+    b.innerHTML = "<span class='yr'>" + t.yr + "</span><span class='pip'></span><span class='lbl'>" + t.lbl + "</span>";
+    b.addEventListener("click", function () { go(idx); });
+    track.appendChild(b);
+  });
+
+  var nodes = track.querySelectorAll("button.node");
+
+  function go(n) {
+    i = Math.max(0, Math.min(T.length - 1, n));
+    visited[i] = true;
+    var t = T[i];
+
+    entry.innerHTML =
+      "<p class='kind'>" + t.kind + "</p>" +
+      "<p class='year'>" + t.yr + "</p>" +
+      "<h3>" + t.title + "</h3>" +
+      t.body +
+      "<div class='why'><b>Por qué importa</b>" + t.why + "</div>";
+
+    for (var k = 0; k < nodes.length; k++) {
+      var isNow = Number(nodes[k].dataset.idx) === i;
+      nodes[k].setAttribute("aria-current", isNow ? "true" : "false");
+      if (visited[Number(nodes[k].dataset.idx)]) nodes[k].classList.add("visited");
+      if (isNow) {
+        var nd = nodes[k];
+        var target = nd.offsetLeft - (ribbon.clientWidth / 2) + (nd.offsetWidth / 2);
+        ribbon.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
+      }
+    }
+
+    counter.textContent = "Hito " + (i + 1) + " de " + T.length;
+    prevBtn.disabled = (i === 0);
+    nextBtn.disabled = (i === T.length - 1);
+  }
+
+  prevBtn.addEventListener("click", function () { go(i - 1); });
+  nextBtn.addEventListener("click", function () { go(i + 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === "ArrowRight") { go(i + 1); }
+    else if (e.key === "ArrowLeft") { go(i - 1); }
+  });
+
+  go(0);
+})();
+</script>
+</body>
+</html>

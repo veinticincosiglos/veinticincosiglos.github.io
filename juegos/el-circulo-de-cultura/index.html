@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Círculo de Cultura</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  /* Reinicio mínimo: replica el entorno en el que se diseñó la página. */
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; }
+  button { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+
+  :root {
+    --papel: #edefec;
+    --tarjeta: #f8f9f7;
+    --hueco: #e3e7e2;
+    --linea: #cbd2cb;
+    --tinta: #1b211f;
+    --suave: #5c6661;
+    --tenue: #8a938d;
+    --grupo: #1f6b52;
+    --tuya: #b07127;
+    --serif: "IBM Plex Serif", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+
+  body { background: var(--papel); color: var(--tinta); font-family: var(--sans); font-size: 16px; line-height: 1.5; }
+  .col { max-width: 1120px; margin: 0 auto; padding-block: 2.2rem 3rem;
+    padding-left: max(18px, env(safe-area-inset-left, 0px));
+    padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+
+  .ceja { font-size: .72rem; font-weight: 600; letter-spacing: .17em; text-transform: uppercase;
+    color: var(--tenue); margin: 0 0 .5rem; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(2.1rem, 6.5vw, 3.3rem);
+    line-height: 1.04; margin: 0 0 .7rem; text-wrap: balance; }
+  .entrada { max-width: 48ch; font-size: 1.02rem; color: #333b37; margin: 0 0 1.6rem; }
+
+  /* ─────────── quién tiene la palabra ─────────── */
+  .balanza { background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 6px;
+    padding: .9rem 1.1rem; margin-bottom: 1.5rem; }
+  .balanza .rot { font-family: var(--mono); font-size: .68rem; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--suave); display: flex; justify-content: space-between;
+    margin-bottom: .45rem; }
+  .barra { display: flex; height: 26px; border-radius: 4px; overflow: hidden; border: 1px solid var(--linea); }
+  .barra i { display: block; transition: width .5s ease; font-style: normal;
+    font-family: var(--mono); font-size: .76rem; color: #fff; text-align: center; line-height: 26px; }
+  .barra .g { background: var(--grupo); }
+  .barra .t { background: var(--tuya); }
+
+  /* ─────────── rejilla ─────────── */
+  .reja { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1rem; align-items: start; }
+  @media (max-width: 820px) { .reja { grid-template-columns: 1fr; } }
+  .panel { background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 6px; padding: 1.1rem 1.2rem; }
+  .panel.viva { border-top: 3px solid var(--grupo); }
+  .etq { font-family: var(--mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--suave); margin: 0 0 .6rem; }
+
+  .mom-n { font-family: var(--mono); font-size: .7rem; letter-spacing: .12em; color: var(--tenue); }
+  .mom-t { font-family: var(--serif); font-size: 1.32rem; line-height: 1.2; margin: .15rem 0 .55rem; }
+  .mom-c { font-size: 1rem; color: #333b37; margin: 0 0 1rem; }
+
+  .voces { display: grid; gap: .5rem; margin: 0 0 1.1rem; }
+  .voz { background: var(--hueco); border-left: 3px solid var(--grupo); border-radius: 0 4px 4px 0;
+    padding: .55rem .8rem; }
+  .voz .q { font-family: var(--mono); font-size: .68rem; letter-spacing: .08em; color: var(--suave); }
+  .voz .d { font-family: var(--serif); font-style: italic; font-size: 1.02rem; }
+  .voz.tuya { border-left-color: var(--tuya); background: #f3ece1; }
+
+  .mov { display: grid; gap: .5rem; }
+  .mov button { text-align: left; background: var(--hueco); border: 1px solid var(--linea); border-radius: 5px;
+    padding: .72rem .85rem; cursor: pointer; display: grid; gap: .12rem; min-height: 44px; }
+  .mov button:hover { border-color: var(--grupo); }
+  .mov button b { font-weight: 600; font-size: .98rem; }
+  .mov button span { font-family: var(--mono); font-size: .74rem; color: var(--suave); }
+  .mov button[disabled] { opacity: .55; cursor: default; }
+
+  .pie-mom { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--linea);
+    display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+  .btn { background: var(--tinta); color: var(--papel); border: 1px solid var(--tinta); border-radius: 4px;
+    padding: .6rem 1rem; cursor: pointer; font-weight: 600; font-size: .92rem; min-height: 44px; }
+  .btn.hueco { background: transparent; color: var(--tinta); }
+  .btn[disabled] { opacity: .4; cursor: default; }
+  .nota-pie { font-size: .85rem; color: var(--suave); }
+
+  .lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+  .lista li { display: grid; grid-template-columns: auto 1fr; gap: .55rem; align-items: start;
+    background: var(--hueco); border: 1px solid var(--linea); border-radius: 4px; padding: .5rem .6rem; }
+  .lista li.ok { background: #fff; border-color: #a9bdb2; }
+  .caja { width: 15px; height: 15px; border: 1.5px solid var(--tenue); border-radius: 3px; margin-top: .18rem; }
+  .lista li.ok .caja { background: var(--grupo); border-color: var(--grupo); position: relative; }
+  .lista li.ok .caja::after { content: ""; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(42deg); }
+  .lista .n { font-size: .9rem; font-weight: 500; }
+  .lista .a { font-family: var(--mono); font-size: .7rem; color: var(--suave); }
+
+  .pizarra { background: #22302b; color: #f1ece0; border-radius: 5px; padding: .9rem 1rem;
+    text-align: center; margin-bottom: 1rem; }
+  .pizarra .w { font-family: var(--mono); font-size: 1.5rem; letter-spacing: .3em; }
+  .pizarra .s { font-size: .74rem; color: #a8b6ad; letter-spacing: .08em; }
+
+  .cierre h2 { font-family: var(--serif); font-weight: 400; font-size: 1.7rem; margin: 0 0 .6rem; }
+  .cierre p { max-width: 58ch; }
+  .veredicto { background: var(--tarjeta); border: 1px solid var(--linea); border-left: 5px solid var(--grupo);
+    border-radius: 5px; padding: 1.1rem 1.2rem; margin: 1.3rem 0; }
+  .veredicto .q { font-family: var(--serif); font-size: 1.45rem; margin: 0 0 .5rem; }
+  .recuento { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .7rem; margin: 1.2rem 0; }
+  .recuento div { background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 5px;
+    padding: .8rem .9rem; border-left: 4px solid var(--grupo); }
+  .recuento .term { font-family: var(--serif); font-size: 1.05rem; }
+  .recuento .d { font-size: .88rem; color: #333b37; margin-top: .3rem; }
+
+  .pie { margin-top: 2.4rem; padding-top: 1rem; border-top: 1px solid var(--linea);
+    font-size: .86rem; color: var(--tenue); }
+  .pie em { font-style: italic; }
+  .solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body><div id="cinta-sitio">
+  <a href="../../unidades/unidad-8.html"><span aria-hidden="true">&#8592;</span>&nbsp;Unidad 8</a>
+  <span class="nombre">El círculo de cultura</span>
+  <a class="casa" href="../../index.html">Veinticinco siglos de pedagogía</a>
+</div>
+<style>
+#cinta-sitio {
+  --tira-hondo: #2B3244; --tira-acento: #F9C164;
+  font: 600 13px/1.2 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 10px max(14px, env(safe-area-inset-left, 0px));
+  background: var(--tira-hondo); color: #ffffffa8;
+  border-bottom: 2px solid var(--tira-acento);
+}
+#cinta-sitio a { color: var(--tira-acento); text-decoration: none; white-space: nowrap;
+  transition: opacity .18s ease; }
+#cinta-sitio a:hover { opacity: .75; text-decoration: underline; }
+#cinta-sitio .nombre { margin-right: auto; color: #ffffff9c; }
+#cinta-sitio .casa { font-weight: 400; color: #ffffff8a; }
+@media (max-width: 560px) { #cinta-sitio .nombre { display: none } }
+@media print { #cinta-sitio { display: none } }
+
+/* ── microinteracciones comunes ────────────────────────────────────── */
+button, [role="button"], .boton, summary {
+  transition: transform .18s ease, background-color .2s ease,
+              border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+button:not([disabled]):hover, [role="button"]:not([aria-disabled="true"]):hover {
+  transform: translateY(-1px);
+}
+button:not([disabled]):active, [role="button"]:active { transform: translateY(0); }
+:focus-visible { outline: 3px solid var(--tira-acento, #f0c169); outline-offset: 2px; }
+
+/* las barras de avance se mueven en vez de saltar */
+div[style*="width"] { transition: width .55s cubic-bezier(.2,.75,.3,1); }
+
+/* ── entrada y aparición ───────────────────────────────────────────── */
+html.realce .surge { opacity: 0; transform: translateY(14px); }
+html.realce .surge.puesto {
+  opacity: 1; transform: none;
+  transition: opacity .55s cubic-bezier(.2,.7,.3,1), transform .55s cubic-bezier(.2,.7,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.realce .surge, html.realce .surge.puesto { opacity: 1; transform: none; transition: none; }
+  button, [role="button"], .boton, summary, div[style*="width"] { transition: none !important; }
+  button:hover, [role="button"]:hover { transform: none; }
+}
+</style>
+<script>
+(function () {
+  // Nada de esto es necesario para jugar: si algo falla, el juego queda como estaba.
+  try {
+    var quieto = matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (quieto) return;
+    var raiz = document.documentElement;
+
+    function arrancar() {
+      // busca el envoltorio que de verdad contiene el juego
+      var caja = document.body, hijos;
+      for (var i = 0; i < 3; i++) {
+        hijos = [].filter.call(caja.children, function (e) {
+          return e.id !== "cinta-sitio" &&
+                 ["SCRIPT", "STYLE", "LINK", "NOSCRIPT", "TEMPLATE"].indexOf(e.tagName) < 0;
+        });
+        if (hijos.length > 1) break;
+        if (hijos.length === 1) caja = hijos[0]; else return;
+      }
+      if (!hijos || hijos.length < 2) return;
+
+      raiz.classList.add("realce");
+      hijos.forEach(function (e) { e.classList.add("surge"); });
+
+      var alto = innerHeight;
+      var tarde = [];
+      hijos.forEach(function (e, i) {
+        if (e.getBoundingClientRect().top < alto * 0.92) {
+          setTimeout(function () { e.classList.add("puesto"); }, 70 + i * 90);
+        } else { tarde.push(e); }
+      });
+
+      if (!tarde.length || !("IntersectionObserver" in window)) {
+        tarde.forEach(function (e) { e.classList.add("puesto"); });
+        return;
+      }
+      var ojo = new IntersectionObserver(function (es) {
+        es.forEach(function (x) {
+          if (!x.isIntersecting) return;
+          x.target.classList.add("puesto");
+          ojo.unobserve(x.target);
+        });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
+      tarde.forEach(function (e) { ojo.observe(e); });
+
+      // red de seguridad: pase lo que pase, a los 4 segundos todo está visible
+      setTimeout(function () {
+        hijos.forEach(function (e) { e.classList.add("puesto"); });
+      }, 4000);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", arrancar);
+    } else { arrancar(); }
+  } catch (e) { /* el juego sigue funcionando igual */ }
+})();
+</script>
+<div class="col">
+
+  <p class="ceja">Historia de la pedagogía · Clase 8</p>
+  <h1>El círculo de cultura</h1>
+  <p class="entrada">Angicos, Brasil, 1963. Coordinas un círculo de alfabetización con seis trabajadores adultos. La palabra de hoy es LADRILLO. Tu trabajo no es explicarla: es que ellos lean, en esa palabra, la situación en que viven. Cada cosa que digas le quita o le devuelve la palabra al grupo.</p>
+
+  <div class="balanza">
+    <p class="rot"><span>La palabra la tiene el grupo</span><span>La tienes tú</span></p>
+    <div class="barra"><i class="g" id="bg"></i><i class="t" id="bt"></i></div>
+  </div>
+
+  <div id="juego" class="reja">
+    <div class="panel viva">
+      <div class="pizarra"><p class="w" style="margin:0">LADRILLO</p><p class="s" style="margin:.2rem 0 0">palabra generadora · Angicos, 1963</p></div>
+      <p class="mom-n" id="momN"></p>
+      <h2 class="mom-t" id="momT"></h2>
+      <p class="mom-c" id="momC"></p>
+      <div class="voces" id="voces"></div>
+      <p class="etq">Qué dices</p>
+      <div class="mov" id="movs"></div>
+      <div class="pie-mom">
+        <button class="btn" type="button" id="sig">Continuar</button>
+        <span class="nota-pie" id="notaPie"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="etq">Lo que buscas que pase</p>
+      <ul class="lista" id="lista"></ul>
+      <p class="etq" style="margin-top:1.1rem;">Lo último que hiciste</p>
+      <div class="voz tuya" id="eco"><span class="d">Todavía no has dicho nada.</span></div>
+    </div>
+  </div>
+
+  <div id="cierre" class="panel cierre" hidden></div>
+
+  <p class="pie">Basado en la presentación <em>La pedagogía crítica</em> de la octava clase.</p>
+  <div class="solo-lector" aria-live="polite" id="voz"></div>
+</div>
+
+<script>
+"use strict";
+
+/* ════════════ lo que hay que conseguir ════════════ */
+var LOGROS = [
+  { id: "hablan",   t: "Que alguien hable sin que se lo pidas",
+    a: "la palabra vuelve al grupo" },
+  { id: "causa",    t: "Que nombren una causa, no solo un hecho",
+    a: "concientización" },
+  { id: "discrepan", t: "Que dos del grupo se contradigan",
+    a: "el diálogo es entre ellos, no contigo" },
+  { id: "propio",   t: "Que la palabra se ligue a su propia vida",
+    a: "leer el mundo antes que la palabra" },
+  { id: "callas",   t: "Terminar sin haber dado tú la respuesta",
+    a: "praxis: la conclusión es de quien la vive" }
+];
+
+/* ════════════ los seis momentos ════════════ */
+var MOMENTOS = [
+  { t: "El círculo empieza en silencio",
+    c: "Seis personas sentadas en rueda. Nadie en la cabecera, pero todos te miran a ti. En el tablero está la palabra, dibujada junto a una escena: un hombre colocando ladrillos en una pared a medio levantar.",
+    voces: [],
+    m: [
+      { tx: "Explicar que LADRILLO se divide en LA-DRI-LLO", q: "bancaria", g: -14,
+        eco: "«LADRILLO tiene tres sílabas: LA, DRI, LLO. Repitan conmigo.»",
+        r: [["El grupo", "La, dri, llo."]],
+        por: "Empezaste por la sílaba. Freire empieza por la escena: la palabra se descompone al final, cuando ya significa algo." },
+      { tx: "Preguntar qué ven en el dibujo", q: "pregunta", g: 16, logro: "hablan",
+        eco: "«¿Qué están viendo ahí?»",
+        r: [["Severino", "Un hombre levantando una pared."], ["Dona Maria", "Está trabajando. Eso es lo que hace mi hijo."]],
+        por: "Preguntaste por la codificación antes que por la palabra. El grupo empieza a hablar de lo que conoce." },
+      { tx: "Preguntar quién de ustedes ha hecho ese trabajo", q: "pregunta", g: 14, logro: "propio",
+        eco: "«¿Alguno de ustedes ha puesto ladrillos?»",
+        r: [["Severino", "Yo. Catorce años en obra."], ["Zé", "Y yo. La casa de usted puede que la hayamos hecho nosotros."]],
+        por: "Ataste la palabra a su vida. Eso es lo que Freire llama leer el mundo antes que la palabra." }
+    ] },
+
+  { t: "Alguien dice algo que no esperabas",
+    c: "Severino se queda mirando el dibujo y dice, casi para sí mismo: «uno hace la casa y después no puede vivir en ella».",
+    voces: [["Severino", "Uno hace la casa y después no puede vivir en ella."]],
+    m: [
+      { tx: "Agradecer y volver a la palabra del tablero", q: "bancaria", g: -16,
+        eco: "«Muy bien, Severino. Ahora volvamos a LADRILLO.»",
+        r: [["Severino", "..."], ["El grupo", "(silencio)"]],
+        por: "Apareció exactamente lo que buscabas y lo cerraste. En el círculo, eso es lo más caro que se puede hacer." },
+      { tx: "Devolverle la frase al grupo", q: "pregunta", g: 20, logro: "discrepan",
+        eco: "«Severino dice que uno hace la casa y no puede vivir en ella. ¿Ustedes qué dicen?»",
+        r: [["Dona Maria", "Es así. Yo limpio una casa que nunca sería mía."],
+            ["Zé", "Pero algo se gana. Sin la obra no comemos."],
+            ["Severino", "Comer no es lo mismo que vivir, Zé."]],
+        por: "No contestaste: repartiste la pregunta. Ahora discuten entre ellos, que es donde el conocimiento aparece." },
+      { tx: "Explicarle que eso se llama plusvalía", q: "bancaria", g: -18,
+        eco: "«Lo que usted describe tiene un nombre: plusvalía.»",
+        r: [["Severino", "Ah."], ["El grupo", "(anotan la palabra)"]],
+        por: "Le pusiste tu nombre a su experiencia. Eso convierte un hallazgo del grupo en un contenido tuyo que hay que memorizar." }
+    ] },
+
+  { t: "La discusión se calienta",
+    c: "Zé insiste en que quejarse no sirve de nada. Dona Maria le responde que callarse tampoco. El círculo se parte en dos y las miradas vuelven a ti, esperando que decidas quién tiene razón.",
+    voces: [["Zé", "Quejarse no cambia nada."], ["Dona Maria", "Callarse tampoco, Zé."]],
+    m: [
+      { tx: "Dar tu opinión y zanjar", q: "bancaria", g: -20,
+        eco: "«Los dos tienen parte de razón, pero miren: lo correcto sería…»",
+        r: [["El grupo", "(asienten y esperan la siguiente instrucción)"]],
+        por: "Zanjaste. El círculo aprendió algo verdadero: que al final quien decide eres tú." },
+      { tx: "Preguntar por qué las cosas son así", q: "pregunta", g: 18, logro: "causa",
+        eco: "«Dejemos quién tiene razón. ¿Por qué pasa que quien construye no puede vivir ahí?»",
+        r: [["Zé", "Porque el jornal no alcanza."],
+            ["Dona Maria", "Y porque nadie nos preguntó cuánto debía alcanzar."],
+            ["Severino", "Eso. Alguien lo decidió por nosotros."]],
+        por: "Pasaron del hecho a la causa. Eso es concientización: no indignarse más, sino entender cómo se produjo la situación." },
+      { tx: "Proponer que lo voten", q: "neutra", g: 4,
+        eco: "«¿Lo ponemos a votación?»",
+        r: [["Zé", "¿Votar qué? Si no es cuestión de gustos."]],
+        por: "No hiciste daño, pero el diálogo no es una encuesta: es buscar juntos por qué algo es como es." }
+    ] },
+
+  { t: "Ahora sí, la palabra",
+    c: "El grupo ya no mira el tablero como un ejercicio. Es el momento de volver a LADRILLO, pero la palabra ya no llega sola: llega cargada con todo lo que acaban de decir.",
+    voces: [["Severino", "Entonces vuelva a poner la palabra, profesor."]],
+    m: [
+      { tx: "Descomponerla ahora en LA · DRI · LLO", q: "pregunta", g: 10,
+        eco: "«LA, DRI, LLO. Y con esas piezas, ¿qué otras palabras salen?»",
+        r: [["Dona Maria", "LADO."], ["Zé", "LILA, como mi hermana."], ["Severino", "LADRILLO otra vez, pero ahora la escribo yo."]],
+        por: "La sílaba llegó al final y no al principio. Ahora el grupo no repite: produce palabras nuevas." },
+      { tx: "Dictarles la lista de palabras derivadas", q: "bancaria", g: -14,
+        eco: "«Copien: lado, lila, dilo, ludo…»",
+        r: [["El grupo", "(copian en silencio)"]],
+        por: "Volviste a depositar. La familia silábica sirve para que ellos generen, no para que copien lo que tú generaste." },
+      { tx: "Pedirles que escriban la palabra que quieran", q: "pregunta", g: 14, logro: "propio",
+        eco: "«Con estas sílabas, escriban la palabra que les importe.»",
+        r: [["Dona Maria", "Yo escribí LUCHA, pero me falta una letra."], ["Severino", "Escribí mi nombre."]],
+        por: "La alfabetización dejó de ser un ejercicio: cada uno escribe lo que le importa, que es por donde se aprende a leer." }
+    ] },
+
+  { t: "Alguien pregunta por qué no le enseñaron antes",
+    c: "Dona Maria levanta la vista del cuaderno y pregunta, sin rabia, con genuina curiosidad: «¿y por qué nadie nos enseñó esto cuando éramos chicos?».",
+    voces: [["Dona Maria", "¿Y por qué nadie nos enseñó esto cuando éramos chicos?"]],
+    m: [
+      { tx: "Decir que no había escuelas suficientes", q: "bancaria", g: -10,
+        eco: "«Porque antes no había escuelas en el campo.»",
+        r: [["Dona Maria", "Ah. Bueno."]],
+        por: "Diste un dato correcto y cerraste una pregunta enorme. La respuesta verdadera no la tienes tú." },
+      { tx: "Devolver la pregunta sin suavizarla", q: "pregunta", g: 18, logro: "causa",
+        eco: "«Es una buena pregunta. ¿A quién le servía que ustedes no supieran leer?»",
+        r: [["Zé", "...al que nos pagaba."],
+            ["Severino", "Y al que contaba los votos. El que no lee no vota."],
+            ["Dona Maria", "Entonces no fue que faltara escuela. Fue que sobrábamos sin ella."]],
+        por: "Esa frase de Dona Maria no se la enseñó nadie: la produjo el círculo. En 1964 enseñar esto se volvió delito, y Freire terminó en el exilio." },
+      { tx: "Prometer que lo verán la próxima sesión", q: "neutra", g: -4,
+        eco: "«Esa la dejamos para el próximo encuentro.»",
+        r: [["Dona Maria", "Bueno."]],
+        por: "Aplazaste el único momento en que la pregunta estaba viva." }
+    ] },
+
+  { t: "Se acaba la hora",
+    c: "Quedan cinco minutos. El grupo está encendido y te miran como quien espera que alguien ponga el broche. Lo que digas ahora es lo que se van a llevar a la casa.",
+    voces: [["Severino", "¿Y entonces, profesor? ¿Qué sacamos de todo esto?"]],
+    m: [
+      { tx: "Resumir tú la conclusión del día", q: "bancaria", g: -18,
+        eco: "«Lo que aprendimos hoy es que la educación es un derecho y que…»",
+        r: [["El grupo", "(anotan tu resumen)"]],
+        por: "Una hora de pensamiento propio y el acta la escribiste tú. Es lo que Freire llama domesticar: termina decidiendo el que ya sabía." },
+      { tx: "Pedir que cada uno diga con qué se va", q: "pregunta", g: 16, logro: "callas",
+        eco: "«No saco yo nada. ¿Con qué se va cada uno?»",
+        r: [["Zé", "Con que una cosa es comer y otra vivir."],
+            ["Dona Maria", "Con que sobrábamos sin escuela. Eso no se me va a olvidar."],
+            ["Severino", "Con que la próxima casa la escribo yo."]],
+        por: "No diste la respuesta. La conclusión salió de quienes la viven, que es la única manera de que aguante fuera del círculo." },
+      { tx: "Agradecer y cerrar con la tarea para la próxima", q: "neutra", g: 0,
+        eco: "«Gracias a todos. Para el jueves, practiquen las sílabas.»",
+        r: [["El grupo", "(se despiden)"]],
+        por: "No perdiste nada, pero tampoco recogiste lo que el círculo había producido." }
+    ] }
+];
+
+/* ════════════ estado ════════════ */
+var momento = 0, grupo = 12, elegido = {}, logros = {};
+function el(i) { return document.getElementById(i); }
+
+function pintarBalanza() {
+  var g = Math.max(4, Math.min(96, Math.round(grupo)));
+  el("bg").style.width = g + "%";
+  el("bt").style.width = (100 - g) + "%";
+  el("bg").textContent = g + "%";
+  el("bt").textContent = (100 - g) + "%";
+}
+
+function pintarLista() {
+  var host = el("lista");
+  host.innerHTML = "";
+  LOGROS.forEach(function (l) {
+    var li = document.createElement("li");
+    if (logros[l.id]) { li.className = "ok"; }
+    li.innerHTML = '<span class="caja"></span><span><span class="n"></span><br><span class="a"></span></span>';
+    li.querySelector(".n").textContent = l.t;
+    li.querySelector(".a").textContent = logros[l.id] ? l.a : "pendiente";
+    host.appendChild(li);
+  });
+}
+
+function pintarMomento() {
+  var m = MOMENTOS[momento];
+  el("momN").textContent = "Momento " + (momento + 1) + " de " + MOMENTOS.length;
+  el("momT").textContent = m.t;
+  el("momC").textContent = m.c;
+
+  var vh = el("voces");
+  vh.innerHTML = "";
+  var dichas = elegido[momento] ? m.voces.concat(elegido[momento].r) : m.voces;
+  dichas.forEach(function (v) {
+    var d = document.createElement("div");
+    d.className = "voz";
+    d.innerHTML = '<p class="q" style="margin:0"></p><p class="d" style="margin:0"></p>';
+    d.querySelector(".q").textContent = v[0];
+    d.querySelector(".d").textContent = "«" + v[1] + "»";
+    vh.appendChild(d);
+  });
+
+  var host = el("movs");
+  host.innerHTML = "";
+  m.m.forEach(function (op) {
+    var b = document.createElement("button");
+    b.type = "button";
+    var puesto = elegido[momento] === op;
+    b.innerHTML = "<b></b>" + (elegido[momento] ? "<span></span>" : "");
+    b.querySelector("b").textContent = op.tx;
+    if (elegido[momento]) {
+      b.disabled = true;
+      b.querySelector("span").textContent = puesto ? op.por : "";
+      if (puesto) { b.style.background = "#fff"; b.style.borderLeft = "4px solid var(--" + (op.q === "bancaria" ? "tuya" : "grupo") + ")"; }
+    }
+    b.addEventListener("click", function () { decir(op); });
+    host.appendChild(b);
+  });
+
+  el("eco").querySelector(".d").textContent = elegido[momento]
+    ? elegido[momento].eco : "Todavía no has dicho nada en este momento.";
+  el("sig").disabled = !elegido[momento];
+  el("sig").textContent = momento === MOMENTOS.length - 1 ? "Ver cómo salió" : "Continuar";
+  el("notaPie").textContent = elegido[momento] ? "" : "Elige qué dices.";
+  pintarLista();
+  pintarBalanza();
+}
+
+function decir(op) {
+  if (elegido[momento]) { return; }
+  elegido[momento] = op;
+  grupo = Math.max(2, Math.min(98, grupo + op.g));
+  if (op.logro) { logros[op.logro] = true; }
+  el("voz").textContent = op.eco + ". " + op.por;
+  pintarMomento();
+}
+
+el("sig").addEventListener("click", function () {
+  if (momento === MOMENTOS.length - 1) { cerrar(); return; }
+  momento++;
+  pintarMomento();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+/* ════════════ cierre ════════════ */
+function cerrar() {
+  var n = Object.keys(logros).length;
+  var g = Math.round(grupo);
+  var h = "";
+  h += '<h2>Cómo salió el círculo</h2>';
+  h += '<p>Al final de la hora, la palabra la tenía el grupo un <b>' + g + ' %</b> del tiempo, y conseguiste <b>' + n + ' de ' + LOGROS.length + '</b> de las cosas que buscabas.</p>';
+
+  h += '<div class="veredicto" style="border-left-color:' + (g >= 55 ? 'var(--grupo)' : 'var(--tuya)') + '">';
+  if (g >= 70) {
+    h += '<p class="q">Fue un círculo</p><p style="margin:0">Hablaron más que tú, discutieron entre ellos y la conclusión salió de quien la vive. Eso es lo que Freire buscaba: no que aprendieran tu lectura del mundo, sino que produjeran la suya.</p>';
+  } else if (g >= 45) {
+    h += '<p class="q">Fue media clase y medio círculo</p><p style="margin:0">Abriste espacio y el grupo lo usó, pero varias veces volviste a tomar la palabra justo cuando empezaba a pasar algo. El círculo no se rompe de golpe: se rompe en los momentos en que uno no aguanta el silencio.</p>';
+  } else {
+    h += '<p class="q">Fue una clase</p><p style="margin:0">Hablaste casi todo el tiempo. Lo que dijiste pudo ser correcto, pero el grupo salió con tus conclusiones y no con las suyas. Eso es exactamente lo que Freire llama educación bancaria: el saber se deposita y el que recibe archiva.</p>';
+  }
+  h += '</div>';
+
+  h += '<div class="recuento">';
+  LOGROS.forEach(function (l) {
+    h += '<div style="border-left-color:' + (logros[l.id] ? 'var(--grupo)' : 'var(--linea)') + '">';
+    h += '<p class="term">' + l.t + (logros[l.id] ? '' : ' <span style="color:var(--tenue)">· no pasó</span>') + '</p>';
+    h += '<p class="d">' + l.a + '</p></div>';
+  });
+  h += '</div>';
+
+  h += '<div class="veredicto" style="border-left-color:var(--tinta)"><p class="q">Lo que de verdad está en juego</p>';
+  h += '<p style="margin:0 0 .6rem;">Angicos existió: en 1963 trescientos trabajadores aprendieron a leer en cuarenta y cinco días con este método. El plan era llevarlo a todo Brasil.</p>';
+  h += '<p style="margin:0;">El golpe militar de 1964 lo canceló, encarceló a Freire y lo expulsó del país. Si todavía te parece que un círculo de alfabetización es una actividad inofensiva, alguien en 1964 pensó lo contrario.</p></div>';
+
+  h += '<p style="margin-top:1.3rem;"><button class="btn hueco" type="button" id="otra">Volver a entrar al círculo</button></p>';
+
+  el("cierre").innerHTML = h;
+  el("cierre").hidden = false;
+  el("juego").hidden = true;
+  el("otra").addEventListener("click", function () {
+    momento = 0; grupo = 12; elegido = {}; logros = {};
+    el("cierre").hidden = true; el("juego").hidden = false;
+    pintarMomento();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  reportar(n, g);
+}
+
+/* ════════════ el LMS, si lo hay ════════════ */
+var LMS = (function () {
+  var api = null, vivo = false;
+  function buscar(w) {
+    for (var n = 0; w && n < 12; n++) {
+      if (w.API) { return w.API; }
+      if (w.parent === w) { return null; }
+      w = w.parent;
+    }
+    return null;
+  }
+  try { api = buscar(window) || (window.opener ? buscar(window.opener) : null); } catch (e) { api = null; }
+  if (api) {
+    try {
+      var r = api.LMSInitialize("");
+      vivo = (r === "true" || r === true);
+      if (!vivo && api.LMSGetLastError) { vivo = String(api.LMSGetLastError()) === "103"; }
+    } catch (e2) { vivo = false; }
+  }
+  return {
+    hay: function () { return vivo; },
+    poner: function (k, v) { try { api.LMSSetValue(k, String(v)); } catch (e) {} },
+    sellar: function () { try { api.LMSCommit(""); } catch (e) {} }
+  };
+})();
+
+function reportar(n, g) {
+  if (!LMS.hay()) { return; }
+  LMS.poner("cmi.core.lesson_status", (n >= 4 && g >= 55) ? "completed" : "incomplete");
+  LMS.poner("cmi.core.score.min", "0");
+  LMS.poner("cmi.core.score.max", String(LOGROS.length));
+  LMS.poner("cmi.core.score.raw", String(n));
+  LMS.sellar();
+}
+
+if (location.hash === "#pruebas") {
+  window.pruebaPlan = function () {
+    // el camino, momento a momento, que junta más logros distintos
+    var mejor = null;
+    (function rec(i, elegidas, vistos) {
+      if (i === MOMENTOS.length) {
+        if (!mejor || vistos.length > mejor.n) mejor = { v: elegidas.slice(), n: vistos.length };
+        return;
+      }
+      MOMENTOS[i].m.forEach(function (op, k) {
+        var nv = op.logro && vistos.indexOf(op.logro) < 0 ? vistos.concat(op.logro) : vistos;
+        rec(i + 1, elegidas.concat(k), nv);
+      });
+    })(0, [], []);
+    return mejor.v;
+  };
+  window.pruebaEstado = function () {
+    return { momento: momento, grupo: Math.round(grupo), logros: Object.keys(logros), elegido: Object.keys(elegido).length };
+  };
+}
+
+pintarMomento();
+</script>
+</body>
+</html>

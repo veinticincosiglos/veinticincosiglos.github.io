@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Lunes por la Mañana</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  /* Reinicio mínimo: replica el entorno en el que se diseñó la página. */
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; }
+  button { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+
+  :root {
+    --papel: #f4efe8;
+    --tarjeta: #fbf8f4;
+    --linea: #ddd2c4;
+    --tinta: #241d16;
+    --suave: #6f6256;
+    --tenue: #938476;
+    --acento: #9c4f2e;
+    --piaget: #a8622c;
+    --vygotski: #2f6f63;
+    --ausubel: #6a4b86;
+    --bruner: #3a5d8f;
+    --previo: #8a8178;
+    --serif: "IBM Plex Serif", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+
+  body { background: var(--papel); color: var(--tinta); font-family: var(--sans); font-size: 16px; line-height: 1.5; }
+  .col { max-width: 1120px; margin: 0 auto; padding-block: 2.2rem 3rem;
+    padding-left: max(18px, env(safe-area-inset-left, 0px));
+    padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+
+  .ceja { font-family: var(--sans); font-size: .72rem; font-weight: 600; letter-spacing: .17em;
+    text-transform: uppercase; color: var(--tenue); margin: 0 0 .5rem; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(2.1rem, 6.5vw, 3.3rem);
+    line-height: 1.04; margin: 0 0 .7rem; text-wrap: balance; }
+  .entrada { max-width: 46ch; font-size: 1.02rem; color: #3a3029; margin: 0 0 1.6rem; }
+
+  /* ─────────── marcador ─────────── */
+  .marco { background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 6px;
+    padding: .85rem 1.1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    margin-bottom: 1.5rem; }
+  .marco .rot { font-family: var(--mono); font-size: .7rem; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--suave); }
+  .marco .cuenta { font-family: var(--mono); font-weight: 600; font-size: 1.05rem; }
+  .riel { flex: 1 1 180px; min-width: 120px; height: 7px; background: #e6ddd1; border-radius: 4px; overflow: hidden; }
+  .riel i { display: block; height: 100%; width: 0; background: var(--acento); transition: width .45s ease; }
+
+  /* ─────────── pestañas ─────────── */
+  .fases { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+  .fases button { background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 5px;
+    padding: .6rem .95rem; cursor: pointer; color: var(--suave); font-size: .93rem; min-height: 44px; }
+  .fases button[aria-selected="true"] { border-color: var(--tinta); color: var(--tinta); font-weight: 600; }
+  .fases button[disabled] { opacity: .45; cursor: default; }
+
+  /* ─────────── rejilla de dos columnas ─────────── */
+  .reja { display: grid; grid-template-columns: 1.15fr .85fr; gap: 1rem; align-items: start; }
+  @media (max-width: 820px) { .reja { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 6px; padding: 1.1rem 1.2rem; }
+  .panel.viva { border-top: 3px solid var(--acento); }
+  .etq { font-family: var(--mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--suave); margin: 0 0 .6rem; }
+
+  .escena-n { font-family: var(--mono); font-size: .7rem; letter-spacing: .12em; color: var(--tenue); }
+  .escena-t { font-family: var(--serif); font-size: 1.32rem; line-height: 1.2; margin: .15rem 0 .55rem; }
+  .escena-c { font-size: 1rem; color: #3a3029; margin: 0 0 1.1rem; }
+  .escena-c em { font-style: italic; }
+
+  .mov { display: grid; gap: .5rem; }
+  .mov button { text-align: left; background: #f2ece4; border: 1px solid var(--linea); border-radius: 5px;
+    padding: .72rem .85rem; cursor: pointer; display: grid; gap: .12rem; min-height: 44px; }
+  .mov button:hover { border-color: var(--acento); }
+  .mov button b { font-weight: 600; font-size: .98rem; }
+  .mov button span { font-family: var(--mono); font-size: .74rem; color: var(--suave); }
+  .mov button[aria-pressed="true"] { background: #fff; border-color: var(--tinta); border-left: 4px solid var(--acento); }
+  .mov button[disabled] { cursor: default; }
+
+  .pie-escena { margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--linea);
+    display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+  .btn { background: var(--tinta); color: var(--papel); border: 1px solid var(--tinta); border-radius: 4px;
+    padding: .6rem 1rem; cursor: pointer; font-weight: 600; font-size: .92rem; min-height: 44px; }
+  .btn.hueco { background: transparent; color: var(--tinta); }
+  .btn[disabled] { opacity: .4; cursor: default; }
+  .aviso-pie { font-size: .85rem; color: var(--suave); }
+
+  /* ─────────── lectura de la derecha ─────────── */
+  .lectura { background: #f2ece4; border: 1px solid var(--linea); border-radius: 5px; padding: .9rem 1rem; min-height: 8rem; }
+  .lectura .quien { font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+    display: inline-block; padding: .2rem .5rem; border-radius: 3px; color: #fff; margin-bottom: .5rem; }
+  .lectura .term { font-family: var(--serif); font-size: 1.22rem; line-height: 1.2; margin: 0 0 .4rem; }
+  .lectura .def { font-size: .95rem; color: #3a3029; margin: 0; }
+  .lectura .vacio { font-family: var(--mono); font-size: .85rem; color: var(--tenue); }
+
+  .lista { list-style: none; margin: .9rem 0 0; padding: 0; display: grid; gap: .4rem; }
+  .lista li { display: grid; grid-template-columns: auto 1fr; gap: .55rem; align-items: start;
+    background: #f2ece4; border: 1px solid var(--linea); border-radius: 4px; padding: .5rem .6rem; }
+  .lista li.ok { background: #fff; border-color: #c8bba9; }
+  .caja { width: 15px; height: 15px; border: 1.5px solid var(--tenue); border-radius: 3px; margin-top: .18rem; }
+  .lista li.ok .caja { background: var(--acento); border-color: var(--acento); position: relative; }
+  .lista li.ok .caja::after { content: ""; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(42deg); }
+  .lista .n { font-size: .9rem; font-weight: 500; }
+  .lista .a { font-family: var(--mono); font-size: .7rem; color: var(--suave); }
+  .lista li.ok .n { color: var(--tinta); }
+
+  /* ─────────── cierre ─────────── */
+  .cierre h2 { font-family: var(--serif); font-weight: 400; font-size: 1.7rem; margin: 0 0 .6rem; }
+  .cierre p { max-width: 58ch; }
+  .balanza { margin: 1.2rem 0; }
+  .balanza .barra { display: flex; height: 30px; border-radius: 4px; overflow: hidden; border: 1px solid var(--linea); }
+  .balanza .barra i { display: block; }
+  .balanza .pies { display: flex; justify-content: space-between; font-family: var(--mono);
+    font-size: .74rem; color: var(--suave); margin-top: .35rem; }
+  .recuento { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .7rem; margin: 1.2rem 0; }
+  .recuento div { background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 5px; padding: .8rem .9rem; }
+  .recuento .term { font-family: var(--serif); font-size: 1.05rem; }
+  .recuento .a { font-family: var(--mono); font-size: .7rem; color: var(--suave); }
+  .recuento .d { font-size: .88rem; color: #3a3029; margin-top: .3rem; }
+  .pregunta { background: var(--tarjeta); border: 1px solid var(--linea); border-left: 5px solid var(--acento);
+    border-radius: 5px; padding: 1.1rem 1.2rem; margin-top: 1.4rem; }
+  .pregunta .q { font-family: var(--serif); font-size: 1.5rem; margin: 0 0 .5rem; }
+
+  .pie { margin-top: 2.4rem; padding-top: 1rem; border-top: 1px solid var(--linea);
+    font-size: .86rem; color: var(--tenue); }
+  .pie em { font-style: italic; }
+  .solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body><div id="cinta-sitio">
+  <a href="../../unidades/unidad-7.html"><span aria-hidden="true">&#8592;</span>&nbsp;Unidad 7</a>
+  <span class="nombre">El lunes por la mañana</span>
+  <a class="casa" href="../../index.html">Veinticinco siglos de pedagogía</a>
+</div>
+<style>
+#cinta-sitio {
+  --tira-hondo: #0E7A4E; --tira-acento: #F6C344;
+  font: 600 13px/1.2 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 10px max(14px, env(safe-area-inset-left, 0px));
+  background: var(--tira-hondo); color: #ffffffa8;
+  border-bottom: 2px solid var(--tira-acento);
+}
+#cinta-sitio a { color: var(--tira-acento); text-decoration: none; white-space: nowrap;
+  transition: opacity .18s ease; }
+#cinta-sitio a:hover { opacity: .75; text-decoration: underline; }
+#cinta-sitio .nombre { margin-right: auto; color: #ffffff9c; }
+#cinta-sitio .casa { font-weight: 400; color: #ffffff8a; }
+@media (max-width: 560px) { #cinta-sitio .nombre { display: none } }
+@media print { #cinta-sitio { display: none } }
+
+/* ── microinteracciones comunes ────────────────────────────────────── */
+button, [role="button"], .boton, summary {
+  transition: transform .18s ease, background-color .2s ease,
+              border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+button:not([disabled]):hover, [role="button"]:not([aria-disabled="true"]):hover {
+  transform: translateY(-1px);
+}
+button:not([disabled]):active, [role="button"]:active { transform: translateY(0); }
+:focus-visible { outline: 3px solid var(--tira-acento, #f0c169); outline-offset: 2px; }
+
+/* las barras de avance se mueven en vez de saltar */
+div[style*="width"] { transition: width .55s cubic-bezier(.2,.75,.3,1); }
+
+/* ── entrada y aparición ───────────────────────────────────────────── */
+html.realce .surge { opacity: 0; transform: translateY(14px); }
+html.realce .surge.puesto {
+  opacity: 1; transform: none;
+  transition: opacity .55s cubic-bezier(.2,.7,.3,1), transform .55s cubic-bezier(.2,.7,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.realce .surge, html.realce .surge.puesto { opacity: 1; transform: none; transition: none; }
+  button, [role="button"], .boton, summary, div[style*="width"] { transition: none !important; }
+  button:hover, [role="button"]:hover { transform: none; }
+}
+</style>
+<script>
+(function () {
+  // Nada de esto es necesario para jugar: si algo falla, el juego queda como estaba.
+  try {
+    var quieto = matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (quieto) return;
+    var raiz = document.documentElement;
+
+    function arrancar() {
+      // busca el envoltorio que de verdad contiene el juego
+      var caja = document.body, hijos;
+      for (var i = 0; i < 3; i++) {
+        hijos = [].filter.call(caja.children, function (e) {
+          return e.id !== "cinta-sitio" &&
+                 ["SCRIPT", "STYLE", "LINK", "NOSCRIPT", "TEMPLATE"].indexOf(e.tagName) < 0;
+        });
+        if (hijos.length > 1) break;
+        if (hijos.length === 1) caja = hijos[0]; else return;
+      }
+      if (!hijos || hijos.length < 2) return;
+
+      raiz.classList.add("realce");
+      hijos.forEach(function (e) { e.classList.add("surge"); });
+
+      var alto = innerHeight;
+      var tarde = [];
+      hijos.forEach(function (e, i) {
+        if (e.getBoundingClientRect().top < alto * 0.92) {
+          setTimeout(function () { e.classList.add("puesto"); }, 70 + i * 90);
+        } else { tarde.push(e); }
+      });
+
+      if (!tarde.length || !("IntersectionObserver" in window)) {
+        tarde.forEach(function (e) { e.classList.add("puesto"); });
+        return;
+      }
+      var ojo = new IntersectionObserver(function (es) {
+        es.forEach(function (x) {
+          if (!x.isIntersecting) return;
+          x.target.classList.add("puesto");
+          ojo.unobserve(x.target);
+        });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
+      tarde.forEach(function (e) { ojo.observe(e); });
+
+      // red de seguridad: pase lo que pase, a los 4 segundos todo está visible
+      setTimeout(function () {
+        hijos.forEach(function (e) { e.classList.add("puesto"); });
+      }, 4000);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", arrancar);
+    } else { arrancar(); }
+  } catch (e) { /* el juego sigue funcionando igual */ }
+})();
+</script>
+<div class="col">
+
+  <p class="ceja">Historia de la pedagogía · Clase 7</p>
+  <h1>El lunes por la mañana</h1>
+  <p class="entrada">Ocho momentos de un salón de clase. En cada uno decides qué haces, y el juego te dice qué teoría acabas de usar. No se trata de acertar: se trata de que al terminar hayas usado las ocho ideas de la clase al menos una vez.</p>
+
+  <div class="marco">
+    <span class="rot">Conceptos usados</span>
+    <span class="cuenta" id="cuenta">0 / 8</span>
+    <span class="riel"><i id="riel"></i></span>
+  </div>
+
+  <div class="fases" role="tablist" aria-label="Fases del juego">
+    <button type="button" role="tab" id="t0" aria-selected="true" data-fase="0">1 · Piaget y Vygotski</button>
+    <button type="button" role="tab" id="t1" aria-selected="false" data-fase="1">2 · Ausubel y Bruner</button>
+    <button type="button" role="tab" id="t2" aria-selected="false" data-fase="2">3 · Qué hiciste</button>
+  </div>
+
+  <div id="juego" class="reja">
+    <div class="panel viva">
+      <p class="escena-n" id="escN"></p>
+      <h2 class="escena-t" id="escT"></h2>
+      <p class="escena-c" id="escC"></p>
+      <p class="etq">Tus movimientos</p>
+      <div class="mov" id="movs"></div>
+      <div class="pie-escena">
+        <button class="btn hueco" type="button" id="atras">Escena anterior</button>
+        <button class="btn" type="button" id="sig">Siguiente escena</button>
+        <span class="aviso-pie" id="avisoPie"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="etq">Lo que acabas de hacer</p>
+      <div class="lectura" id="lectura"><p class="vacio">Elige un movimiento y aquí aparece qué teoría es.</p></div>
+      <p class="etq" style="margin-top:1.1rem;">Las ocho ideas de la clase</p>
+      <ul class="lista" id="lista"></ul>
+    </div>
+  </div>
+
+  <div id="cierre" class="panel cierre" hidden></div>
+
+  <p class="pie">Basado en la presentación <em>El Constructivismo</em> de la séptima clase.</p>
+  <div class="solo-lector" aria-live="polite" id="voz"></div>
+</div>
+
+<script>
+"use strict";
+
+/* ════════════ los ocho conceptos de la clase ════════════ */
+var IDEAS = [
+  { id: "asimilacion",  t: "Asimilación",            a: "Piaget",   c: "piaget",
+    d: "El que aprende interpreta lo nuevo con los esquemas que ya tiene. Ve un caballo y dice «perro grande»." },
+  { id: "acomodacion",  t: "Acomodación",            a: "Piaget",   c: "piaget",
+    d: "Cuando el esquema no alcanza, hay que cambiarlo. El caballo obliga a inventar una categoría nueva." },
+  { id: "equilibracion", t: "Equilibración",         a: "Piaget",   c: "piaget",
+    d: "El motor de todo: el desequilibrio incomoda y empuja a reorganizar. Sin conflicto no hay aprendizaje." },
+  { id: "zdp",          t: "Zona de desarrollo próximo", a: "Vygotski", c: "vygotski",
+    d: "La distancia entre lo que hace solo y lo que logra acompañado. Ahí, y no en lo que ya domina, está el lugar de enseñar." },
+  { id: "mediacion",    t: "Mediación",              a: "Vygotski", c: "vygotski",
+    d: "No aprendemos del mundo directamente, sino a través de herramientas y signos. El lenguaje es la principal." },
+  { id: "doble",        t: "Ley de doble formación", a: "Vygotski", c: "vygotski",
+    d: "Toda función aparece dos veces: primero entre personas, después dentro de la persona. De afuera hacia adentro." },
+  { id: "significativo", t: "Aprendizaje significativo", a: "Ausubel", c: "ausubel",
+    d: "Algo se aprende de verdad cuando se engancha con lo que el alumno ya sabe; si no engancha, se memoriza y se olvida." },
+  { id: "andamiaje",    t: "Andamiaje y descubrimiento", a: "Bruner", c: "bruner",
+    d: "El docente sostiene como un andamio sostiene un edificio: ayuda mientras hace falta y se retira después. Y deja que el alumno llegue al concepto descubriéndolo." }
+];
+
+/* El movimiento que no construye nada: es el de la clase pasada. */
+var PREVIO = { id: "conductista", t: "Eso era la clase pasada", a: "Conductismo", c: "previo",
+  d: "Corregir y hacer repetir trata el aprendizaje como una conducta que se refuerza desde afuera. Funciona para fijar una respuesta, pero no toca el esquema con el que el estudiante está pensando." };
+
+/* ════════════ las ocho escenas ════════════ */
+var ESCENAS = [
+  { fase: 0, t: "«¡Un perro grande!»",
+    c: "Primero de primaria. Por la ventana pasa un caballo y Samuel grita, convencido: «¡un perro grande!». Varios le dan la razón.",
+    m: [
+      { tx: "Corregirlo y hacer que repita «caballo» hasta que le salga bien", k: "conductista" },
+      { tx: "Poner lado a lado un caballo y un perro hasta que «perro» ya no le sirva", k: "acomodacion" },
+      { tx: "Anotar que usó el esquema «perro» para lo nuevo, y partir de ahí", k: "asimilacion" }
+    ] },
+  { fase: 0, t: "Un medio más un tercio",
+    c: "Un grupo de quinto escribe <em>1/2 + 1/3 = 2/5</em> y lo defiende: «sumamos arriba y sumamos abajo». Están seguros.",
+    m: [
+      { tx: "Marcar el error en rojo y volver a dar la regla de los denominadores", k: "conductista" },
+      { tx: "Pedirles que expliquen con qué regla lo hicieron, para ver cómo están pensando", k: "asimilacion" },
+      { tx: "Pedirles que repartan una pizza de verdad según su resultado y miren qué sale", k: "equilibracion" }
+    ] },
+  { fase: 0, t: "Ana, que casi puede",
+    c: "Ana no resuelve el problema sola. Pero cuando le preguntas «¿y si empiezas por lo que ya sabes del perímetro?», lo saca entero.",
+    m: [
+      { tx: "Bajarle la dificultad hasta que pueda hacerlo sin ayuda", k: "esperar" },
+      { tx: "Darle justo esa pregunta, y dejar de dársela en cuanto no le haga falta", k: "zdp" },
+      { tx: "Sentarla con Camilo, que ya lo entendió, a resolver el siguiente juntos", k: "doble" }
+    ] },
+  { fase: 0, t: "El enunciado, no la cuenta",
+    c: "Hacen bien la operación, pero fallan el problema. Al preguntarles, ninguno sabe decir qué está pidiendo el enunciado.",
+    m: [
+      { tx: "Hacerles practicar veinte problemas más del mismo tipo", k: "conductista" },
+      { tx: "Darles un esquema para leer enunciados: qué me dan, qué me piden, qué sobra", k: "mediacion" },
+      { tx: "Que uno lea en voz alta y el grupo lo reformule con sus palabras antes de calcular", k: "doble" }
+    ] },
+  { fase: 1, t: "Antes de empezar la unidad",
+    c: "El lunes arranca la unidad de célula. Nadie sabe qué traen en la cabeza los treinta estudiantes que van a oírla.",
+    m: [
+      { tx: "Empezar por la definición correcta y el diagrama del libro", k: "conductista" },
+      { tx: "Preguntar qué creen que es una célula y anotar todo en el tablero, incluso lo errado", k: "significativo" },
+      { tx: "Enseñarles una neurona de un metro de largo, que no cabe en la idea que acaban de dar", k: "acomodacion" }
+    ] },
+  { fase: 1, t: "El párrafo que no sale",
+    c: "A Julián le cuesta escribir un párrafo entero. Con un esquema de tres casillas —idea, razón, ejemplo— lo logra sin problema.",
+    m: [
+      { tx: "Dejarle el esquema de tres casillas para siempre, porque con él funciona", k: "muleta" },
+      { tx: "Usar el esquema ahora y quitárselo por partes a medida que escriba solo", k: "andamiaje" },
+      { tx: "Esperar a que el año que viene madure y lo haga sin apoyo", k: "esperar" }
+    ] },
+  { fase: 1, t: "La ley del péndulo",
+    c: "Tienes que enseñar que el periodo de un péndulo depende de la longitud y no del peso. La fórmula está en la página 112.",
+    m: [
+      { tx: "Dictar la fórmula y poner diez ejercicios de reemplazo", k: "conductista" },
+      { tx: "Darles cuerdas y pesas y pedirles que averigüen de qué depende, antes de nombrarlo", k: "andamiaje" },
+      { tx: "Dejar que predigan primero, y que el péndulo les contradiga la predicción", k: "equilibracion" }
+    ] },
+  { fase: 1, t: "El grupo de cuatro",
+    c: "Vas a poner a trabajar en grupos. Un colega te dice que es perder el tiempo, que cada uno aprende por su cuenta.",
+    m: [
+      { tx: "Darle la razón: que cada uno haga su taller en silencio", k: "conductista" },
+      { tx: "Armar grupos donde tengan que discutir en voz alta y llegar a una respuesta común", k: "doble" },
+      { tx: "Armar parejas donde uno va un paso adelante del otro", k: "zdp" }
+    ] }
+];
+
+/* movimientos que no son ninguno de los ocho conceptos, pero tampoco conductismo */
+var OTROS = {
+  esperar: { t: "Esperar a que madure", a: "Piaget, llevado al extremo", c: "piaget",
+    d: "Si el desarrollo va primero, hay que esperar a que el niño esté listo. Es una posición legítima y es la de Piaget, pero aquí no construiste nada todavía: la clase pasa y Ana sigue sin poder." },
+  muleta: { t: "El andamio que no se retira", a: "Bruner, a medias", c: "bruner",
+    d: "Un andamio se quita cuando el muro se sostiene. Si no se quita, deja de ser andamio y se vuelve muleta: Julián escribirá siempre con tus tres casillas y nunca sin ellas." }
+};
+
+/* ════════════ estado ════════════ */
+var escena = 0, fase = 0;
+var elegido = {};              /* escena → clave del movimiento */
+var usados = {};               /* id de concepto → true */
+function el(i) { return document.getElementById(i); }
+
+function conceptoDe(k) {
+  for (var i = 0; i < IDEAS.length; i++) { if (IDEAS[i].id === k) { return IDEAS[i]; } }
+  if (k === "conductista") { return PREVIO; }
+  return OTROS[k] || null;
+}
+
+function recalcular() {
+  usados = {};
+  Object.keys(elegido).forEach(function (n) {
+    var c = conceptoDe(elegido[n]);
+    if (c && c !== PREVIO && !OTROS[elegido[n]]) { usados[c.id] = true; }
+  });
+}
+
+/* ════════════ pintado ════════════ */
+function pintarEscena() {
+  var e = ESCENAS[escena];
+  el("escN").textContent = "Escena " + (escena + 1) + " de " + ESCENAS.length;
+  el("escT").textContent = e.t;
+  el("escC").innerHTML = e.c;
+
+  var host = el("movs");
+  host.innerHTML = "";
+  e.m.forEach(function (m) {
+    var b = document.createElement("button");
+    b.type = "button";
+    var c = conceptoDe(m.k);
+    var puesto = elegido[escena] === m.k;
+    b.setAttribute("aria-pressed", puesto ? "true" : "false");
+    var nota = "";
+    if (elegido[escena]) {
+      nota = c ? c.a : "";
+      if (c && c !== PREVIO && !OTROS[m.k] && usados[c.id] && !puesto) { nota += " · ya lo usaste"; }
+    }
+    b.innerHTML = "<b></b>" + (nota ? "<span></span>" : "");
+    b.querySelector("b").textContent = m.tx;
+    if (nota) { b.querySelector("span").textContent = nota; }
+    b.addEventListener("click", function () { elegir(m.k); });
+    host.appendChild(b);
+  });
+
+  el("atras").disabled = escena === 0;
+  el("sig").textContent = escena === ESCENAS.length - 1 ? "Ver qué hiciste" : "Siguiente escena";
+  el("avisoPie").textContent = elegido[escena] ? "" : "Elige un movimiento para seguir.";
+  el("sig").disabled = !elegido[escena];
+
+  pintarLectura();
+  pintarLista();
+}
+
+function pintarLectura() {
+  var k = elegido[escena], host = el("lectura");
+  if (!k) {
+    host.innerHTML = '<p class="vacio">Elige un movimiento y aquí aparece qué teoría es.</p>';
+    return;
+  }
+  var c = conceptoDe(k);
+  host.innerHTML = '<span class="quien"></span><p class="term"></p><p class="def"></p>';
+  var q = host.querySelector(".quien");
+  q.textContent = c.a;
+  q.style.background = "var(--" + c.c + ")";
+  host.querySelector(".term").textContent = c.t;
+  host.querySelector(".def").textContent = c.d;
+  el("voz").textContent = c.a + ". " + c.t + ". " + c.d;
+}
+
+function pintarLista() {
+  var host = el("lista");
+  host.innerHTML = "";
+  IDEAS.forEach(function (c) {
+    var li = document.createElement("li");
+    if (usados[c.id]) { li.className = "ok"; }
+    li.innerHTML = '<span class="caja"></span><span><span class="n"></span><br><span class="a"></span></span>';
+    li.querySelector(".n").textContent = c.t;
+    li.querySelector(".a").textContent = c.a;
+    host.appendChild(li);
+  });
+  var n = Object.keys(usados).length;
+  el("cuenta").textContent = n + " / " + IDEAS.length;
+  el("riel").style.width = (n / IDEAS.length * 100) + "%";
+  reportar(n);
+}
+
+function elegir(k) {
+  elegido[escena] = k;
+  recalcular();
+  pintarEscena();
+}
+
+/* ════════════ navegación ════════════ */
+function irAEscena(n) {
+  escena = Math.max(0, Math.min(ESCENAS.length - 1, n));
+  fase = ESCENAS[escena].fase;
+  el("cierre").hidden = true;
+  el("juego").hidden = false;
+  marcarFases();
+  pintarEscena();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function marcarFases() {
+  [0, 1, 2].forEach(function (i) {
+    el("t" + i).setAttribute("aria-selected", (el("cierre").hidden ? fase : 2) === i ? "true" : "false");
+  });
+  el("t2").disabled = Object.keys(elegido).length < ESCENAS.length;
+}
+
+el("sig").addEventListener("click", function () {
+  if (escena === ESCENAS.length - 1) { mostrarCierre(); } else { irAEscena(escena + 1); }
+});
+el("atras").addEventListener("click", function () { irAEscena(escena - 1); });
+[0, 1].forEach(function (f) {
+  el("t" + f).addEventListener("click", function () {
+    for (var i = 0; i < ESCENAS.length; i++) { if (ESCENAS[i].fase === f) { irAEscena(i); return; } }
+  });
+});
+el("t2").addEventListener("click", function () { mostrarCierre(); });
+
+/* ════════════ cierre ════════════ */
+function mostrarCierre() {
+  var n = Object.keys(usados).length;
+  var cuenta = { piaget: 0, vygotski: 0, otros: 0 };
+  Object.keys(elegido).forEach(function (k) {
+    var c = conceptoDe(elegido[k]);
+    if (!c) { return; }
+    if (c.c === "piaget") { cuenta.piaget++; }
+    else if (c.c === "vygotski") { cuenta.vygotski++; }
+    else { cuenta.otros++; }
+  });
+  var tot = Math.max(1, cuenta.piaget + cuenta.vygotski);
+  var pp = Math.round(cuenta.piaget / tot * 100);
+
+  var faltan = IDEAS.filter(function (c) { return !usados[c.id]; });
+  var h = "";
+  h += '<h2>Lo que hiciste el lunes</h2>';
+  h += '<p>Usaste <b>' + n + ' de las 8 ideas</b> de la clase. ';
+  h += faltan.length
+    ? 'Te faltaron ' + faltan.length + ': ' + faltan.map(function (c) { return c.t.toLowerCase(); }).join(", ") + '. Puedes volver a cualquier escena y cambiar un movimiento.'
+    : 'Las ocho, completas.';
+  h += '</p>';
+
+  h += '<div class="balanza"><p class="etq">Hacia dónde te inclinaste</p><div class="barra">';
+  h += '<i style="width:' + pp + '%;background:var(--piaget)"></i>';
+  h += '<i style="width:' + (100 - pp) + '%;background:var(--vygotski)"></i>';
+  h += '</div><div class="pies"><span>Piaget · esperar y provocar el conflicto</span><span>Vygotski · jalar y acompañar</span></div></div>';
+
+  h += '<p>' + (pp >= 60
+    ? 'Tu lunes es sobre todo piagetiano: confías en que el estudiante reorganice solo cuando algo no le cuadra.'
+    : pp <= 40
+      ? 'Tu lunes es sobre todo vygotskiano: intervienes, acompañas y pones a los estudiantes a hablar entre ellos.'
+      : 'Tu lunes está repartido entre los dos: a veces esperas a que el conflicto haga su trabajo y a veces te adelantas a jalar.') + '</p>';
+
+  h += '<div class="recuento">';
+  IDEAS.forEach(function (c) {
+    h += '<div style="border-left:4px solid var(--' + c.c + ')">';
+    h += '<p class="term">' + c.t + (usados[c.id] ? '' : ' <span style="color:var(--tenue)">· sin usar</span>') + '</p>';
+    h += '<p class="a">' + c.a + '</p><p class="d">' + c.d + '</p></div>';
+  });
+  h += '</div>';
+
+  h += '<div class="pregunta"><p class="q">¿Es una receta?</p>';
+  h += '<p style="margin:0 0 .6rem;">Ninguna de las ocho escenas tenía una sola respuesta correcta. En casi todas, dos movimientos distintos construían algo, y la diferencia entre ellos no era de calidad sino de teoría: si el desarrollo va primero hay que esperar, y si va primero el aprendizaje hay que adelantarse y jalar.</p>';
+  h += '<p style="margin:0;">Eso es lo que no se puede recetar. El constructivismo no dice qué hacer el lunes: dice qué está pasando cuando alguien aprende, y deja la decisión del lunes en manos de quien conoce a ese grupo.</p></div>';
+
+  h += '<p style="margin-top:1.3rem;"><button class="btn hueco" type="button" id="volverJuego">Volver a las escenas</button></p>';
+
+  el("cierre").innerHTML = h;
+  el("cierre").hidden = false;
+  el("juego").hidden = true;
+  marcarFases();
+  el("volverJuego").addEventListener("click", function () { irAEscena(0); });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  reportar(n);
+}
+
+/* ════════════ el LMS, si lo hay ════════════ */
+var LMS = (function () {
+  var api = null, vivo = false;
+  function buscar(w) {
+    for (var n = 0; w && n < 12; n++) {
+      if (w.API) { return w.API; }
+      if (w.parent === w) { return null; }
+      w = w.parent;
+    }
+    return null;
+  }
+  try { api = buscar(window) || (window.opener ? buscar(window.opener) : null); } catch (e) { api = null; }
+  if (api) {
+    try {
+      var r = api.LMSInitialize("");
+      vivo = (r === "true" || r === true);
+      if (!vivo && api.LMSGetLastError) { vivo = String(api.LMSGetLastError()) === "103"; }
+    } catch (e2) { vivo = false; }
+  }
+  return {
+    hay: function () { return vivo; },
+    poner: function (k, v) { try { api.LMSSetValue(k, String(v)); } catch (e) {} },
+    sellar: function () { try { api.LMSCommit(""); } catch (e) {} }
+  };
+})();
+
+function reportar(n) {
+  if (!LMS.hay()) { return; }
+  LMS.poner("cmi.core.lesson_status", n === IDEAS.length ? "completed" : "incomplete");
+  LMS.poner("cmi.core.score.min", "0");
+  LMS.poner("cmi.core.score.max", String(IDEAS.length));
+  LMS.poner("cmi.core.score.raw", String(n));
+  LMS.sellar();
+}
+
+if (location.hash === "#pruebas") {
+  window.pruebaEscena = function () { return { n: escena, elegido: elegido, usados: Object.keys(usados) }; };
+  window.pruebaIr = function (n) { irAEscena(n); };
+}
+
+irAEscena(0);
+</script>
+</body>
+</html>

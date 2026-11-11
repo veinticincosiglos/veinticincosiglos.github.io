@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cuatro Imperios, Cuatro Escuelas</title>
+<style>
+  /* Reinicio mínimo: replica el entorno en el que se diseñó la página. */
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&family=Karla:wght@400;500;700&display=swap">
+<style>
+/* Layout: mapa esquemático arriba, selector de civilización, ficha abajo.
+   Mundo visual: cielo nocturno — los cuatro imperios enseñaban astronomía.
+   Cada civilización toma el color de un material suyo: laca, oro, jade, cochinilla. */
+:root {
+  --bg: #0c1420;
+  --surface: #14202f;
+  --surface-2: #1c2b3d;
+  --fg: #e8eef5;
+  --muted: #8ba0b8;
+  --line: #27394e;
+  --sea: #101c2b;
+  --land: #1e2f42;
+  --china: #d05a44;
+  --egipto: #d9a850;
+  --mexica: #4fa888;
+  --inca: #cf6f92;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-body: "Karla", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f2f5f8; --surface: #ffffff; --surface-2: #e7edf3;
+    --fg: #101b27; --muted: #5a6c80; --line: #cfdae5;
+    --sea: #e2eaf1; --land: #c3d2e0;
+    --china: #ab3f2c; --egipto: #8d6516; --mexica: #2c7158; --inca: #a24666;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f2f5f8; --surface: #ffffff; --surface-2: #e7edf3;
+  --fg: #101b27; --muted: #5a6c80; --line: #cfdae5;
+  --sea: #e2eaf1; --land: #c3d2e0;
+  --china: #ab3f2c; --egipto: #8d6516; --mexica: #2c7158; --inca: #a24666;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 1rem; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+.wrap { max-width: 56rem; margin: 0 auto; padding-block: 2rem 3rem; }
+
+.eyebrow {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 0.6rem;
+}
+h1 {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1.8rem, 5.5vw, 2.8rem); line-height: 1.1;
+  text-wrap: balance; margin: 0 0 0.75rem;
+}
+h2 {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(1.25rem, 3.5vw, 1.6rem); line-height: 1.2;
+  text-wrap: balance; margin: 0 0 0.6rem;
+}
+p { margin: 0 0 1rem; max-width: 42rem; }
+.muted { color: var(--muted); }
+
+/* ── mapa ── */
+.mapbox {
+  background: var(--sea); border: 1px solid var(--line);
+  border-radius: 4px; padding: 0.5rem; margin: 1.5rem 0 1rem;
+}
+svg.map { display: block; width: 100%; height: auto; max-width: 100%; }
+.land { fill: var(--land); stroke: var(--line); stroke-width: 1.2; }
+.pin { cursor: pointer; }
+.pin circle.hit { fill: transparent; }   /* zona de contacto amplia, también para pantallas táctiles */
+.pin circle.dot { stroke: var(--bg); stroke-width: 2.5; transition: r 0.2s; }
+.pin:hover circle.dot, .pin.on circle.dot { r: 13; }
+.pin circle.halo { fill: none; stroke-width: 2; opacity: 0; transition: opacity 0.25s; }
+.pin.on circle.halo { opacity: 0.55; }
+.pin text {
+  font-family: var(--font-body); font-size: 19px; font-weight: 700;
+  fill: var(--fg); paint-order: stroke; stroke: var(--sea); stroke-width: 5px;
+}
+.pin:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
+
+/* ── selector ── */
+.picker { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+button.civ {
+  font-family: var(--font-body); font-size: 0.85rem; font-weight: 700;
+  letter-spacing: 0.02em; color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-left-width: 4px;
+  border-radius: 3px; padding: 0.6rem 0.95rem; cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+button.civ:hover { background: var(--surface-2); }
+button.civ[aria-pressed="true"] { background: var(--surface-2); }
+button.civ:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+button.civ .yr { display: block; font-weight: 400; font-size: 0.72rem; color: var(--muted); }
+
+/* ── ficha ── */
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-top-width: 4px; border-radius: 4px; padding: 1.5rem;
+}
+.card h3 {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1.5rem, 4.5vw, 2.1rem); line-height: 1.1; margin: 0 0 0.2rem;
+}
+.card .years {
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+.card .hook { font-size: 1.0625rem; margin-bottom: 1.25rem; }
+dl { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; margin: 0 0 1.25rem; }
+dl > div { background: var(--surface); padding: 0.85rem 1rem; min-width: 0; }
+dt {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem;
+}
+dd { margin: 0; }
+dd em { font-style: italic; }
+@media (min-width: 38rem) { dl { grid-template-columns: 1fr 1fr; } }
+.quote {
+  font-family: var(--font-display); font-size: 1.05rem; font-style: italic;
+  color: var(--muted); border-left: 2px solid var(--line);
+  padding-left: 1rem; margin: 0;
+}
+
+/* ── progreso de exploración ── */
+.progress {
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+  font-size: 0.8rem; color: var(--muted); margin: 1.5rem 0 0;
+}
+.progress .dots { display: flex; gap: 0.3rem; }
+.progress .dots i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: transparent; border: 1.5px solid var(--line);
+}
+.progress .dots i.seen { background: var(--fg); border-color: var(--fg); }
+
+/* ── síntesis final ── */
+.synth {
+  margin-top: 2rem; padding: 1.5rem; border-radius: 4px;
+  background: var(--surface-2); border: 1px solid var(--line);
+}
+.paths { display: grid; gap: 1rem; margin-top: 1rem; }
+@media (min-width: 38rem) { .paths { grid-template-columns: 1fr 1fr; } }
+.paths > div { background: var(--surface); border-radius: 3px; padding: 1rem 1.1rem; min-width: 0; }
+.paths h4 {
+  font-family: var(--font-display); font-size: 1.05rem; font-weight: 700;
+  margin: 0 0 0.4rem;
+}
+.paths p { margin: 0; font-size: 0.95rem; }
+
+footer {
+  margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line);
+  font-size: 0.82rem; color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body><div id="cinta-sitio">
+  <a href="../../unidades/unidad-2.html"><span aria-hidden="true">&#8592;</span>&nbsp;Unidad 2</a>
+  <span class="nombre">Cuatro imperios, cuatro escuelas</span>
+  <a class="casa" href="../../index.html">Veinticinco siglos de pedagogía</a>
+</div>
+<style>
+#cinta-sitio {
+  --tira-hondo: #12635F; --tira-acento: #F0CE6A;
+  font: 600 13px/1.2 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 10px max(14px, env(safe-area-inset-left, 0px));
+  background: var(--tira-hondo); color: #ffffffa8;
+  border-bottom: 2px solid var(--tira-acento);
+}
+#cinta-sitio a { color: var(--tira-acento); text-decoration: none; white-space: nowrap;
+  transition: opacity .18s ease; }
+#cinta-sitio a:hover { opacity: .75; text-decoration: underline; }
+#cinta-sitio .nombre { margin-right: auto; color: #ffffff9c; }
+#cinta-sitio .casa { font-weight: 400; color: #ffffff8a; }
+@media (max-width: 560px) { #cinta-sitio .nombre { display: none } }
+@media print { #cinta-sitio { display: none } }
+
+/* ── microinteracciones comunes ────────────────────────────────────── */
+button, [role="button"], .boton, summary {
+  transition: transform .18s ease, background-color .2s ease,
+              border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+button:not([disabled]):hover, [role="button"]:not([aria-disabled="true"]):hover {
+  transform: translateY(-1px);
+}
+button:not([disabled]):active, [role="button"]:active { transform: translateY(0); }
+:focus-visible { outline: 3px solid var(--tira-acento, #f0c169); outline-offset: 2px; }
+
+/* las barras de avance se mueven en vez de saltar */
+div[style*="width"] { transition: width .55s cubic-bezier(.2,.75,.3,1); }
+
+/* ── entrada y aparición ───────────────────────────────────────────── */
+html.realce .surge { opacity: 0; transform: translateY(14px); }
+html.realce .surge.puesto {
+  opacity: 1; transform: none;
+  transition: opacity .55s cubic-bezier(.2,.7,.3,1), transform .55s cubic-bezier(.2,.7,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.realce .surge, html.realce .surge.puesto { opacity: 1; transform: none; transition: none; }
+  button, [role="button"], .boton, summary, div[style*="width"] { transition: none !important; }
+  button:hover, [role="button"]:hover { transform: none; }
+}
+</style>
+<script>
+(function () {
+  // Nada de esto es necesario para jugar: si algo falla, el juego queda como estaba.
+  try {
+    var quieto = matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (quieto) return;
+    var raiz = document.documentElement;
+
+    function arrancar() {
+      // busca el envoltorio que de verdad contiene el juego
+      var caja = document.body, hijos;
+      for (var i = 0; i < 3; i++) {
+        hijos = [].filter.call(caja.children, function (e) {
+          return e.id !== "cinta-sitio" &&
+                 ["SCRIPT", "STYLE", "LINK", "NOSCRIPT", "TEMPLATE"].indexOf(e.tagName) < 0;
+        });
+        if (hijos.length > 1) break;
+        if (hijos.length === 1) caja = hijos[0]; else return;
+      }
+      if (!hijos || hijos.length < 2) return;
+
+      raiz.classList.add("realce");
+      hijos.forEach(function (e) { e.classList.add("surge"); });
+
+      var alto = innerHeight;
+      var tarde = [];
+      hijos.forEach(function (e, i) {
+        if (e.getBoundingClientRect().top < alto * 0.92) {
+          setTimeout(function () { e.classList.add("puesto"); }, 70 + i * 90);
+        } else { tarde.push(e); }
+      });
+
+      if (!tarde.length || !("IntersectionObserver" in window)) {
+        tarde.forEach(function (e) { e.classList.add("puesto"); });
+        return;
+      }
+      var ojo = new IntersectionObserver(function (es) {
+        es.forEach(function (x) {
+          if (!x.isIntersecting) return;
+          x.target.classList.add("puesto");
+          ojo.unobserve(x.target);
+        });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
+      tarde.forEach(function (e) { ojo.observe(e); });
+
+      // red de seguridad: pase lo que pase, a los 4 segundos todo está visible
+      setTimeout(function () {
+        hijos.forEach(function (e) { e.classList.add("puesto"); });
+      }, 4000);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", arrancar);
+    } else { arrancar(); }
+  } catch (e) { /* el juego sigue funcionando igual */ }
+})();
+</script>
+<div class="wrap">
+  <p class="eyebrow">Historia de la Pedagogía · Clase 2</p>
+  <h1>Cuatro imperios, cuatro escuelas</h1>
+  <p class="lede">Entre el 3100&nbsp;a.&nbsp;C. y 1905 d.&nbsp;C., cuatro civilizaciones separadas por océanos resolvieron el mismo problema: cómo formar a quienes iban a administrar el Estado. Explora cada una y compara sus respuestas.</p>
+
+  <div class="mapbox">
+    <svg class="map" viewBox="150 60 740 300" role="img" aria-label="Mapa esquemático con la ubicación de las cuatro civilizaciones">
+      <!-- masas continentales esquemáticas, proyección equirectangular aproximada -->
+      <path class="land" d="M150,72 L252,62 L302,82 L292,112 L266,132 L256,162 L236,178 L226,198 L216,188 L213,162 L196,142 L171,122 L151,96 Z"/>
+      <path class="land" d="M246,206 L269,200 L291,216 L301,251 L296,291 L283,331 L269,371 L256,391 L249,361 L244,311 L241,266 L239,231 Z"/>
+      <path class="land" d="M494,152 L571,146 L601,161 L606,196 L581,231 L566,271 L551,311 L531,326 L521,291 L506,251 L493,211 L489,176 Z"/>
+      <path class="land" d="M482,112 L521,86 L601,76 L701,71 L801,81 L861,101 L871,131 L841,151 L801,166 L761,161 L739,158 L735,186 L722,206 L709,184 L706,158 L681,161 L641,151 L601,141 L561,136 L521,131 Z"/>
+      <path class="land" d="M800,175 L838,170 L852,186 L844,206 L818,208 L801,196 Z"/>
+
+      <g class="pin" id="pin-china" tabindex="0" role="button" aria-label="China Imperial">
+        <circle class="hit" cx="803" cy="156" r="26"/>
+        <circle class="halo" cx="803" cy="156" r="20" stroke="var(--china)"/>
+        <circle class="dot" cx="803" cy="156" r="10" fill="var(--china)"/>
+        <text x="803" y="134" text-anchor="middle">China</text>
+      </g>
+      <g class="pin" id="pin-egipto" tabindex="0" role="button" aria-label="Egipto Dinástico">
+        <circle class="hit" cx="592" cy="178" r="26"/>
+        <circle class="halo" cx="592" cy="178" r="20" stroke="var(--egipto)"/>
+        <circle class="dot" cx="592" cy="178" r="10" fill="var(--egipto)"/>
+        <text x="592" y="156" text-anchor="middle">Egipto</text>
+      </g>
+      <g class="pin" id="pin-mexica" tabindex="0" role="button" aria-label="Imperio Mexica">
+        <circle class="hit" cx="225" cy="197" r="26"/>
+        <circle class="halo" cx="225" cy="197" r="20" stroke="var(--mexica)"/>
+        <circle class="dot" cx="225" cy="197" r="10" fill="var(--mexica)"/>
+        <text x="225" y="232" text-anchor="middle">Mexicas</text>
+      </g>
+      <g class="pin" id="pin-inca" tabindex="0" role="button" aria-label="Tahuantinsuyo Inca">
+        <circle class="hit" cx="300" cy="288" r="26"/>
+        <circle class="halo" cx="300" cy="288" r="20" stroke="var(--inca)"/>
+        <circle class="dot" cx="300" cy="288" r="10" fill="var(--inca)"/>
+        <text x="300" y="322" text-anchor="middle">Incas</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="picker" id="picker" role="group" aria-label="Elegir civilización"></div>
+
+  <div class="card" id="card" aria-live="polite"></div>
+
+  <div class="progress">
+    <span id="progressText">Has explorado 1 de 4 civilizaciones</span>
+    <span class="dots" id="dots" aria-hidden="true"></span>
+  </div>
+
+  <div class="synth" id="synth" hidden>
+    <h2>Dos caminos para formar al súbdito</h2>
+    <p class="muted" style="margin-bottom:0">Ya recorriste las cuatro. Los modelos se agrupan en dos familias según la herramienta con la que fijaron el conocimiento.</p>
+    <div class="paths">
+      <div>
+        <h4>El camino de la escritura</h4>
+        <p><strong>China y Egipto.</strong> Quien domina el signo administra el Estado. La alfabetización es escasa y por eso mismo es poder: abre la carrera burocrática y cierra el paso a los demás.</p>
+      </div>
+      <div>
+        <h4>El camino del cuerpo</h4>
+        <p><strong>Mexicas e incas.</strong> Sin escritura fonética, el saber se fija en el rito de paso, la memoria oral y el registro material del quipu o el códice. La formación pasa por el cuerpo y la comunidad.</p>
+      </div>
+    </div>
+    <p style="margin:1.25rem 0 0" class="muted">En los cuatro casos el aprendizaje estuvo ligado a la disciplina física, y en los cuatro la mujer quedó al margen del saber central.</p>
+  </div>
+
+  <footer>Basado en la presentación <em>Modelos Educativos de las Civilizaciones Imperiales</em> de la segunda clase. El mapa es esquemático: ubica las capitales, no las fronteras.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var CIV = {
+    china: {
+      name: "China Imperial",
+      years: "551 a.C. – 1905 d.C.",
+      color: "var(--china)",
+      hook: "Pasó de una educación aristocrática cerrada a un sistema que, al menos en principio, abría la administración del imperio a cualquier varón capaz de aprobar un examen.",
+      rows: [
+        ["Institución", "Academias privadas abiertas por Confucio, escuelas oficiales (<em>guanxue</em>) y academias de altos estudios (<em>shuyuan</em>)."],
+        ["Método", "Memorización de los clásicos confucianos y composición escrita bajo formato fijo."],
+        ["Registro", "Caracteres sobre papel y seda; el examen escrito como filtro."],
+        ["Objetivo", "Formar al <em>junzi</em>, el hombre de calidad que une competencia técnica e integridad moral, para la burocracia civil."]
+      ],
+      quote: "El carácter chino para educación, jiao, representa una vara golpeando a un niño."
+    },
+    egipto: {
+      name: "Egipto Dinástico",
+      years: "c. 3100 – 30 a.C.",
+      color: "var(--egipto)",
+      hook: "Menos del 1% de la población sabía escribir. Dominar la escritura era la única vía real de movilidad social y convertía al escriba en engranaje indispensable del Estado.",
+      rows: [
+        ["Institución", "Escuelas junto a templos y dependencias de gobierno; la Casa de la Vida (<em>Per Ankh</em>) y la escuela palatina de <em>El Kap</em>."],
+        ["Método", "Copia sistemática sobre <em>ostraca</em> y tablillas, del hierático cursivo a los jeroglíficos monumentales."],
+        ["Registro", "Papiro y piedra. Textos de estudio: la <em>Kemyt</em> y la <em>Sátira de los Oficios</em>."],
+        ["Objetivo", "Administrar graneros, impuestos y ritos; formar también a los herederos de vasallos extranjeros como instrumento diplomático."]
+      ],
+      quote: "La Sátira de los Oficios exaltaba la vida del escriba frente a la miseria de todos los trabajos manuales."
+    },
+    mexica: {
+      name: "Imperio Mexica",
+      years: "1325 – 1521 d.C.",
+      color: "var(--mexica)",
+      hook: "El único de los cuatro con educación obligatoria, universal y gratuita. También el más rígidamente segregado: la casta decidía a qué escuela entrabas.",
+      rows: [
+        ["Institución", "<em>Calmécac</em> para la nobleza (<em>pipiltin</em>) y <em>Telpochcalli</em> para la clase común (<em>macehualtin</em>); el <em>Cuicacalli</em> o casa del canto."],
+        ["Método", "Internado ascético y estudio de códices en el Calmécac; adiestramiento militar y obras colectivas en el Telpochcalli."],
+        ["Registro", "Códices pictográficos; el <em>Códice Mendoza</em> documenta incluso los castigos."],
+        ["Objetivo", "Sacerdotes y astrónomos de un lado, guerreros leales del otro. Hasta los 14 años la formación era familiar."]
+      ],
+      quote: "Los castigos incluían punciones con espinas de maguey y exposición al humo de chiles quemados."
+    },
+    inca: {
+      name: "Tahuantinsuyo Inca",
+      years: "1438 – 1533 d.C.",
+      color: "var(--inca)",
+      hook: "Un imperio que administró millones de personas y cientos de depósitos sin escritura fonética, confiando su memoria a nudos de colores y a la palabra de los sabios.",
+      rows: [
+        ["Institución", "<em>Yachaywasi</em>, la Casa del Saber en Cuzco, y <em>Acllahuasi</em>, la Casa de las Elegidas."],
+        ["Método", "Seis años de enseñanza oral y mnemotécnica bajo los <em>amautas</em>; el <em>Warachikuy</em> como rito de iniciación militar."],
+        ["Registro", "<em>Quipus</em> de nudos y colores, manejados por los <em>kipucamayocs</em> para censos y contabilidad."],
+        ["Objetivo", "Líderes administrativos y militares; para las <em>acllas</em>, textilería fina de <em>cumbi</em> y servicio religioso estatal."]
+      ],
+      quote: "La educación era práctica, oral y comunitaria, adaptada al rol social de cada individuo."
+    }
+  };
+
+  var ORDER = ["china", "egipto", "mexica", "inca"];
+  var seen = {};
+  var current = null;
+
+  var picker = document.getElementById("picker");
+  var card = document.getElementById("card");
+  var dots = document.getElementById("dots");
+  var progressText = document.getElementById("progressText");
+  var synth = document.getElementById("synth");
+
+  ORDER.forEach(function (key) {
+    var c = CIV[key];
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "civ";
+    b.style.borderLeftColor = c.color;
+    b.setAttribute("aria-pressed", "false");
+    b.dataset.key = key;
+    b.innerHTML = c.name + "<span class='yr'>" + c.years + "</span>";
+    b.addEventListener("click", function () { show(key); });
+    picker.appendChild(b);
+
+    var d = document.createElement("i");
+    d.dataset.key = key;
+    dots.appendChild(d);
+
+    var pin = document.getElementById("pin-" + key);
+    pin.addEventListener("click", function () { show(key); });
+    pin.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(key); }
+    });
+  });
+
+  function show(key) {
+    current = key;
+    seen[key] = true;
+    var c = CIV[key];
+
+    card.style.borderTopColor = c.color;
+    var rows = c.rows.map(function (r) {
+      return "<div><dt>" + r[0] + "</dt><dd>" + r[1] + "</dd></div>";
+    }).join("");
+    card.innerHTML =
+      "<h3 style='color:" + c.color + "'>" + c.name + "</h3>" +
+      "<p class='years'>" + c.years + "</p>" +
+      "<p class='hook'>" + c.hook + "</p>" +
+      "<dl>" + rows + "</dl>" +
+      "<p class='quote'>" + c.quote + "</p>";
+
+    var btns = picker.querySelectorAll("button.civ");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-pressed", btns[i].dataset.key === key ? "true" : "false");
+    }
+    var pins = document.querySelectorAll(".pin");
+    for (var j = 0; j < pins.length; j++) pins[j].classList.remove("on");
+    document.getElementById("pin-" + key).classList.add("on");
+
+    var ds = dots.querySelectorAll("i");
+    for (var k = 0; k < ds.length; k++) {
+      if (seen[ds[k].dataset.key]) ds[k].classList.add("seen");
+    }
+    var n = Object.keys(seen).length;
+    progressText.textContent = n === 4
+      ? "Recorriste las cuatro civilizaciones"
+      : "Has explorado " + n + " de 4 civilizaciones";
+    if (n === 4) synth.hidden = false;
+  }
+
+  show("china");
+})();
+</script>
+</body>
+</html>

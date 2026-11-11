@@ -1,0 +1,3129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body><div id="cinta-sitio">
+  <a href="../../archipielago.html"><span aria-hidden="true">&#8592;</span>&nbsp;El Archipiélago</a>
+  <span class="nombre">Ocho islas</span>
+  <a class="casa" href="../../index.html">Veinticinco siglos de pedagogía</a>
+</div>
+<style>
+#cinta-sitio {
+  --tira-hondo: #161a28; --tira-acento: #e8c37a;
+  font: 600 13px/1.2 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 10px max(14px, env(safe-area-inset-left, 0px));
+  background: var(--tira-hondo); color: #ffffffa8;
+  border-bottom: 2px solid var(--tira-acento);
+}
+#cinta-sitio a { color: var(--tira-acento); text-decoration: none; white-space: nowrap;
+  transition: opacity .18s ease; }
+#cinta-sitio a:hover { opacity: .75; text-decoration: underline; }
+#cinta-sitio .nombre { margin-right: auto; color: #ffffff9c; }
+#cinta-sitio .casa { font-weight: 400; color: #ffffff8a; }
+@media (max-width: 560px) { #cinta-sitio .nombre { display: none } }
+@media print { #cinta-sitio { display: none } }
+
+/* ── microinteracciones comunes ────────────────────────────────────── */
+button, [role="button"], .boton, summary {
+  transition: transform .18s ease, background-color .2s ease,
+              border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+button:not([disabled]):hover, [role="button"]:not([aria-disabled="true"]):hover {
+  transform: translateY(-1px);
+}
+button:not([disabled]):active, [role="button"]:active { transform: translateY(0); }
+:focus-visible { outline: 3px solid var(--tira-acento, #f0c169); outline-offset: 2px; }
+
+/* las barras de avance se mueven en vez de saltar */
+div[style*="width"] { transition: width .55s cubic-bezier(.2,.75,.3,1); }
+
+/* ── entrada y aparición ───────────────────────────────────────────── */
+html.realce .surge { opacity: 0; transform: translateY(14px); }
+html.realce .surge.puesto {
+  opacity: 1; transform: none;
+  transition: opacity .55s cubic-bezier(.2,.7,.3,1), transform .55s cubic-bezier(.2,.7,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.realce .surge, html.realce .surge.puesto { opacity: 1; transform: none; transition: none; }
+  button, [role="button"], .boton, summary, div[style*="width"] { transition: none !important; }
+  button:hover, [role="button"]:hover { transform: none; }
+}
+</style>
+<script>
+(function () {
+  // Nada de esto es necesario para jugar: si algo falla, el juego queda como estaba.
+  try {
+    var quieto = matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (quieto) return;
+    var raiz = document.documentElement;
+
+    function arrancar() {
+      // busca el envoltorio que de verdad contiene el juego
+      var caja = document.body, hijos;
+      for (var i = 0; i < 3; i++) {
+        hijos = [].filter.call(caja.children, function (e) {
+          return e.id !== "cinta-sitio" &&
+                 ["SCRIPT", "STYLE", "LINK", "NOSCRIPT", "TEMPLATE"].indexOf(e.tagName) < 0;
+        });
+        if (hijos.length > 1) break;
+        if (hijos.length === 1) caja = hijos[0]; else return;
+      }
+      if (!hijos || hijos.length < 2) return;
+
+      raiz.classList.add("realce");
+      hijos.forEach(function (e) { e.classList.add("surge"); });
+
+      var alto = innerHeight;
+      var tarde = [];
+      hijos.forEach(function (e, i) {
+        if (e.getBoundingClientRect().top < alto * 0.92) {
+          setTimeout(function () { e.classList.add("puesto"); }, 70 + i * 90);
+        } else { tarde.push(e); }
+      });
+
+      if (!tarde.length || !("IntersectionObserver" in window)) {
+        tarde.forEach(function (e) { e.classList.add("puesto"); });
+        return;
+      }
+      var ojo = new IntersectionObserver(function (es) {
+        es.forEach(function (x) {
+          if (!x.isIntersecting) return;
+          x.target.classList.add("puesto");
+          ojo.unobserve(x.target);
+        });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
+      tarde.forEach(function (e) { ojo.observe(e); });
+
+      // red de seguridad: pase lo que pase, a los 4 segundos todo está visible
+      setTimeout(function () {
+        hijos.forEach(function (e) { e.classList.add("puesto"); });
+      }, 4000);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", arrancar);
+    } else { arrancar(); }
+  } catch (e) { /* el juego sigue funcionando igual */ }
+})();
+</script>
+<title>El Archipiélago de la Pedagogía</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="fuentes/fuentes.css">
+
+<style>
+/* Un archipiélago de noche. Mar de tinta, islas que se encienden al rescatarlas.
+   Mundo oscuro a propósito: el juego ocurre siempre de noche, así que no hay
+   tema claro; todos los colores están declarados. */
+:root {
+  --fondo: #10151f;
+  --muro: #161c28;
+  --panel: #1d2432;
+  --linea: #2d374b;
+  --fg: #ece5d4;
+  --tenue: #8d96ab;
+  --laton: #c9a227;
+  --laton-ap: #76601a;
+  --mal: #d4706a;
+  --epoca: #c9a227;
+  --pergamino: #efe3c4;
+  --tinta: #3a2c1a;
+  --display: "Bodoni Moda", Georgia, "Times New Roman", serif;
+  --ui: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: "DM Mono", ui-monospace, Menlo, monospace;
+  /* para leer sobre pergamino: serif de trazo parejo, no una didona */
+  --lectura: "Lora", Georgia, "Times New Roman", serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--fg); font-family: var(--ui); line-height: 1.55; }
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 64rem; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.rotulo { font-size: .68rem; font-weight: 700; letter-spacing: .17em; text-transform: uppercase; color: var(--tenue); }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--laton); outline-offset: 2px; }
+.btn { font-weight: 600; font-size: .8rem; letter-spacing: .07em; text-transform: uppercase;
+  background: var(--laton); color: #15110a; border: 0; border-radius: 2px; padding: .72rem 1.3rem; }
+.btn:hover { background: #dcb62f; }
+.btn[disabled] { background: transparent; color: var(--tenue); border: 1px solid var(--linea); cursor: default; }
+.btn.fantasma { background: transparent; color: var(--laton); border: 1px solid var(--laton-ap); }
+.btn.fantasma:hover { background: #c9a2271a; }
+.btn.fantasma[disabled] { color: var(--tenue); border-color: var(--linea); background: transparent; }
+.btn.chico { padding: .5rem .9rem; font-size: .72rem; }
+canvas { display: block; width: 100%; max-width: 100%; touch-action: manipulation; background: #0b0f16; }
+img.px { image-rendering: pixelated; }
+/* en el móvil la lista deja de ser solo para lectores: son los mandos */
+@media (max-width: 620px) {
+  #listaIslas { position: static; width: auto; height: auto; overflow: visible; clip: auto;
+    white-space: normal; display: grid; gap: .5rem; margin-top: .9rem; }
+  #listaIslas button { width: 100%; text-align: left; display: grid; gap: .1rem;
+    padding: .7rem .9rem; min-height: 48px; border-radius: 4px; cursor: pointer;
+    background: var(--panel); border: 1px solid var(--linea); color: var(--tinta); }
+  #listaIslas button b { font-family: var(--display); font-size: 1.05rem; font-weight: 600; color: #ece5d4; }
+  #listaIslas button .ins { font-family: var(--mono); font-size: .62rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--tenue); }
+  #listaIslas button .ep { font-size: .76rem; color: var(--tenue); }
+  #listaIslas button.abierta { border-color: var(--laton); box-shadow: 0 0 0 1px #c9a22733; }
+  #listaIslas button.abierta .ins { color: var(--laton); }
+  #listaIslas button.hecha b { color: #ece5d4; }
+  #listaIslas button[disabled] { opacity: .5; cursor: default; }
+  #listaIslas button[data-puerta] { justify-items: center; text-align: center;
+    border-color: var(--laton); color: var(--laton); font-family: var(--display); }
+}
+#seguir { border: 1px solid var(--laton); border-radius: 4px; padding: 1rem 1.1rem; margin-bottom: 1.6rem;
+  background: #c9a2270f; display: grid; gap: .7rem; }
+#seguir .seguir-que { font-family: var(--display); font-size: 1.05rem; color: #ece5d4; }
+#seguir .seguir-acc { display: flex; gap: .6rem; flex-wrap: wrap; }
+.voz-mapa { font-family: var(--display); font-style: italic; font-size: .95rem; color: var(--tenue);
+  margin-top: .35rem; min-height: 1.4em; transition: opacity .4s; }
+.solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ───────── portada ───────── */
+#portada { padding-block: clamp(2rem, 7vw, 4.5rem) 3rem; }
+#portada .sello { font-family: var(--mono); font-size: .72rem; letter-spacing: .3em; color: var(--laton); text-transform: uppercase; margin-bottom: 1rem; }
+#portada h1 { font-size: clamp(2.3rem, 8.5vw, 4.4rem); line-height: .98; margin-bottom: .9rem; }
+#portada h1 em { font-style: italic; color: var(--laton); }
+#portada .entrada { max-width: 36rem; color: #cfc9ba; font-size: 1.04rem; }
+.elige { margin-top: 2.4rem; }
+.elige > .rotulo { margin-bottom: .85rem; }
+.fichas { display: grid; gap: .75rem; }
+@media (min-width: 46rem) { .fichas { grid-template-columns: repeat(4, 1fr); } }
+button.ficha { text-align: center; min-width: 0; background: var(--muro); border: 1px solid var(--linea);
+  border-top: 3px solid transparent; border-radius: 3px; padding: .9rem .8rem 1rem;
+  display: flex; flex-direction: column; align-items: center; gap: .45rem;
+  transition: background .15s, border-color .15s, transform .15s; }
+button.ficha:hover { background: var(--panel); transform: translateY(-3px); }
+button.ficha img { height: 128px; width: auto; }
+button.ficha .nom { font-family: var(--display); font-size: 1.3rem; line-height: 1.1; }
+button.ficha .ofi { font-size: .77rem; font-style: italic; color: var(--tenue); margin-top: -.25rem; }
+button.ficha .lem { font-size: .83rem; color: #bdb6a8; line-height: 1.45; }
+#empezar { margin-top: 1.5rem; }
+#cargando { font-size: .85rem; color: var(--tenue); margin-top: .8rem; font-family: var(--mono); }
+
+/* ───────── barra ───────── */
+#barra { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: #10151ff2;
+  backdrop-filter: blur(6px); border-bottom: 1px solid var(--linea); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: #10151f; z-index: 10; }
+#barra .fila { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; padding-block: .5rem; }
+#quien { display: flex; align-items: center; gap: .5rem; }
+#quien img { height: 30px; width: auto; }
+#quien .nm { font-family: var(--display); font-size: 1.02rem; }
+#llavero { display: flex; gap: .28rem; margin-left: auto; align-items: center;
+  flex-wrap: wrap; justify-content: flex-end; row-gap: .35rem; }
+#llavero .k { width: 1.5rem; height: 1.5rem; border-radius: 2px; border: 1px solid var(--linea);
+  display: grid; place-items: center; font-family: var(--display); font-size: .92rem; color: var(--tenue); }
+#llavero .k.tengo { border-color: var(--laton); background: var(--laton); color: #15110a; }
+#llavero .sec { font-family: var(--mono); font-size: .72rem; color: var(--tenue); margin-left: .45rem; white-space: nowrap; }
+@media (max-width: 34rem) { #llavero { margin-left: 0; justify-content: flex-start; } #llavero .sec { margin-left: 0; } }
+#llavero .sec b { color: var(--laton); }
+#son { background: transparent; border: 1px solid var(--linea); border-radius: 2px; width: 1.9rem; height: 1.9rem;
+  display: grid; place-items: center; font-size: .9rem; color: var(--tenue); }
+#son[aria-pressed="true"] { color: var(--laton); border-color: var(--laton-ap); }
+
+/* ───────── mapa ───────── */
+#mapa { padding-block: 1.3rem 3rem; }
+#mapa .cabeza { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; margin-bottom: .9rem; }
+#mapa h2 { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+#mapa .sub { color: var(--tenue); font-size: .92rem; max-width: 32rem; }
+#lienzoMapa { border: 1px solid var(--linea); border-radius: 3px; aspect-ratio: 900 / 580; display: block; width: 100%; }
+.mapa-marco { position: relative; }
+/* el aviso de isla nueva: aparece sobre el mapa mientras salta el candado */
+.nueva { position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%);
+  width: min(26rem, 86%); text-align: center; pointer-events: none;
+  background: linear-gradient(#141b27f2, #090d14f2); border: 2px solid var(--laton);
+  border-radius: 5px; padding: .85rem 1.1rem;
+  box-shadow: 0 10px 40px #000c, 0 0 0 1px #00000080;
+  animation: entraNueva .5s cubic-bezier(.2,1.5,.4,1) both; }
+.nueva.sale { animation: saleNueva .45s ease-in both; }
+.nueva .ni-rotulo { font-family: var(--mono); font-size: .68rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--laton); }
+.nueva .ni-nombre { font-family: var(--display); font-size: clamp(1.25rem, 4.4vw, 1.7rem);
+  line-height: 1.15; color: #fff3cd; margin: .15rem 0 .25rem;
+  text-shadow: 0 2px 0 #000, 0 0 18px #000; }
+.nueva .ni-pie { font-size: .8rem; color: #aeb6c6; }
+@keyframes entraNueva { from { opacity: 0; transform: translateX(-50%) translateY(18px) scale(.9); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
+@keyframes saleNueva { to { opacity: 0; transform: translateX(-50%) translateY(12px); } }
+@media (prefers-reduced-motion: reduce) { .nueva, .nueva.sale { animation: none; } }
+#pieMapa { margin-top: .9rem; min-height: 2.6rem; }
+#pieMapa .dice { font-family: var(--display); font-size: 1.05rem; color: #ded7c6; }
+
+/* ───────── instrucciones ───────── */
+#brief { padding-block: 1.6rem 3rem; }
+.brief-caja { border: 1px solid var(--linea); border-radius: 3px; background: var(--muro); overflow: hidden; }
+.brief-cab { border-left: 5px solid var(--epoca); background: var(--panel); padding: 1rem 1.2rem; }
+.brief-cab .ep { font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--epoca); font-weight: 700; }
+.brief-cab h2 { font-size: clamp(1.6rem, 5vw, 2.3rem); line-height: 1.06; margin: .15rem 0 0; }
+.brief-cuerpo { display: grid; gap: 1.3rem; padding: 1.3rem 1.2rem 1.4rem; }
+@media (min-width: 44rem) { .brief-cuerpo { grid-template-columns: 170px 1fr; align-items: start; } }
+.brief-guia { text-align: center; }
+.brief-guia img { width: 150px; height: auto; margin-inline: auto; }
+.brief-guia .quien { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--tenue); margin-top: .3rem; }
+.brief-texto { display: grid; gap: 1.1rem; min-width: 0; }
+.brief-texto .amb { font-family: var(--display); font-size: 1.1rem; line-height: 1.6; color: #ded7c6; max-width: 44rem; }
+.mision { border-left: 3px solid var(--epoca); background: #ffffff09; padding: .85rem 1rem; border-radius: 0 3px 3px 0; }
+.mision .rotulo { color: var(--epoca); margin-bottom: .2rem; }
+.mision p { font-family: var(--display); font-size: 1.18rem; line-height: 1.45; }
+ol.pasos { margin: 0; padding-left: 0; list-style: none; counter-reset: p; display: grid; gap: .6rem; }
+ol.pasos li { counter-increment: p; display: flex; gap: .7rem; font-size: .95rem; color: #cfc9ba; }
+ol.pasos li::before { content: counter(p); flex: 0 0 auto; width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  border: 1px solid var(--epoca); color: var(--epoca); display: grid; place-items: center;
+  font-family: var(--mono); font-size: .78rem; }
+.controles { font-size: .85rem; color: var(--tenue); border-top: 1px solid var(--linea); padding-top: .9rem;
+  display: flex; flex-direction: column; gap: .5rem; }
+.controles b { color: #d8d0bc; font-weight: 600; }
+.controles .cmodo { display: inline-block; color: var(--laton); font-family: var(--display); font-size: .95rem; }
+.controles .cnota { color: #7f8798; font-style: italic; }
+.controles kbd { font-family: var(--mono); font-size: .72rem; border: 1px solid var(--linea); border-radius: 2px; padding: 0 .28rem; }
+
+/* ───────── sala ───────── */
+#sala { padding-block: 1rem 3rem; }
+#sala .cab { border-left: 5px solid var(--epoca); background: var(--panel); padding: .75rem 1.1rem;
+  border-radius: 3px 3px 0 0; display: flex; justify-content: space-between; gap: 1rem; align-items: center; flex-wrap: wrap; }
+#sala .cab .ep { font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; color: var(--epoca); font-weight: 700; }
+#sala .cab h2 { font-size: clamp(1.3rem, 4vw, 1.75rem); line-height: 1.08; }
+#lienzo { border: 1px solid var(--linea); border-top: 0; aspect-ratio: 552 / 368; display: block; width: 100%; }
+/* en vertical sobra alto y falta ancho: el lienzo crece y la cámara acerca */
+@media (max-width: 620px) {
+  #lienzo { aspect-ratio: 5 / 6; max-height: 62vh; margin-inline: auto; }
+}
+#consola { border: 1px solid var(--linea); border-top: 0; border-radius: 0 0 3px 3px; background: var(--muro); padding: 1rem 1.1rem; display: grid; gap: .8rem; }
+#objetivo { display: flex; gap: .55rem; align-items: flex-start; font-size: .93rem; color: #cfc9ba; }
+#objetivo .ico { color: var(--epoca); flex: 0 0 auto; font-family: var(--mono); }
+#dialogo { border-left: 3px solid var(--laton); background: #c9a2270e; padding: .7rem .95rem; border-radius: 0 3px 3px 0; min-height: 2.9rem; }
+#dialogo .de { font-size: .68rem; letter-spacing: .13em; text-transform: uppercase; color: var(--laton); display: block; margin-bottom: .15rem; }
+#dialogo p { font-family: var(--display); font-size: 1.02rem; line-height: 1.5; }
+#dialogo.alerta { border-left-color: var(--mal); background: #d4706a0e; }
+#dialogo.alerta .de { color: var(--mal); }
+
+#llevo { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap;
+  border: 2px solid var(--laton); border-radius: 3px; background: #c9a2271c; padding: .7rem .9rem; }
+#llevo .mano { flex: 0 0 auto; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--laton);
+  color: #15110a; display: grid; place-items: center; font-size: 1.1rem; animation: late 1.6s ease-in-out infinite; }
+@keyframes late { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+#llevo .tx { min-width: 0; flex: 1 1 14rem; }
+#llevo .tx .et { font-size: .66rem; letter-spacing: .15em; text-transform: uppercase; color: var(--laton); font-weight: 700; display: block; }
+#llevo .tx b { font-family: var(--display); font-size: 1.05rem; font-weight: 400; }
+#mandos { display: flex; gap: .55rem; flex-wrap: wrap; align-items: center; }
+
+/* ───────── pergamino de lectura ───────── */
+/* el pergamino se lee en papel claro: nada de suavizado fino, que adelgaza el trazo */
+.hoja, .hoja * { -webkit-font-smoothing: auto; text-rendering: optimizeLegibility; }
+.velo { position: fixed; inset: 0; z-index: 40; background: #080b11d9; backdrop-filter: blur(3px);
+  display: grid; place-items: center; overflow-y: auto;
+  padding: max(1rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px))
+           max(1rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px)); }
+.hoja { position: relative; width: min(38rem, 100%); background: var(--pergamino); color: var(--tinta);
+  border-radius: 3px; padding: 1.6rem 1.5rem 1.4rem; margin-block: auto;
+  box-shadow: 0 18px 50px #000a, inset 0 0 70px #cbb68c55;
+  border: 1px solid #c9b48a; animation: sube .22s ease-out; }
+@keyframes sube { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+.hoja::before, .hoja::after { content: ""; position: absolute; left: 0; right: 0; height: 9px;
+  background: repeating-linear-gradient(90deg, #d9c69c 0 7px, #cbb68c 7px 13px); }
+.hoja::before { top: -9px; border-radius: 3px 3px 0 0; }
+.hoja::after { bottom: -9px; border-radius: 0 0 3px 3px; }
+.hoja .icono { position: absolute; top: -34px; left: 1.2rem; width: 68px; height: auto;
+  filter: drop-shadow(0 4px 10px #0008); }
+.hoja .tipo { font-size: .66rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+  color: #8a6a2a; margin: .2rem 0 .1rem 4.8rem; }
+.hoja h3 { font-family: var(--lectura); font-weight: 600; font-size: clamp(1.3rem, 4.2vw, 1.7rem);
+  line-height: 1.2; margin-bottom: .7rem; color: #231a0e; letter-spacing: -.005em; }
+.hoja .cuerpo { font-family: var(--lectura); font-weight: 400; font-size: 1.06rem; line-height: 1.62;
+  color: #241b0f; }
+.hoja .pie { margin-top: 1.3rem; display: flex; gap: .7rem; align-items: center; flex-wrap: wrap; }
+.hoja .btn { background: #3f2f1a; color: #f2e8d0; }
+.hoja .btn:hover { background: #55401f; }
+.hoja .cerrar { position: absolute; top: .4rem; right: .5rem; background: transparent; border: 0;
+  font-size: 1.5rem; line-height: 1; color: #8a7450; padding: .2rem .4rem; }
+.hoja .cerrar:hover { color: #3a2c1a; }
+.hoja .nota { font-size: .8rem; color: #7a6646; }
+.hoja.secreto { background: #e8e0f2; border-color: #b9a6d4; box-shadow: 0 18px 50px #000a, inset 0 0 70px #9a7fd444; }
+.hoja.secreto::before, .hoja.secreto::after { background: repeating-linear-gradient(90deg, #cdbce4 0 7px, #b9a6d4 7px 13px); }
+.hoja.secreto .tipo { color: #6a4fa0; }
+.hoja.secreto h3 { color: #2d2342; }
+.hoja.secreto .cuerpo { color: #3c3156; }
+.hoja.secreto .btn { background: #4a3a72; color: #efe9fa; }
+
+/* ───────── aviso de isla rescatada ───────── */
+.tarjeta { position: relative; width: min(34rem, 100%); margin-block: auto; text-align: center;
+  background: var(--panel); border: 1px solid var(--laton); border-radius: 4px;
+  padding: 2rem 1.5rem 1.5rem; box-shadow: 0 20px 60px #000b; animation: sube .25s ease-out; }
+.tarjeta .rotulo { color: var(--laton); }
+.tarjeta h3 { font-size: clamp(1.6rem, 5.5vw, 2.3rem); line-height: 1.1; margin: .3rem 0 1rem; }
+.tarjeta .sello-llave { display: flex; align-items: center; justify-content: center; gap: .9rem; margin-bottom: .9rem; }
+.tarjeta .sello-llave img { width: 56px; height: auto; }
+/* la letra va grabada: oro claro sobre placa oscura. Al revés —trazo oscuro
+   sobre oro con halo— el fondo luminoso se comía la letra. */
+.tarjeta .letra { font-family: var(--display); font-weight: 700; font-size: 4.2rem; line-height: 1;
+  color: #fff3cd; width: 5.6rem; height: 5.6rem; display: grid; place-items: center;
+  border-radius: 5px; background: linear-gradient(158deg, #1a212e, #05070b 72%);
+  border: 2px solid var(--laton);
+  box-shadow: inset 0 1px 0 #ffffff26, inset 0 -4px 10px #000, 0 4px 16px #000a;
+  /* la letra se hunde en la placa: sombra dura abajo y halo oscuro alrededor */
+  text-shadow: 0 3px 0 #000, 0 1px 0 #000, 1px 0 0 #000, -1px 0 0 #000, 0 0 18px #000;
+  animation: late 2s ease-in-out infinite; }
+.tarjeta .llave-nom { font-family: var(--display); font-size: 1.1rem; color: #e4dcc6; margin-bottom: .8rem; }
+.tarjeta .cierre { font-family: var(--display); font-size: 1.02rem; line-height: 1.6; color: #c6bfae;
+  max-width: 28rem; margin: 0 auto 1.3rem; text-align: left; }
+.tarjeta .acc { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
+
+/* ───────── concepto clave conseguido ───────── */
+.logro { position: relative; width: min(32rem, 100%); margin-block: auto; text-align: center;
+  background: linear-gradient(170deg, #2a2616, var(--panel) 55%);
+  border: 2px solid var(--laton); border-radius: 4px; padding: 2.4rem 1.5rem 1.4rem;
+  box-shadow: 0 20px 60px #000b, 0 0 60px #c9a22733; animation: sube .25s ease-out; }
+.logro .medalla { position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+  width: 60px; height: 60px; border-radius: 50%; background: var(--laton); border: 3px solid #f0d87a;
+  display: grid; place-items: center; box-shadow: 0 6px 20px #0009; }
+.logro .medalla img { width: 38px; height: auto; }
+.logro .grito { font-size: .7rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--laton); margin-bottom: .5rem; }
+.logro h3 { font-size: clamp(1.7rem, 6vw, 2.4rem); line-height: 1.08; color: #f6ecd2; margin-bottom: .2rem; }
+.logro .donde { font-size: .78rem; color: var(--tenue); font-style: italic; margin-bottom: .9rem; }
+.logro .def { font-family: var(--display); font-size: 1.04rem; line-height: 1.62; color: #ddd5c2;
+  text-align: left; border-top: 1px solid #c9a22740; padding-top: .9rem; margin-bottom: 1.2rem; }
+.logro .guardado { font-size: .8rem; color: var(--tenue); margin-top: .8rem; }
+
+/* ───────── el cuaderno ───────── */
+#abrirCuaderno { display: flex; align-items: center; gap: .45rem; background: transparent;
+  border: 1px solid var(--laton-ap); border-radius: 3px; padding: .25rem .6rem .25rem .35rem; color: var(--laton);
+  font-size: .74rem; font-weight: 600; letter-spacing: .04em; }
+#abrirCuaderno:hover { background: #c9a2271a; }
+#abrirCuaderno img { width: 22px; height: auto; }
+#abrirCuaderno .n { font-family: var(--mono); color: var(--fg); }
+#abrirCuaderno.nuevo { animation: brinca .7s ease-out 2; border-color: var(--laton); }
+@keyframes brinca { 0%,100% { transform: none; } 30% { transform: translateY(-4px) scale(1.06); } }
+
+.cuaderno { position: relative; width: min(54rem, 100%); margin-block: auto;
+  background: var(--panel); border: 1px solid var(--linea); border-radius: 4px;
+  box-shadow: 0 20px 60px #000b; animation: sube .22s ease-out; }
+.cuaderno > header { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+  padding: 1.1rem 1.2rem .9rem; border-bottom: 1px solid var(--linea); }
+.cuaderno > header img { width: 40px; height: auto; }
+.cuaderno h2 { font-size: 1.6rem; line-height: 1.1; }
+.cuaderno .cuenta { font-family: var(--mono); font-size: .76rem; color: var(--tenue); }
+.cuaderno .cuenta b { color: var(--laton); }
+.pestanas { display: flex; gap: .3rem; flex-wrap: wrap; padding: .8rem 1.2rem 0; }
+.pestanas button { background: transparent; border: 1px solid var(--linea); border-bottom: 0;
+  border-radius: 3px 3px 0 0; padding: .5rem .85rem; font-size: .76rem; font-weight: 600;
+  letter-spacing: .04em; color: var(--tenue); }
+.pestanas button[aria-selected="true"] { color: var(--laton); border-color: var(--laton-ap); background: #c9a2271a; }
+.cuaderno .hojas { padding: 1rem 1.2rem 1.3rem; max-height: 62vh; overflow-y: auto; border-top: 1px solid var(--linea); margin-top: -1px; }
+.grupo { margin-bottom: 1.5rem; }
+.grupo > .tit { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; border-left: 4px solid var(--epc, var(--laton));
+  padding-left: .7rem; margin-bottom: .2rem; }
+.grupo > .tit h3 { font-size: 1.22rem; line-height: 1.2; }
+.grupo > .tit .cuantos { font-family: var(--mono); font-size: .72rem; color: var(--tenue); }
+.grupo > .intro { font-size: .86rem; color: var(--tenue); line-height: 1.5; margin: 0 0 .7rem .95rem; max-width: 46rem; }
+.cuaderno .pie { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap;
+  padding: 0 1.2rem 1.2rem; }
+.cuaderno .cerrar { position: absolute; top: .5rem; right: .6rem; background: transparent; border: 0;
+  font-size: 1.6rem; line-height: 1; color: var(--tenue); padding: .1rem .4rem; }
+.cuaderno .cerrar:hover { color: var(--fg); }
+.vacio { font-style: italic; color: var(--tenue); font-size: .92rem; }
+.rejilla { display: grid; gap: .6rem; }
+@media (min-width: 40rem) { .rejilla { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 62rem) { .rejilla { grid-template-columns: repeat(3, 1fr); } }
+.rejilla.dos { grid-template-columns: 1fr; }
+@media (min-width: 44rem) { .rejilla.dos { grid-template-columns: repeat(2, 1fr); } }
+.tarjetilla { border: 1px solid var(--linea); border-left: 3px solid var(--epc, var(--laton));
+  border-radius: 3px; background: var(--muro); padding: .8rem .9rem; min-width: 0; }
+.tarjetilla .isla { font-size: .64rem; letter-spacing: .13em; text-transform: uppercase; color: var(--tenue); }
+.tarjetilla .term { font-family: var(--display); font-size: 1.14rem; line-height: 1.2; margin: .1rem 0 .3rem; }
+.tarjetilla .def { font-size: .86rem; line-height: 1.5; color: #c3bcad; }
+.tarjetilla.cerrado { border-left-color: var(--linea); opacity: .62; }
+.tarjetilla.cerrado .term { color: var(--tenue); font-style: italic; }
+#copiado { font-size: .82rem; color: var(--laton); }
+
+/* ───────── bitácora, dentro del cuaderno ───────── */
+#notas { display: grid; gap: .8rem; }
+#notas .nota { border-left: 2px solid var(--linea); padding-left: .8rem; }
+#notas .nota.sec { border-left-color: #9a7fd4; }
+#notas .nota .de { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--tenue); }
+#notas .nota p { font-size: .9rem; line-height: 1.5; color: #cfc9ba; }
+
+/* ───────── final ───────── */
+#final { padding-block: 1.6rem 4rem; }
+.arco-final { display: block; width: 150px; height: auto; margin-bottom: .6rem;
+  filter: drop-shadow(0 10px 26px #c9a22744); }
+
+/* lo aprendido vuela hasta el cuaderno */
+.vuela { position: fixed; z-index: 60; pointer-events: none; width: 54px; height: 54px;
+  margin: -27px 0 0 -27px; display: grid; place-items: center; }
+.vuela img { width: 100%; height: auto; filter: drop-shadow(0 4px 14px #c9a22788); }
+#abrirCuaderno.recibe { background: var(--laton); color: #15110a; border-color: var(--laton); }
+#abrirCuaderno.recibe .n { color: #15110a; }
+.ranuras, .sueltas { display: flex; gap: .4rem; flex-wrap: wrap; }
+.ranuras { margin: 1rem 0; }
+.ranura { width: 2.9rem; height: 3.5rem; border: 1px solid var(--linea); border-radius: 2px; display: grid; place-items: center;
+  font-family: var(--display); font-size: 1.75rem; background: var(--panel); }
+.ranura.vacia { color: transparent; border-style: dashed; }
+.ranura.llena { border-color: var(--laton); background: var(--laton); color: #15110a; font-weight: 600; }
+button.suelta { width: 2.9rem; height: 3.5rem; border: 1px solid var(--linea); border-radius: 2px; background: var(--muro);
+  font-family: var(--display); font-size: 1.75rem; display: grid; place-items: center; }
+button.suelta:hover { border-color: var(--laton); }
+button.suelta[disabled] { opacity: .22; cursor: default; }
+.estado { font-size: .88rem; min-height: 1.3rem; }
+.estado.mal { color: var(--mal); }
+.epilogo { display: grid; gap: 1.2rem; margin-top: 1.5rem; }
+.epilogo .texto { font-family: var(--display); font-size: 1.13rem; line-height: 1.65; max-width: 42rem; white-space: pre-line; }
+.epilogo .personal, .epilogo .bonus { border-left: 3px solid var(--laton); padding: .85rem 1.05rem; background: #c9a2270f;
+  font-family: var(--display); font-size: 1.06rem; line-height: 1.55; max-width: 42rem; }
+.epilogo .bonus { border-left-color: #9a7fd4; background: #9a7fd40f; }
+.marcador { display: flex; gap: 1.4rem; flex-wrap: wrap; font-size: .89rem; color: var(--tenue); }
+.marcador b { color: var(--fg); font-variant-numeric: tabular-nums; }
+.pista { border: 1px solid var(--laton-ap); border-radius: 3px; background: #c9a2270d; padding: .8rem .95rem;
+  display: flex; gap: .65rem; align-items: flex-start; }
+.pista img { height: 44px; width: auto; flex: 0 0 auto; }
+.pista .de { font-size: .7rem; letter-spacing: .13em; text-transform: uppercase; color: var(--laton); display: block; margin-bottom: .15rem; }
+.pista p { font-size: .92rem; line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; } }
+</style>
+
+<!-- ░░░ portada ░░░ -->
+<section id="portada" class="gutter"><div class="wrap">
+  <p class="sello">Historia de la pedagogía · siete islas</p>
+  <h1>El Archipiélago de la <em>Pedagogía</em></h1>
+  <p class="entrada">Siete islas se apagaron, una por cada época en que la humanidad cambió de idea sobre cómo se enseña. Cada una guarda una llave, y cada llave abre la siguiente. Entra, camina por ellas, mira lo que hay dentro y devuélvelas a la luz. En cada una hay además algo escondido que nadie te va a pedir que encuentres.</p>
+  <div class="elige">
+    <div id="seguir" hidden>
+      <p class="rotulo">Tienes una partida empezada</p>
+      <p class="seguir-que" id="seguirQue"></p>
+      <div class="seguir-acc">
+        <button class="btn" id="btSeguir" type="button">Continuar donde la dejaste</button>
+        <button class="btn fantasma" id="btNueva" type="button">Empezar de nuevo</button>
+      </div>
+    </div>
+    <p class="rotulo">Primero, decide quién eres</p>
+    <div class="fichas" id="fichas"></div>
+    <button class="btn" id="empezar" type="button" disabled>Zarpar</button>
+    <p id="cargando">Cargando el archipiélago…</p>
+  </div>
+</div></section>
+
+<!-- ░░░ barra ░░░ -->
+<div id="barra" hidden><div class="gutter"><div class="wrap fila">
+  <div id="quien"></div>
+  <div id="llavero"></div>
+  <button id="abrirCuaderno" type="button" data-cuaderno>
+    <img class="px" src="img/libro-purpura.png" alt=""><span>Cuaderno</span><span class="n" id="cuentaBarra">0</span>
+  </button>
+  <button id="son" type="button" aria-pressed="true" title="Sonido" aria-label="Sonido">♪</button>
+</div></div></div>
+
+<!-- ░░░ mapa ░░░ -->
+<section id="mapa" class="gutter" hidden><div class="wrap">
+  <div class="cabeza">
+    <div><p class="rotulo">El archipiélago</p><h2 id="mapaTitulo">Siete islas a oscuras</h2></div>
+    <p class="sub" id="mapaSub"></p>
+  </div>
+  <div class="mapa-marco">
+    <canvas id="lienzoMapa" aria-label="Mapa del archipiélago"></canvas>
+    <div id="nuevaIsla" class="nueva" role="status" hidden>
+      <p class="ni-rotulo">El candado se rompió</p>
+      <p class="ni-nombre" id="niNombre"></p>
+      <p class="ni-pie">Se abrió una isla nueva · ya puedes entrar</p>
+    </div>
+  </div>
+  <div class="solo-lector" id="listaIslas"></div>
+  <div id="pieMapa"><p class="dice" id="mapaDice"></p><p class="voz-mapa" id="vozMapa"></p></div>
+</div></section>
+
+<!-- ░░░ instrucciones ░░░ -->
+<section id="brief" class="gutter" hidden><div class="wrap">
+  <div class="brief-caja">
+    <div class="brief-cab"><p class="ep" id="bEp"></p><h2 id="bTitulo"></h2></div>
+    <div class="brief-cuerpo">
+      <div class="brief-guia">
+        <img id="bGuia" class="px" alt="" width="150">
+        <p class="quien">El guardián del archivo</p>
+      </div>
+      <div class="brief-texto">
+        <p class="amb" id="bAmb"></p>
+        <div class="mision"><p class="rotulo">Lo que tienes que hacer aquí</p><p id="bMision"></p></div>
+        <ol class="pasos" id="bPasos"></ol>
+        <div class="controles">
+          <p><b class="cmodo">Con el ratón</b> — es lo más cómodo. <b>Haz clic en el suelo</b> para caminar hasta ahí y <b>haz clic sobre una cosa</b> para acercarte a ella y usarla: un clic hace todo. Lo que se puede explorar lleva un <b>?</b> encima; al usarlo se abre un pergamino que puedes cerrar.</p>
+          <p><b class="cmodo">Con el teclado</b> — mantén <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> (o <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>) para caminar y pulsa <kbd>espacio</kbd> para usar lo que tengas al lado.</p>
+          <p class="cnota">Todo lo que descubras se guarda solo en tu cuaderno.</p>
+        </div>
+        <div><button class="btn" id="bEntrar" type="button" data-entrar="1">Entrar a la isla</button></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ░░░ sala ░░░ -->
+<section id="sala" class="gutter" hidden><div class="wrap">
+  <div class="cab">
+    <div><p class="ep" id="salaEp"></p><h2 id="salaTitulo"></h2></div>
+    <button class="btn fantasma chico" id="verBrief" type="button">¿Qué hay que hacer?</button>
+  </div>
+  <canvas id="lienzo" aria-label="La sala vista desde arriba"></canvas>
+  <div class="solo-lector" id="listaCosas"></div>
+  <p class="solo-lector" id="vozPj" aria-live="polite"></p>
+  <div id="consola">
+    <p id="objetivo"><span class="ico">▸</span><span id="objetivoTx"></span></p>
+    <div id="dialogo"><span class="de"></span><p></p></div>
+    <div id="llevo" hidden></div>
+    <div id="mandos"></div>
+  </div>
+</section>
+
+<!-- ░░░ final ░░░ -->
+<section id="final" class="gutter" hidden><div class="wrap" id="finalCuerpo"></div></section>
+
+<!-- ░░░ pergamino ░░░ -->
+<div id="lectura" class="velo" hidden>
+  <div class="hoja" role="dialog" aria-modal="true" aria-labelledby="lecTitulo">
+    <button class="cerrar" type="button" data-cerrar-lectura aria-label="Cerrar">×</button>
+    <img class="icono px" id="lecIcono" src="img/pergamino.png" alt="">
+    <p class="tipo" id="lecTipo"></p>
+    <h3 id="lecTitulo"></h3>
+    <p class="cuerpo" id="lecTexto"></p>
+    <div class="pie">
+      <button class="btn" type="button" data-cerrar-lectura>Seguir explorando</button>
+      <span class="nota" id="lecNota"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ░░░ el cuaderno ░░░ -->
+<div id="cuaderno" class="velo" hidden>
+  <div class="cuaderno" role="dialog" aria-modal="true" aria-labelledby="cuTitulo">
+    <button class="cerrar" type="button" data-cerrar-cuaderno aria-label="Cerrar">×</button>
+    <header>
+      <img class="px" src="img/libro-purpura.png" alt="">
+      <div>
+        <h2 id="cuTitulo">Tu cuaderno</h2>
+        <p class="cuenta" id="cuCuenta"></p>
+      </div>
+    </header>
+    <div class="pestanas" id="cuPestanas" role="tablist"></div>
+    <div class="hojas" id="cuHojas"></div>
+    <div class="pie">
+      <button class="btn fantasma chico" id="copiar" type="button">Copiar mis apuntes</button>
+      <span id="copiado" aria-live="polite"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ░░░ concepto clave ░░░ -->
+<div id="logro" class="velo" hidden>
+  <div class="logro" role="dialog" aria-modal="true" aria-labelledby="loTermino">
+    <div class="medalla"><img class="px" src="img/libro.png" alt=""></div>
+    <p class="grito">Has descubierto un concepto clave</p>
+    <h3 id="loTermino"></h3>
+    <p class="donde" id="loDonde"></p>
+    <p class="def" id="loDef"></p>
+    <button class="btn" type="button" data-cerrar-logro>Anotarlo y seguir</button>
+    <p class="guardado" id="loGuardado"></p>
+  </div>
+</div>
+
+<!-- ░░░ isla rescatada ░░░ -->
+<div id="aviso" class="velo" hidden>
+  <div class="tarjeta" role="dialog" aria-modal="true" aria-labelledby="avTitulo">
+    <p class="rotulo">Isla rescatada</p>
+    <h3 id="avTitulo"></h3>
+    <div class="sello-llave">
+      <img class="px" src="img/llave.png" alt="">
+      <span class="letra" id="avLetra"></span>
+    </div>
+    <p class="llave-nom" id="avLlave"></p>
+    <p class="cierre" id="avCierre"></p>
+    <div class="acc">
+      <button class="btn" type="button" id="avIr" data-ir-mapa>Ir al archipiélago</button>
+      <button class="btn fantasma" type="button" data-cerrar-aviso>Quedarme mirando</button>
+    </div>
+  </div>
+</div>
+
+<script src="mundo.js"></script>
+<script>
+(function () {
+"use strict";
+
+/* ══════════════ 0 · utilidades ══════════════ */
+var el = function (i) { return document.getElementById(i); };
+function limpiar(n) { while (n.firstChild) { n.removeChild(n.firstChild); } }
+function crear(t, c, x) { var n = document.createElement(t); if (c) { n.className = c; } if (x !== undefined) { n.textContent = x; } return n; }
+function tinte(hex, k) {
+  if (!hex || hex.charAt(0) !== "#") { return hex; }
+  var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+  var m = k > 0 ? 255 : 0, a = Math.abs(k);
+  return "rgb(" + Math.round(r + (m - r) * a) + "," + Math.round(g + (m - g) * a) + "," + Math.round(b + (m - b) * a) + ")";
+}
+function pizca(x, y) { var n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return n - Math.floor(n); }
+
+/* ══════════════ 1 · sonido ══════════════ */
+var SON = { ctx: null, on: true };
+try { SON.on = localStorage.getItem("archipielago-son") !== "no"; } catch (e) {}
+
+function ac() {
+  if (!SON.ctx) {
+    try { SON.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { SON.ctx = null; }
+  }
+  if (SON.ctx && SON.ctx.state === "suspended") { SON.ctx.resume(); }
+  return SON.ctx;
+}
+/* una nota corta; todo el sonido del juego sale de aquí */
+function nota(f, t0, dur, forma, vol) {
+  var c = SON.ctx;
+  if (!c) { return; }
+  var o = c.createOscillator(), g = c.createGain();
+  o.type = forma || "sine";
+  o.frequency.setValueAtTime(f, c.currentTime + t0);
+  g.gain.setValueAtTime(0, c.currentTime + t0);
+  g.gain.linearRampToValueAtTime(vol, c.currentTime + t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + t0 + dur);
+  o.connect(g); g.connect(c.destination);
+  o.start(c.currentTime + t0);
+  o.stop(c.currentTime + t0 + dur + 0.02);
+}
+var VOCES = {
+  paso:     function () { nota(150 + Math.random() * 25, 0, 0.07, "triangle", 0.025); },
+  clic:     function () { nota(880, 0, 0.05, "sine", 0.03); },
+  examinar: function () { nota(659, 0, 0.16, "sine", 0.05); nota(988, 0.09, 0.22, "sine", 0.035); },
+  tomar:    function () { nota(523, 0, 0.09, "triangle", 0.05); nota(784, 0.07, 0.13, "triangle", 0.04); },
+  dejar:    function () { nota(523, 0, 0.1, "sine", 0.05); nota(659, 0.08, 0.1, "sine", 0.05); nota(784, 0.16, 0.2, "sine", 0.045); },
+  error:    function () { nota(160, 0, 0.18, "sawtooth", 0.045); nota(120, 0.06, 0.2, "sawtooth", 0.035); },
+  secreto:  function () { nota(880, 0, 0.3, "sine", 0.04); nota(1175, 0.1, 0.3, "sine", 0.032); nota(1397, 0.2, 0.42, "sine", 0.028); },
+  isla:     function () { [392, 494, 587, 784].forEach(function (f, i) { nota(f, i * 0.1, 0.42, "triangle", 0.055); }); },
+  puerta:   function () { [262, 330, 392, 523, 659].forEach(function (f, i) { nota(f, i * 0.13, 0.9, "sine", 0.05); }); },
+  abrir:    function () { nota(440, 0, 0.12, "sine", 0.035); nota(587, 0.07, 0.18, "sine", 0.03); },
+  logro:    function () { [523, 659, 784, 1047].forEach(function (f, i) { nota(f, i * 0.07, 0.5, "sine", 0.05); }); },
+  guardar:  function () { nota(1047, 0, 0.09, "sine", 0.035); nota(1319, 0.06, 0.16, "sine", 0.028); },
+  romper:   function () { nota(90, 0, 0.26, "sawtooth", 0.06); nota(150, 0.03, 0.18, "square", 0.035);
+                          [784, 1047, 1319].forEach(function (x, i) { nota(x, 0.2 + i * 0.07, 0.4, "sine", 0.045); }); }
+};
+function son(cual) {
+  if (!SON.on) { return; }
+  if (!ac()) { return; }
+  var f = VOCES[cual];
+  if (f) { f(); }
+}
+el("son").addEventListener("click", function () {
+  SON.on = !SON.on;
+  this.setAttribute("aria-pressed", SON.on ? "true" : "false");
+  this.textContent = SON.on ? "♪" : "♪̸";
+  this.title = SON.on ? "Silenciar" : "Activar sonido";
+  try { localStorage.setItem("archipielago-son", SON.on ? "si" : "no"); } catch (e) {}
+  if (SON.on) { son("clic"); }
+});
+el("son").setAttribute("aria-pressed", SON.on ? "true" : "false");
+el("son").textContent = SON.on ? "♪" : "♪̸";
+
+/* ══════════════ 2 · carga de imágenes ══════════════ */
+var IMG = {}, pendientes = 0, apagados = {};
+
+var NATURA = ["arbol-roble", "arbol-pino", "arbol-seco", "arbusto", "arbusto-gr", "bayas", "helecho",
+  "flor-roja", "flor-amar", "seta", "setas", "tocon", "tronco", "buho", "conejo", "mariposa", "mariposa2",
+  "puente", "lena", "valla", "bandera", "roca", "rocachica", "hoguera"];
+var ISLAS_SP = ["isla-a", "isla-b", "isla-c", "isla-d", "islote"];
+var EXTRA = ["guardian", "llave", "pergamino", "libro-rayo", "libro-purpura", "puerta", "columna", "arco",
+  "portal", "altar", "caja", "barril", "cubo", "carreta", "estante-libros", "estante-frascos",
+  "escritorio", "pozo", "puesto", "letrero", "candelabro", "roseton", "tumba", "farol", "libro"];
+
+function listaDeSprites() {
+  var s = {};
+  NATURA.concat(ISLAS_SP, EXTRA).forEach(function (n) { s[n] = 1; });
+  PERSONAJES.forEach(function (p) { s[p.sp] = 1; });
+  SALAS.forEach(function (sa) {
+    if (sa.piso.img) { s[sa.piso.img] = 1; }
+    sa.cosas.forEach(function (c) {
+      if (c.m && c.m.sp) { s[c.m.sp] = 1; }
+      if (c.m && c.m.encima) { s[c.m.encima.sp] = 1; }
+    });
+  });
+  return Object.keys(s);
+}
+
+function cargarTodo(listo) {
+  var nombres = listaDeSprites();
+  pendientes = nombres.length;
+  var total = pendientes;
+  function uno() {
+    pendientes--;
+    el("cargando").textContent = pendientes ? "Cargando el archipiélago… " + (total - pendientes) + "/" + total : "";
+    if (!pendientes) { listo(); }
+  }
+  nombres.forEach(function (n) {
+    var im = new Image();
+    im.onload = uno;
+    im.onerror = uno;
+    im.src = "img/" + n + ".png";
+    IMG[n] = im;
+  });
+}
+
+/* una copia apagada del sprite, para las islas todavía a oscuras */
+function apagado(nombre) {
+  if (apagados[nombre]) { return apagados[nombre]; }
+  var im = IMG[nombre];
+  if (!im || !im.width) { return null; }
+  var c = document.createElement("canvas");
+  c.width = im.width; c.height = im.height;
+  var g = c.getContext("2d");
+  g.drawImage(im, 0, 0);
+  /* source-atop respeta la transparencia; un relleno normal pintaría también
+     el fondo y la isla saldría dentro de un rectángulo gris */
+  g.globalCompositeOperation = "source-atop";
+  g.fillStyle = "rgba(58,70,92,.66)";
+  g.fillRect(0, 0, c.width, c.height);
+  g.fillStyle = "rgba(10,16,26,.34)";
+  g.fillRect(0, 0, c.width, c.height);
+  apagados[nombre] = c;
+  return c;
+}
+
+/* ══════════════ 3 · proyección isométrica ══════════════ */
+var TW = 28, TH = 14, ALTO = 34;
+var LW = 552, LH = 368, ORX = 236, ORY = 110, MURO = 88;
+
+function iso(x, y) { return { x: ORX + (x - y) * TW, y: ORY + (x + y) * TH }; }
+function desIso(px, py) {
+  var dx = (px - ORX) / TW, dy = (py - ORY) / TH;
+  return { x: (dx + dy) / 2, y: (dy - dx) / 2 };
+}
+/* La casilla que hay bajo un punto. El rombo está CENTRADO en iso(x, y), así
+   que el inverso se redondea; con floor el clic caía una casilla más allá. */
+function casillaEn(px, py) {
+  var g = desIso(px, py);
+  return { x: Math.round(g.x), y: Math.round(g.y) };
+}
+function rombo(ctx, cx, cy, kx, ky) {
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - ky); ctx.lineTo(cx + kx, cy); ctx.lineTo(cx, cy + ky); ctx.lineTo(cx - kx, cy);
+  ctx.closePath();
+}
+function caja(ctx, cx, cy, w, d, h, c) {
+  function pt(a, b) { return [cx + a * TW - b * TW, cy + a * TH + b * TH]; }
+  var n = pt(-w / 2, -d / 2), e = pt(w / 2, -d / 2), s = pt(w / 2, d / 2), o = pt(-w / 2, d / 2);
+  var H = h * ALTO;
+  ctx.fillStyle = tinte(c, -0.08);
+  ctx.beginPath(); ctx.moveTo(e[0], e[1]); ctx.lineTo(s[0], s[1]); ctx.lineTo(s[0], s[1] - H); ctx.lineTo(e[0], e[1] - H); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = tinte(c, -0.32);
+  ctx.beginPath(); ctx.moveTo(s[0], s[1]); ctx.lineTo(o[0], o[1]); ctx.lineTo(o[0], o[1] - H); ctx.lineTo(s[0], s[1] - H); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = tinte(c, 0.16);
+  ctx.beginPath(); ctx.moveTo(n[0], n[1] - H); ctx.lineTo(e[0], e[1] - H); ctx.lineTo(s[0], s[1] - H); ctx.lineTo(o[0], o[1] - H); ctx.closePath(); ctx.fill();
+}
+/* Lo que se dibuja en el lienzo se encoge con él. Este factor devuelve las
+   letras a un tamaño legible cuando la pantalla es pequeña. */
+var UI = 1, estrecho = false;
+function texto(ctx, s, x, y, tam, col, peso) {
+  ctx.font = (peso || 600) + " " + (tam * UI).toFixed(2) + 'px "Archivo", Arial, sans-serif';
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillStyle = col;
+  ctx.fillText(s, x, y);
+}
+function pastilla(ctx, s, cx, cy, fondo, tinta, borde) {
+  ctx.font = '600 ' + (10 * UI).toFixed(2) + 'px "Archivo", Arial, sans-serif';
+  var w = ctx.measureText(s).width + 13 * UI, al = 17 * UI;
+  ctx.fillStyle = fondo;
+  ctx.beginPath();
+  if (ctx.roundRect) { ctx.roundRect(cx - w / 2, cy - al / 2, w, al, 3); } else { ctx.rect(cx - w / 2, cy - al / 2, w, al); }
+  ctx.fill();
+  if (borde) { ctx.strokeStyle = borde; ctx.lineWidth = 1; ctx.stroke(); }
+  texto(ctx, s, cx, cy + 0.5, 10, tinta);
+}
+/* un sprite apoyado por su base en un punto */
+function pintarImg(ctx, im, cx, cy, alto, voltear, alfa) {
+  if (!im || !im.width) { return 0; }
+  var h = alto * ALTO, w = h * im.width / im.height;
+  ctx.save();
+  if (alfa !== undefined) { ctx.globalAlpha = alfa; }
+  ctx.translate(cx, cy);
+  if (voltear) { ctx.scale(-1, 1); }
+  ctx.drawImage(im, -w / 2, -h, w, h);
+  ctx.restore();
+  return h;
+}
+function sprite(ctx, nombre, cx, cy, alto, voltear, alfa) {
+  return pintarImg(ctx, IMG[nombre], cx, cy, alto, voltear, alfa);
+}
+
+/* ══════════════ 4 · mobiliario ══════════════ */
+function dibujarMueble(ctx, m, cx, cy) {
+  if (m.sp) {
+    var h = sprite(ctx, m.sp, cx, cy + 3, m.alto || 1);
+    if (m.encima) { sprite(ctx, m.encima.sp, cx, cy + 3 - h + 3, m.encima.alto || 0.4); }
+    return;
+  }
+  var t = m.t, c = m.c || "#8a7a62";
+  if (t === "campana") {
+    caja(ctx, cx, cy, 0.3, 0.3, 0.45, tinte(c, -0.5));
+    var by = cy - 0.45 * ALTO;
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, by);
+    ctx.quadraticCurveTo(cx - 9, by - 20, cx, by - 22);
+    ctx.quadraticCurveTo(cx + 9, by - 20, cx + 10, by);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = tinte(c, -0.3);
+    ctx.beginPath(); ctx.ellipse(cx, by, 10, 3.5, 0, 0, 6.2832); ctx.fill();
+  } else if (t === "retrato") {
+    caja(ctx, cx, cy, 0.86, 0.14, 0.26, tinte(c, -0.55));
+    ctx.save();
+    ctx.translate(cx, cy - 0.26 * ALTO - 31);
+    ctx.fillStyle = c; ctx.fillRect(-16, -16, 32, 38);
+    ctx.fillStyle = "#22262f"; ctx.fillRect(-12.5, -12.5, 25, 31);
+    ctx.fillStyle = tinte(c, -0.22);
+    ctx.beginPath(); ctx.arc(0, -2, 6.5, 0, 6.2832); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-9, 18); ctx.quadraticCurveTo(0, 5, 9, 18); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  } else if (t === "prensa") {
+    caja(ctx, cx, cy, 0.92, 0.8, 1.3, c);
+    caja(ctx, cx, cy - 1.3 * ALTO, 1.05, 0.92, 0.18, tinte(c, 0.28));
+    ctx.fillStyle = tinte(c, -0.45);
+    ctx.fillRect(cx - 3, cy - 1.3 * ALTO - 26, 6, 28);
+  } else if (t === "telescopio") {
+    caja(ctx, cx, cy, 0.22, 0.22, 0.58, tinte(c, -0.4));
+    ctx.save();
+    ctx.translate(cx, cy - 0.58 * ALTO); ctx.rotate(-0.5);
+    ctx.fillStyle = c; ctx.fillRect(-6, -26, 12, 30);
+    ctx.fillStyle = tinte(c, 0.3); ctx.fillRect(-8, -30, 16, 6);
+    ctx.restore();
+  } else if (t === "perro") {
+    caja(ctx, cx, cy, 0.66, 0.36, 0.38, c);
+    caja(ctx, cx + 13, cy - 0.38 * ALTO + 5, 0.26, 0.24, 0.3, tinte(c, 0.07));
+    ctx.fillStyle = tinte(c, -0.5);
+    ctx.beginPath(); ctx.arc(cx + 17, cy - 0.38 * ALTO - 7, 1.6, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = "#b45a5a"; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(cx - 2, cy - 11); ctx.lineTo(cx - 2, cy - 3); ctx.stroke();
+  } else if (t === "silla") {
+    caja(ctx, cx - 11, cy + 4, 0.32, 0.32, 0.4, c);
+    caja(ctx, cx - 11, cy + 4 - 0.4 * ALTO, 0.32, 0.1, 0.42, tinte(c, 0.12));
+    caja(ctx, cx + 13, cy - 2, 0.32, 0.32, 0.4, c);
+    caja(ctx, cx + 13, cy - 2 - 0.4 * ALTO, 0.32, 0.1, 0.42, tinte(c, 0.12));
+  } else if (t === "estera") {
+    ctx.save();
+    rombo(ctx, cx, cy, TW - 5, TH - 2.5);
+    ctx.globalAlpha = 0.85; ctx.fillStyle = tinte(c, -0.25); ctx.fill();
+    ctx.globalAlpha = 1; ctx.strokeStyle = tinte(c, 0.35); ctx.lineWidth = 1.4;
+    rombo(ctx, cx, cy, TW - 9, TH - 4.5); ctx.stroke();
+    ctx.restore();
+  } else if (t === "losa") {
+    ctx.save();
+    rombo(ctx, cx, cy, TW - 4, TH - 2);
+    ctx.fillStyle = tinte(c, -0.6); ctx.fill();
+    ctx.strokeStyle = tinte(c, -0.1); ctx.lineWidth = 1.3;
+    rombo(ctx, cx, cy, TW - 7, TH - 3.5); ctx.stroke();
+    ctx.restore();
+  } else if (t === "caja") {
+    caja(ctx, cx, cy, m.w, m.d, m.h, c);
+  }
+}
+
+function alturaDe(m) {
+  if (!m) { return 0; }
+  if (m.sp) { return (m.alto || 1) * ALTO + (m.encima ? (m.encima.alto || 0.4) * ALTO : 0); }
+  var h = { caja: m.h || 0.5, campana: 1.15, retrato: 2.0, prensa: 1.6,
+    telescopio: 1.5, perro: 0.8, silla: 0.95, estera: 0, losa: 0 }[m.t];
+  return (h === undefined ? 0.5 : h) * ALTO;
+}
+
+/* ══════════════ 5 · estado ══════════════ */
+var J = { p: null, isla: 0, hechas: {}, secretos: {}, conceptos: {}, notas: [], pistas: 0, errores: 0, puerta: false, vistos: {} };
+
+/* ══════════════ · la partida se guarda ══════════════
+   Dos destinos, una sola función. Si el juego corre dentro de un LMS
+   (Moodle, como paquete SCORM) el estado viaja al expediente del estudiante
+   y lo sigue de un aparato a otro. Si no, se queda en este navegador. */
+var LMS = (function () {
+  var api = null, vivo = false;
+  function buscar(w) {
+    for (var n = 0; w && n < 12; n++) {
+      if (w.API) { return w.API; }
+      if (w.parent === w) { return null; }
+      w = w.parent;
+    }
+    return null;
+  }
+  try { api = buscar(window) || (window.opener ? buscar(window.opener) : null); } catch (e) { api = null; }
+  if (api) {
+    try {
+      var r = api.LMSInitialize("");
+      vivo = (r === "true" || r === true);
+      /* 103 es «ya estaba iniciado»: también sirve */
+      if (!vivo && api.LMSGetLastError) { vivo = String(api.LMSGetLastError()) === "103"; }
+    } catch (e2) { vivo = false; }
+  }
+  return {
+    hay: function () { return vivo; },
+    leer: function (k) { try { return api.LMSGetValue(k) || ""; } catch (e) { return ""; } },
+    poner: function (k, v) { try { api.LMSSetValue(k, String(v)); } catch (e) {} },
+    sellar: function () { try { api.LMSCommit(""); } catch (e) {} },
+    cerrar: function () { try { api.LMSSetValue("cmi.core.exit", "suspend"); api.LMSCommit(""); api.LMSFinish(""); } catch (e) {} }
+  };
+})();
+
+var CLAVE_PARTIDA = "archipielago.pedagogia.v1";
+
+/* El estado cabe en una línea: SCORM 1.2 solo garantiza 4096 caracteres. */
+function serializar() {
+  if (!J.p) { return ""; }
+  var h = "", sec = "", con = "", i;
+  for (i = 0; i < SALAS.length; i++) {
+    h += J.hechas[i] ? "1" : "0";
+    sec += J.secretos[i] ? "1" : "0";
+  }
+  CONCEPTOS.forEach(function (c) { con += J.conceptos[c.clave] ? "1" : "0"; });
+  return ["1", J.p.id, h, sec, con, J.pistas, J.errores, J.puerta ? "1" : "0",
+    Object.keys(J.vistos).join(".")].join("|");
+}
+
+function restaurar(txt) {
+  if (!txt) { return false; }
+  var t = String(txt).split("|");
+  if (t[0] !== "1") { return false; }
+  var p = PERSONAJES.filter(function (x) { return x.id === t[1]; })[0];
+  if (!p) { return false; }
+  J.p = p;
+  J.hechas = {}; J.secretos = {}; J.conceptos = {}; J.vistos = {}; J.notas = [];
+  for (var i = 0; i < SALAS.length; i++) {
+    if ((t[2] || "").charAt(i) === "1") { J.hechas[i] = true; }
+    if ((t[3] || "").charAt(i) === "1") { J.secretos[i] = true; }
+  }
+  CONCEPTOS.forEach(function (c, k) { if ((t[4] || "").charAt(k) === "1") { J.conceptos[c.clave] = true; } });
+  J.pistas = parseInt(t[5], 10) || 0;
+  J.errores = parseInt(t[6], 10) || 0;
+  J.puerta = t[7] === "1";
+  (t[8] || "").split(".").forEach(function (k) { if (k) { J.vistos[k] = true; } });
+  rehacerBitacora();
+  return true;
+}
+
+/* La bitácora no se guarda: se vuelve a armar con lo que el estudiante vio.
+   Queda ordenada por isla en vez de por el orden en que jugó. */
+function rehacerBitacora() {
+  SALAS.forEach(function (d, i) {
+    d.cosas.forEach(function (c, k) {
+      if (c.tipo === "foco" && J.vistos[i + ":" + k]) {
+        J.notas.push({ de: d.titulo + " · " + c.nombre, tx: c.texto, sec: false, concepto: false });
+      }
+    });
+    d.conceptos.forEach(function (c) {
+      if (J.conceptos[c.clave]) {
+        J.notas.push({ de: "Concepto clave · " + c.termino, tx: c.def, sec: false, concepto: true });
+      }
+    });
+    if (J.secretos[i]) {
+      var sc = d.cosas.filter(function (c) { return c.tipo === "secreto"; })[0];
+      if (sc) { J.notas.push({ de: d.titulo + " · " + sc.nombre, tx: sc.texto, sec: true, concepto: false }); }
+    }
+    if (J.hechas[i]) {
+      J.notas.push({ de: d.titulo + " · isla rescatada", tx: d.cierre, sec: false, concepto: false });
+    }
+  });
+}
+
+function hayGuardado() {
+  if (LMS.hay()) {
+    var d = LMS.leer("cmi.suspend_data");
+    if (d) { return d; }
+  }
+  try { return localStorage.getItem(CLAVE_PARTIDA) || ""; } catch (e) { return ""; }
+}
+
+function guardarPartida() {
+  var d = serializar();
+  if (!d) { return; }
+  try { localStorage.setItem(CLAVE_PARTIDA, d); } catch (e) {}
+  if (LMS.hay()) {
+    var n = Object.keys(J.conceptos).length, fin = true;
+    for (var i = 0; i < SALAS.length; i++) { if (!J.hechas[i]) { fin = false; } }
+    LMS.poner("cmi.suspend_data", d);
+    LMS.poner("cmi.core.lesson_status", fin ? "completed" : "incomplete");
+    LMS.poner("cmi.core.score.min", "0");
+    LMS.poner("cmi.core.score.max", String(CONCEPTOS.length));
+    LMS.poner("cmi.core.score.raw", String(n));
+    LMS.poner("cmi.core.exit", "suspend");
+    LMS.sellar();
+  }
+}
+
+function olvidarPartida() {
+  try { localStorage.removeItem(CLAVE_PARTIDA); } catch (e) {}
+  if (LMS.hay()) { LMS.poner("cmi.suspend_data", ""); LMS.sellar(); }
+}
+
+window.addEventListener("pagehide", function () { guardarPartida(); LMS.cerrar(); });
+document.addEventListener("visibilitychange", function () {
+  if (document.visibilityState === "hidden") { guardarPartida(); }
+});
+var S = null;
+
+/* todos los conceptos clave del curso, en el orden en que salen */
+var CONCEPTOS = [];
+SALAS.forEach(function (s, i) {
+  (s.conceptos || []).forEach(function (c) {
+    CONCEPTOS.push({ clave: c.clave, termino: c.termino, def: c.def, por: c.por, isla: i,
+      corriente: c.corriente, tema: c.tema });
+  });
+});
+
+/* ══════════════ 6 · portada ══════════════ */
+(function () {
+  var host = el("fichas");
+  PERSONAJES.forEach(function (p) {
+    var b = crear("button", "ficha");
+    b.type = "button";
+    b.setAttribute("aria-pressed", "false");
+    b.innerHTML = '<img class="px" src="img/' + p.sp + '.png" alt="" height="128">' +
+      '<span class="nom">' + p.nombre + '</span><span class="ofi">' + p.oficio +
+      '</span><span class="lem">' + p.lema + '</span>';
+    b.addEventListener("click", function () {
+      J.p = p;
+      son("clic");
+      Array.prototype.forEach.call(host.children, function (o, i) {
+        var sel = PERSONAJES[i] === p;
+        o.setAttribute("aria-pressed", sel ? "true" : "false");
+        o.style.borderTopColor = sel ? PERSONAJES[i].color : "transparent";
+      });
+      if (!pendientes) { el("empezar").disabled = false; }
+    });
+    host.appendChild(b);
+  });
+  el("empezar").addEventListener("click", function () {
+    if (!J.p) { return; }
+    son("abrir");
+    el("portada").hidden = true;
+    el("barra").hidden = false;
+    pintarBarra();
+    irAlMapa();
+  });
+  cargarTodo(function () {
+    el("cargando").textContent = "";
+    if (J.p) { el("empezar").disabled = false; }
+    ofrecerContinuar();
+  });
+})();
+
+/* Si hay partida guardada —en el LMS o en este navegador— se ofrece seguirla. */
+function ofrecerContinuar() {
+  var d = hayGuardado();
+  if (!d) { return; }
+  var t = String(d).split("|");
+  var p = PERSONAJES.filter(function (x) { return x.id === t[1]; })[0];
+  if (t[0] !== "1" || !p) { return; }
+  var islas = (t[2] || "").split("1").length - 1;
+  var con = (t[4] || "").split("1").length - 1;
+  el("seguirQue").textContent = p.nombre + " · " + islas + (islas === 1 ? " isla rescatada" : " islas rescatadas") +
+    " · " + con + (con === 1 ? " concepto" : " conceptos") + " en el cuaderno";
+  el("seguir").hidden = false;
+  el("btSeguir").addEventListener("click", function () {
+    if (!restaurar(d)) { return; }
+    son("abrir");
+    el("portada").hidden = true;
+    el("barra").hidden = false;
+    pintarBarra();
+    irAlMapa();
+  });
+  el("btNueva").addEventListener("click", function () {
+    son("clic");
+    olvidarPartida();
+    el("seguir").hidden = true;
+  });
+}
+
+function conceptosAlcanzables() {
+  var n = 0;
+  CONCEPTOS.forEach(function (c) { if (visibleIsla(c.isla)) { n++; } });
+  return n;
+}
+
+function pintarBarra() {
+  el("quien").innerHTML = '<img class="px" src="img/' + J.p.sp + '.png" alt="" height="30">' +
+    '<span class="nm">' + J.p.nombre + "</span>";
+  var k = el("llavero");
+  limpiar(k);
+  for (var i = 0; i < ANTES; i++) {
+    var d = crear("div", J.hechas[i] ? "k tengo" : "k", J.hechas[i] ? SALAS[i].letra : "·");
+    d.title = J.hechas[i] ? "Tienes " + SALAS[i].llave : "Isla " + (i + 1) + ", sin rescatar";
+    k.appendChild(d);
+  }
+  var s = crear("span", "sec");
+  s.innerHTML = "conceptos <b>" + Object.keys(J.conceptos).length + "</b>/" + conceptosAlcanzables() +
+    " · secretos <b>" + Object.keys(J.secretos).length + "</b>/" + islasVisibles();
+  k.appendChild(s);
+}
+
+/* ══════════════ 6b · conceptos clave ══════════════ */
+var colaAvisos = [];
+
+/* marca los conceptos que desbloquea algo y los pone en cola */
+function ganarConceptos(prueba) {
+  (S.def.conceptos || []).forEach(function (c) {
+    if (J.conceptos[c.clave]) { return; }
+    if (!prueba(c)) { return; }
+    J.conceptos[c.clave] = true;
+    anotar("Concepto clave · " + c.termino, c.def, false, true);
+    colaAvisos.push({ tipo: "logro", c: c });
+    el("abrirCuaderno").classList.add("nuevo");
+  });
+  pintarBarra();
+  pintarCuaderno();
+}
+function conceptosDeFoco(nombre) {
+  ganarConceptos(function (c) { return c.por !== "reto" && c.por.foco === nombre; });
+}
+function conceptosDeReto() {
+  ganarConceptos(function (c) { return c.por === "reto"; });
+}
+
+function soltarCola() {
+  if (!colaAvisos.length) { return; }
+  var a = colaAvisos.shift();
+  if (a.tipo === "logro") { mostrarLogro(a.c); }
+  else if (a.tipo === "isla") { el("aviso").hidden = false; }
+}
+
+function mostrarLogro(c) {
+  son("logro");
+  el("loTermino").textContent = c.termino;
+  el("loDonde").textContent = "de " + SALAS[J.isla].titulo.toLowerCase() + " · " + SALAS[J.isla].epoca;
+  el("loDef").textContent = c.def;
+  var n = Object.keys(J.conceptos).length;
+  el("loGuardado").textContent = "Queda guardado en tu cuaderno: " + n + " de " + conceptosAlcanzables() + ".";
+  el("logro").hidden = false;
+}
+/* El concepto se va volando hasta el cuaderno: se ve dónde queda guardado.
+   Si el navegador no tiene animaciones o el usuario las ha desactivado,
+   simplemente no vuela nada y el juego sigue igual. */
+function guardarEnCuaderno(desde, luego) {
+  var btn = el("abrirCuaderno");
+  var quieto = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function aterriza() {
+    mostradosEnBarra = Object.keys(J.conceptos).length;
+    refrescarBarra();
+    btn.classList.add("recibe", "nuevo");
+    setTimeout(function () { btn.classList.remove("recibe"); }, 450);
+    if (luego) { luego(); }
+  }
+  if (quieto || !desde || !document.body.animate) { aterriza(); return; }
+
+  var a = btn.getBoundingClientRect();
+  var destino = { x: a.left + a.width / 2, y: a.top + a.height / 2 };
+  var v = crear("div", "vuela");
+  v.innerHTML = '<img class="px" src="img/libro-purpura.png" alt="">';
+  v.style.left = desde.x + "px";
+  v.style.top = desde.y + "px";
+  document.body.appendChild(v);
+
+  var dx = destino.x - desde.x, dy = destino.y - desde.y;
+  var an = v.animate([
+    { transform: "translate(0,0) scale(1) rotate(0deg)", opacity: 1 },
+    { transform: "translate(" + (dx * 0.45) + "px," + (dy * 0.45 - 70) + "px) scale(.78) rotate(-14deg)",
+      opacity: 1, offset: 0.55 },
+    { transform: "translate(" + dx + "px," + dy + "px) scale(.26) rotate(8deg)", opacity: 0 }
+  ], { duration: 820, easing: "cubic-bezier(.42,0,.3,1)" });
+
+  var hecho = false;
+  function fin() {
+    if (hecho) { return; }
+    hecho = true;
+    if (v.parentNode) { v.parentNode.removeChild(v); }
+    son("guardar");
+    aterriza();
+  }
+  an.onfinish = fin;
+  setTimeout(fin, 1100);
+}
+
+function cerrarLogro() {
+  var m = el("logro").querySelector(".medalla");
+  var r = m ? m.getBoundingClientRect() : null;
+  var desde = r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null;
+  el("logro").hidden = true;
+  guardarEnCuaderno(desde, soltarCola);
+}
+Array.prototype.forEach.call(document.querySelectorAll("[data-cerrar-logro]"), function (b) {
+  b.addEventListener("click", function () { son("clic"); cerrarLogro(); });
+});
+el("logro").addEventListener("click", function (ev) { if (ev.target === this) { cerrarLogro(); } });
+
+/* el cuaderno se puede leer de cuatro maneras */
+var VISTAS = [
+  { id: "corriente", etq: "Por corriente pedagógica" },
+  { id: "tema", etq: "Por tema" },
+  { id: "epoca", etq: "Por época" },
+  { id: "bitacora", etq: "Bitácora" }
+];
+var vistaActual = "corriente";
+
+function tarjetaConcepto(c, color, conIsla) {
+  var tengo = !!J.conceptos[c.clave];
+  var d = crear("div", tengo ? "tarjetilla" : "tarjetilla cerrado");
+  d.style.setProperty("--epc", color);
+  if (conIsla !== false) { d.appendChild(crear("p", "isla", SALAS[c.isla].titulo)); }
+  d.appendChild(crear("p", "term", tengo ? c.termino : "Por descubrir"));
+  d.appendChild(crear("p", "def", tengo ? c.def : "Sigue explorando para añadirlo al cuaderno."));
+  return d;
+}
+
+function grupoDe(titulo, nota, color, lista) {
+  var g = crear("div", "grupo");
+  g.style.setProperty("--epc", color);
+  var t = crear("div", "tit");
+  t.appendChild(crear("h3", null, titulo));
+  var hechos = lista.filter(function (c) { return J.conceptos[c.clave]; }).length;
+  t.appendChild(crear("span", "cuantos", hechos + " de " + lista.length));
+  g.appendChild(t);
+  if (nota) { g.appendChild(crear("p", "intro", nota)); }
+  var r = crear("div", "rejilla dos");
+  lista.forEach(function (c) { r.appendChild(tarjetaConcepto(c, color)); });
+  g.appendChild(r);
+  return g;
+}
+
+var mostradosEnBarra = 0;
+function refrescarBarra() { el("cuentaBarra").textContent = mostradosEnBarra + "/" + conceptosAlcanzables(); }
+
+function pintarCuaderno() {
+  var n = Object.keys(J.conceptos).length;
+  refrescarBarra();
+  el("cuCuenta").innerHTML = "<b>" + n + "</b> de " + conceptosAlcanzables() +
+    " conceptos clave · <b>" + Object.keys(J.secretos).length + "</b> de " + islasVisibles() + " secretos";
+  el("copiar").disabled = !n && !J.notas.length;
+
+  var ps = el("cuPestanas");
+  limpiar(ps);
+  VISTAS.forEach(function (v) {
+    var b = crear("button", null, v.etq);
+    b.type = "button";
+    b.setAttribute("role", "tab");
+    b.setAttribute("data-vista", v.id);
+    b.setAttribute("aria-selected", v.id === vistaActual ? "true" : "false");
+    b.addEventListener("click", function () { vistaActual = v.id; son("clic"); pintarCuaderno(); });
+    ps.appendChild(b);
+  });
+
+  var h = el("cuHojas");
+  limpiar(h);
+
+  if (vistaActual === "bitacora") {
+    if (!J.notas.length) {
+      h.appendChild(crear("p", "vacio", "Todavía no has examinado nada. Cada cosa que mires en las islas queda anotada aquí."));
+    } else {
+      var lista = crear("div");
+      lista.id = "notas";
+      J.notas.forEach(function (nt) {
+        var d = crear("div", nt.sec ? "nota sec" : "nota");
+        d.appendChild(crear("p", "de", nt.sec ? "Secreto · " + nt.de : nt.de));
+        d.appendChild(crear("p", null, nt.tx));
+        lista.appendChild(d);
+      });
+      h.appendChild(lista);
+    }
+    return;
+  }
+
+  var grupos;
+  if (vistaActual === "corriente") {
+    grupos = CORRIENTES.map(function (g) {
+      return { t: g.nombre, nota: g.nota, color: g.color,
+        lista: CONCEPTOS.filter(function (c) { return c.corriente === g.id; }) };
+    });
+  } else if (vistaActual === "tema") {
+    grupos = TEMAS.map(function (g) {
+      return { t: g.nombre, nota: g.nota, color: g.color,
+        lista: CONCEPTOS.filter(function (c) { return c.tema === g.id; }) };
+    });
+  } else {
+    grupos = SALAS.map(function (sa, i) {
+      return { t: sa.titulo, nota: sa.epoca, color: sa.color,
+        lista: CONCEPTOS.filter(function (c) { return c.isla === i; }) };
+    });
+  }
+  grupos.forEach(function (g) {
+    if (g.lista.length) { h.appendChild(grupoDe(g.t, g.nota, g.color, g.lista)); }
+  });
+}
+
+function abrirCuaderno() { son("abrir"); pintarCuaderno(); el("cuaderno").hidden = false; el("abrirCuaderno").classList.remove("nuevo"); }
+Array.prototype.forEach.call(document.querySelectorAll("[data-cuaderno]"), function (b) {
+  b.addEventListener("click", abrirCuaderno);
+});
+Array.prototype.forEach.call(document.querySelectorAll("[data-cerrar-cuaderno]"), function (b) {
+  b.addEventListener("click", function () { son("clic"); el("cuaderno").hidden = true; });
+});
+el("cuaderno").addEventListener("click", function (ev) { if (ev.target === this) { this.hidden = true; } });
+
+function apuntes() {
+  var t = ["EL ARCHIPIÉLAGO DE LA PEDAGOGÍA — apuntes de " + (J.p ? J.p.nombre : ""), ""];
+  t.push("CONCEPTOS CLAVE (" + Object.keys(J.conceptos).length + " de " + conceptosAlcanzables() + ")");
+  t.push("");
+  CONCEPTOS.forEach(function (c) {
+    if (!J.conceptos[c.clave]) { return; }
+    t.push("· " + c.termino.toUpperCase() + "  [" + SALAS[c.isla].titulo + "]");
+    t.push("  " + c.def);
+    t.push("");
+  });
+  if (J.notas.length) {
+    t.push("");
+    t.push("BITÁCORA");
+    t.push("");
+    J.notas.forEach(function (n) {
+      if (n.concepto) { return; }
+      t.push("· " + n.de);
+      t.push("  " + n.tx);
+      t.push("");
+    });
+  }
+  return t.join("\n");
+}
+
+el("copiar").addEventListener("click", function () {
+  var tx = apuntes();
+  var aviso = el("copiado");
+  son("clic");
+  try {
+    navigator.clipboard.writeText(tx).then(function () {
+      aviso.textContent = "Copiado: pégalo en tus apuntes.";
+      setTimeout(function () { aviso.textContent = ""; }, 4000);
+    }, function () { mostrarTexto(tx); });
+  } catch (e) { mostrarTexto(tx); }
+});
+/* si el navegador no deja copiar, al menos que se pueda seleccionar a mano */
+function mostrarTexto(tx) {
+  leer("Tus apuntes", "Cópialos a mano", tx, false, "Selecciona el texto y cópialo.");
+}
+
+/* ══════════════ 7 · bitácora ══════════════ */
+function anotar(de, tx, sec, concepto) {
+  J.notas.push({ de: de, tx: tx, sec: !!sec, concepto: !!concepto });
+  if (!el("cuaderno").hidden) { pintarCuaderno(); }
+}
+
+/* ══════════════ 8 · el pergamino de lectura ══════════════ */
+function leer(tipo, titulo, cuerpo, esSecreto, nota) {
+  var v = el("lectura");
+  v.querySelector(".hoja").className = esSecreto ? "hoja secreto" : "hoja";
+  el("lecIcono").src = "img/" + (esSecreto ? "libro-purpura" : "pergamino") + ".png";
+  el("lecTipo").textContent = tipo;
+  el("lecTitulo").textContent = titulo;
+  el("lecTexto").textContent = cuerpo;
+  el("lecNota").textContent = nota || "";
+  v.hidden = false;
+}
+function cerrarLectura() { el("lectura").hidden = true; soltarCola(); }
+Array.prototype.forEach.call(document.querySelectorAll("[data-cerrar-lectura]"), function (b) {
+  b.addEventListener("click", function () { son("clic"); cerrarLectura(); });
+});
+el("lectura").addEventListener("click", function (ev) { if (ev.target === this) { cerrarLectura(); } });
+document.addEventListener("keydown", function (ev) {
+  if (ev.key === "Escape") {
+    if (!el("lectura").hidden) { cerrarLectura(); }
+    else if (!el("aviso").hidden) { el("aviso").hidden = true; }
+  }
+});
+
+/* ══════════════ 9 · lienzos ══════════════ */
+function contexto(cv, lw, lh, v) {
+  var ctx = cv.getContext("2d");
+  var r = cv.getBoundingClientRect();
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  var ex = cv.width / lw, ey = cv.height / lh;
+  if (v) { ctx.setTransform(ex * v.z, 0, 0, ey * v.z, -v.cx * ex * v.z, -v.cy * ey * v.z); }
+  else { ctx.setTransform(ex, 0, 0, ey, 0, 0); }
+  ctx.imageSmoothingEnabled = false;
+  return ctx;
+}
+
+/* El aula se dibujaba encogida al 65% en un móvil: letras de 8 px y casillas de
+   18. Ahora se acerca hasta un tamaño legible y la cámara sigue al personaje. */
+var VIS = { z: 1, cx: 0, cy: 0 };
+var ESCALA_COMODA = 0.95;
+
+function encuadre(largo, visible, centro) {
+  if (visible >= largo) { return (largo - visible) / 2; }
+  return Math.max(0, Math.min(largo - visible, centro - visible / 2));
+}
+
+function ajustarVista(cv) {
+  var r = cv.getBoundingClientRect();
+  if (!r.width) { return; }
+  VIS.z = Math.min(2.2, Math.max(1, ESCALA_COMODA / (r.width / LW)));
+  var av = LW / VIS.z, al = LH / VIS.z;
+  var p = iso(S.px, S.py);
+  var mx = encuadre(LW, av, p.x), my = encuadre(LH, al, p.y - 14);
+  /* se desplaza suave: un salto por cada paso marearía */
+  VIS.cx += (mx - VIS.cx) * 0.14;
+  VIS.cy += (my - VIS.cy) * 0.14;
+}
+
+function fijarVista(cv) {
+  var r = cv.getBoundingClientRect();
+  if (!r.width) { return; }
+  VIS.z = Math.min(2.2, Math.max(1, ESCALA_COMODA / (r.width / LW)));
+  var p = iso(S.px, S.py);
+  VIS.cx = encuadre(LW, LW / VIS.z, p.x);
+  VIS.cy = encuadre(LH, LH / VIS.z, p.y - 14);
+}
+
+function aLogico(cv, ev, lw, lh, v) {
+  var r = cv.getBoundingClientRect();
+  var x = (ev.clientX - r.left) * lw / r.width, y = (ev.clientY - r.top) * lh / r.height;
+  if (v) { return { x: x / v.z + v.cx, y: y / v.z + v.cy }; }
+  return { x: x, y: y };
+}
+
+/* ══════════════ 10 · el archipiélago ══════════════ */
+var MW = 900, MH = 580;
+var mapaCv = el("lienzoMapa"), mapaZonas = [], mapaReloj = 0, mapaVivo = false;
+
+/* qué se planta en cada isla: la base que mandó ella y la escena de la época */
+var ESCENA = {
+  columnas:    { base: "isla-a", props: [["columna", 0.75, -26, 0], ["columna", 0.75, -14, 3], ["arbusto", 0.29, 22, 2], ["flor-roja", 0.20, 10, 5]] },
+  imperios:    { base: "isla-d", props: [["puesto", 0.67, -20, 1], ["pozo", 0.58, 18, 3], ["roca", 0.32, 30, 5]] },
+  claustro:    { base: "isla-c", props: [["arco", 0.87, -22, 0], ["candelabro", 0.49, 16, 3], ["arbol-seco", 0.43, 30, 4]] },
+  gabinete:    { base: "isla-b", props: [["escritorio", 0.61, -22, 2], ["arbusto-gr", 0.32, 20, 4], ["helecho", 0.23, 30, 6]] },
+  prensa:      { base: "isla-a", props: [["caja", 0.43, -24, 3], ["barril", 0.43, -12, 5], ["carreta", 0.46, 20, 3]] },
+  laboratorio: { base: "isla-c", props: [["estante-frascos", 0.90, -18, 0], ["cubo", 0.32, 18, 4], ["seta", 0.23, 28, 6]] },
+  aula:        { base: "isla-d", props: [["escritorio", 0.61, -20, 2], ["letrero", 0.49, 18, 3], ["flor-amar", 0.20, 30, 5]] },
+  circulo:     { base: "isla-b", props: [["silla", 0.46, -22, 2], ["silla", 0.46, 20, 2], ["letrero", 0.49, -2, 6], ["flor-roja", 0.20, 30, 5]] }
+};
+/* dónde queda la hierba de cada base, medido desde el pie del sprite */
+var HIERBA = { "isla-a": 0.45, "isla-b": 0.43, "isla-c": 0.48, "isla-d": 0.55 };
+
+/* islotes y bichos sueltos del mar: siempre en el mismo sitio */
+var MAR = [
+  { sp: "islote", x: 0.07, y: 0.68, a: 0.5, enc: ["arbusto", 0.16] },
+  { sp: "islote", x: 0.88, y: 0.14, a: 0.44, enc: ["arbol-pino", 0.34] },
+  { sp: "islote", x: 0.62, y: 0.88, a: 0.4, enc: ["flor-roja", 0.12] },
+  { sp: "islote", x: 0.3, y: 0.44, a: 0.36, enc: ["seta", 0.13] },
+  { sp: "islote", x: 0.5, y: 0.08, a: 0.34, enc: ["arbusto", 0.14] },
+  { sp: "islote", x: 0.93, y: 0.72, a: 0.42, enc: ["tocon", 0.16] }
+];
+
+function abiertaIsla(i) { return trasLaPuerta(i) ? !!J.puerta : (i === 0 || !!J.hechas[i - 1]); }
+/* El archipiélago son las islas que abren la puerta; detrás hay una más. */
+var ANTES = SALAS.filter(function (s) { return !s.trasLaPuerta; }).length;
+function trasLaPuerta(i) { return !!SALAS[i] && !!SALAS[i].trasLaPuerta; }
+function visibleIsla(i) { return !trasLaPuerta(i) || !!J.puerta; }
+function islasVisibles() { return J.puerta ? SALAS.length : ANTES; }
+function todasHechas() { for (var i = 0; i < ANTES; i++) { if (!J.hechas[i]) { return false; } } return true; }
+function cuantasHechas() {
+  var n = 0;
+  for (var i = 0; i < ANTES; i++) { if (J.hechas[i]) { n++; } }
+  return n;
+}
+
+function irAlMapa() {
+  salaVivo = false;
+  el("aviso").hidden = true;
+  cerrarLectura();
+  el("sala").hidden = true;
+  el("brief").hidden = true;
+  el("final").hidden = true;
+  el("mapa").hidden = false;
+  pintarBarra();
+  var n = cuantasHechas();
+  el("mapaTitulo").textContent = todasHechas() ? "El archipiélago encendido"
+    : n === 0 ? "Siete islas a oscuras" : n + (n === 1 ? " isla rescatada" : " islas rescatadas");
+  el("mapaSub").textContent = todasHechas()
+    ? "Las siete han vuelto. En el centro se abrió una puerta, y cada llave lleva una letra grabada."
+    : "Toca una isla encendida para entrar. Las apagadas necesitan la llave de la anterior.";
+  el("mapaDice").textContent = todasHechas() ? "Ve a la puerta del centro."
+    : "Te espera " + SALAS[n].titulo.toLowerCase() + ".";
+  listaIslas();
+  pintarCuaderno();
+  mapaVivo = true;
+  vozMapaProx = 0; vozDelMapa(true);
+  anunciarIslaNueva(n);
+  requestAnimationFrame(cuadroMapa);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* al volver al mapa, si acaba de abrirse una isla se rompe su candado */
+var salidaAviso = 0;
+function anunciarIslaNueva(hechas) {
+  var caja = el("nuevaIsla");
+  clearTimeout(salidaAviso);
+  caja.hidden = true;
+  caja.classList.remove("sale");
+  if (!hechas || hechas >= ANTES || J.anunciada === hechas) { return; }
+  J.anunciada = hechas;
+  rotura = { isla: hechas, t: 0 };
+  el("niNombre").textContent = SALAS[hechas].titulo;
+  caja.hidden = false;
+  son("romper");
+  salidaAviso = setTimeout(function () {
+    caja.classList.add("sale");
+    salidaAviso = setTimeout(function () { caja.hidden = true; caja.classList.remove("sale"); }, 460);
+  }, 4200);
+}
+
+var vozMapaProx = 0, vozMapaN = -1;
+function vozDelMapa(forzar) {
+  if (!J.p || !J.p.ocioso || !J.p.ocioso.length) { return; }
+  if (!forzar && mapaReloj < vozMapaProx) { return; }
+  vozMapaProx = mapaReloj + 11;
+  vozMapaN = (vozMapaN + 1) % J.p.ocioso.length;
+  var caja = el("vozMapa");
+  caja.style.opacity = "0";
+  setTimeout(function () {
+    caja.textContent = J.p.ocioso[vozMapaN] + " — " + J.p.nombre;
+    caja.style.opacity = "1";
+  }, forzar ? 0 : 400);
+}
+
+function listaIslas() {
+  var h = el("listaIslas");
+  limpiar(h);
+  SALAS.forEach(function (s, i) {
+    if (!visibleIsla(i)) { return; }
+    var estado = J.hechas[i] ? "Volver a " : abiertaIsla(i) ? "Entrar a " : "Cerrada: ";
+    var b = crear("button", J.hechas[i] ? "hecha" : abiertaIsla(i) ? "abierta" : null);
+    b.innerHTML = '<span class="ins">' + estado + '</span><b>' + s.titulo + "</b>" +
+      '<span class="ep">' + s.epoca + "</span>";
+    b.setAttribute("aria-label", estado + s.titulo + " · " + s.epoca);
+    b.type = "button";
+    b.setAttribute("data-isla", String(i));
+    b.disabled = !abiertaIsla(i);
+    b.addEventListener("click", function () { mostrarBrief(i); });
+    h.appendChild(b);
+  });
+  if (todasHechas()) {
+    var p = crear("button", null, "Abrir la puerta del centro");
+    p.type = "button";
+    p.setAttribute("data-puerta", "1");
+    p.addEventListener("click", montarFinal);
+    h.appendChild(p);
+  }
+}
+
+/* un candado cerrado sobre la isla a oscuras */
+function candado(ctx, cx, cy) {
+  ctx.save();
+  ctx.strokeStyle = "#67748c"; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(cx, cy, 6.5, 3.1416, 6.2832); ctx.stroke();
+  ctx.fillStyle = "#67748c";
+  ctx.fillRect(cx - 10, cy, 20, 14);
+  ctx.fillStyle = "#2a323f";
+  ctx.beginPath(); ctx.arc(cx, cy + 5.5, 2.2, 0, 6.2832); ctx.fill();
+  ctx.fillRect(cx - 1, cy + 5.5, 2, 5);
+  ctx.restore();
+}
+
+/* rotura: primero tiembla, después salta en pedazos. t va de 0 a 1 */
+var rotura = null;
+function romperCandado(ctx, cx, cy, t) {
+  ctx.save();
+  if (t < 0.34) {
+    var u = t / 0.34;
+    ctx.translate(Math.sin(t * 95) * 5 * u, 0);
+    candado(ctx, cx, cy);
+    ctx.globalAlpha = u * 0.5;
+    ctx.fillStyle = "#fff6d0";
+    ctx.beginPath(); ctx.arc(cx, cy + 5, 9 + u * 9, 0, 6.2832); ctx.fill();
+  } else {
+    var v = (t - 0.34) / 0.66;
+    if (v < 0.4) {
+      ctx.globalAlpha = (1 - v / 0.4) * 0.9;
+      ctx.strokeStyle = "#ffeeb4";
+      ctx.lineWidth = 1 + (1 - v / 0.4) * 4;
+      ctx.beginPath(); ctx.arc(cx, cy + 5, 8 + v * 150, 0, 6.2832); ctx.stroke();
+    }
+    ctx.globalAlpha = Math.max(0, 1 - v * 1.05);
+    for (var k = 0; k < 8; k++) {
+      var an = -2.75 + k * 0.36, vel = 54 + (k % 3) * 30;
+      var px = cx + Math.cos(an) * vel * v;
+      var py = cy + 5 + Math.sin(an) * vel * v + v * v * 95;
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(v * (k % 2 ? 8 : -8));
+      ctx.fillStyle = k % 2 ? "#8c99af" : "#5d6879";
+      ctx.fillRect(-3, -2.5, 6 - (k % 3), 5);
+      ctx.restore();
+    }
+  }
+  ctx.restore();
+}
+
+function pintarIsla(ctx, s, i, cx, cy) {
+  if (!visibleIsla(i)) { return; }
+  var hecha = !!J.hechas[i], abierta = abiertaIsla(i);
+  var esc = ESCENA[s.motivo] || ESCENA.columnas;
+  var baseIm = (hecha || abierta) ? IMG[esc.base] : apagado(esc.base);
+  var alto = 3.3;
+
+  var flota = Math.sin(mapaReloj * 0.9 + i * 1.3) * 3;
+  var pie = cy + 34 + flota;
+
+  ctx.save();
+  if (hecha) {
+    ctx.globalAlpha = 0.2 + Math.sin(mapaReloj * 1.3 + i) * 0.05;
+    ctx.fillStyle = s.color;
+    ctx.beginPath(); ctx.ellipse(cx, pie - 8, 80, 30, 0, 0, 6.2832); ctx.fill();
+    ctx.globalAlpha = 1;
+  } else if (abierta) {
+    /* la isla abierta llama: resplandor cálido y un anillo que se expande */
+    ctx.globalAlpha = 0.2 + Math.sin(mapaReloj * 2.2 + i) * 0.08;
+    ctx.fillStyle = "#ffc95e";
+    ctx.beginPath(); ctx.ellipse(cx, pie - 12, 66, 25, 0, 0, 6.2832); ctx.fill();
+    var pulso = (mapaReloj * 0.7 + i * 0.37) % 1;
+    ctx.globalAlpha = (1 - pulso) * 0.45;
+    ctx.strokeStyle = "#ffdd92"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(cx, pie - 12, 40 + pulso * 52, 14 + pulso * 19, 0, 0, 6.2832); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  var h = pintarImg(ctx, baseIm, cx, pie, alto);
+  var hierba = pie - h * (HIERBA[esc.base] || 0.48);
+  var cima = pie - h;
+
+  /* la escena de la época, apoyada en la hierba */
+  esc.props.forEach(function (p) {
+    var im = (hecha || abierta) ? IMG[p[0]] : apagado(p[0]);
+    pintarImg(ctx, im, cx + p[2], hierba + p[3], p[1]);
+  });
+
+  if (!abierta) {
+    candado(ctx, cx, pie - h * 0.52);
+  } else if (hecha) {
+    /* mariposas alrededor de la isla rescatada */
+    for (var m = 0; m < 2; m++) {
+      var an = mapaReloj * 0.8 + m * 3.1 + i;
+      pintarImg(ctx, IMG[m ? "mariposa" : "mariposa2"],
+        cx + Math.cos(an) * 52, hierba - 16 + Math.sin(an * 1.6) * 12, 0.2);
+    }
+    ctx.save();
+    ctx.globalAlpha = 0.9; ctx.fillStyle = s.color;
+    ctx.beginPath(); ctx.moveTo(cx, cima - 5); ctx.lineTo(cx + 5, cima + 6); ctx.lineTo(cx - 5, cima + 6); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    /* la letra, con sombra dura: sobre el mar el color solo se perdía */
+    texto(ctx, s.letra, cx, cima - 15.5, 20, "rgba(0,0,0,.85)", 700);
+    texto(ctx, s.letra, cx, cima - 17, 20, tinte(s.color, 0.55), 700);
+  } else {
+    var bote = Math.sin(mapaReloj * 3.1 + i) * 3;
+    /* sin bajar del borde: hay islas que flotan muy arriba del lienzo */
+    var fy = Math.max(32, cima - 13 + bote);
+    pastilla(ctx, "Entra aquí", cx, fy - 17, "#2a1f0a", "#ffe3a0", "#c9a227");
+    ctx.save();
+    ctx.shadowColor = "rgba(255,206,110,.95)"; ctx.shadowBlur = 14;
+    texto(ctx, "▾", cx, fy, 22, "#ffd978", 700);
+    ctx.restore();
+  }
+
+  if (rotura && rotura.isla === i) { romperCandado(ctx, cx, pie - h * 0.52, rotura.t); }
+
+  if (estrecho) { return; }     /* los nombres están en las tarjetas de abajo */
+  texto(ctx, s.titulo, cx, cy + 56, 12, hecha ? "#ece5d4" : abierta ? "#ffe3a0" : "#6d7788", 600);
+  texto(ctx, s.epoca.split("·")[0].trim(), cx, cy + 70, 9.5, hecha ? tinte(s.color, 0.35) : "#5d6778", 500);
+  ctx.restore();
+
+  mapaZonas.push({ x: cx, y: cy, r: 60, isla: i, abierta: abierta });
+}
+
+function cuadroMapa() {
+  if (!mapaVivo || el("mapa").hidden) { mapaVivo = false; return; }
+  mapaReloj += 1 / 60;
+  if (rotura) { rotura.t += 1 / 100; if (rotura.t >= 1) { rotura = null; } }
+  vozDelMapa(false);
+  var rm = mapaCv.getBoundingClientRect();
+  UI = rm.width ? Math.min(2.4, Math.max(1, 0.85 / (rm.width / MW))) : 1;
+  estrecho = UI > 1.3;
+  var ctx = contexto(mapaCv, MW, MH);
+  mapaZonas = [];
+
+  var g = ctx.createLinearGradient(0, 0, 0, MH);
+  g.addColorStop(0, "#090e16"); g.addColorStop(0.55, "#101a28"); g.addColorStop(1, "#16263a");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, MW, MH);
+
+  /* estrellas */
+  for (var e = 0; e < 60; e++) {
+    var ex = pizca(e, 3) * MW, ey = pizca(e, 7) * MH * 0.75;
+    ctx.globalAlpha = 0.25 + Math.abs(Math.sin(mapaReloj * 0.7 + e)) * 0.4;
+    ctx.fillStyle = "#cfe0f2";
+    ctx.fillRect(ex, ey, 1.6, 1.6);
+  }
+  ctx.globalAlpha = 1;
+
+  /* olas */
+  ctx.strokeStyle = "#1d2d42"; ctx.lineWidth = 1;
+  for (var o = 0; o < 22; o++) {
+    var yy = 120 + o * 21;
+    ctx.beginPath();
+    ctx.moveTo(0, yy);
+    for (var xx = 0; xx <= MW; xx += 60) { ctx.lineTo(xx, yy + Math.sin((xx / 90) + o * 0.7 + mapaReloj * 0.45) * 3); }
+    ctx.stroke();
+  }
+
+  /* islotes sueltos */
+  MAR.forEach(function (m, k) {
+    var mx = m.x * MW, my = m.y * MH + Math.sin(mapaReloj * 0.8 + k * 2) * 4;
+    var h = pintarImg(ctx, IMG[m.sp], mx, my, m.a, k % 2 === 0, 0.75);
+    if (m.enc) { pintarImg(ctx, IMG[m.enc[0]], mx, my - h * 0.52, m.enc[1], false, 0.75); }
+  });
+
+  /* estelas entre islas */
+  ctx.save();
+  ctx.setLineDash([4, 7]); ctx.lineWidth = 1.4;
+  for (var i = 0; i < ANTES - 1; i++) {
+    var a = { x: SALAS[i].mapa.x * MW, y: SALAS[i].mapa.y * MH };
+    var b = { x: SALAS[i + 1].mapa.x * MW, y: SALAS[i + 1].mapa.y * MH };
+    ctx.strokeStyle = J.hechas[i] ? "rgba(201,162,39,.5)" : "rgba(90,104,128,.26)";
+    ctx.beginPath(); ctx.moveTo(a.x, a.y + 30); ctx.lineTo(b.x, b.y + 30); ctx.stroke();
+  }
+  ctx.restore();
+
+  /* la puerta del centro */
+  var pc = { x: MW * 0.47, y: MH * 0.47 };
+  if (todasHechas()) {
+    var pul = 1 + Math.sin(mapaReloj * 2) * 0.06;
+    ctx.save();
+    ctx.globalAlpha = 0.26; ctx.fillStyle = "#c9a227";
+    ctx.beginPath(); ctx.ellipse(pc.x, pc.y + 22, 72 * pul, 32 * pul, 0, 0, 6.2832); ctx.fill();
+    ctx.restore();
+    caja(ctx, pc.x, pc.y + 24, 1.9, 1.9, 0.22, "#2a2a34");
+    var flotaP = Math.sin(mapaReloj * 0.7) * 2.5;
+    pintarImg(ctx, IMG.puerta, pc.x, pc.y + 20 + flotaP, 3.1);
+    texto(ctx, "LA PUERTA", pc.x, pc.y + 46, 11, "#e8dcb8", 700);
+    mapaZonas.push({ x: pc.x, y: pc.y, r: 64, puerta: true });
+  }
+
+  /* las islas, de arriba abajo para que se tapen bien */
+  SALAS.map(function (s, i) { return { s: s, i: i }; })
+    .sort(function (a, b) { return a.s.mapa.y - b.s.mapa.y; })
+    .forEach(function (o) { pintarIsla(ctx, o.s, o.i, o.s.mapa.x * MW, o.s.mapa.y * MH); });
+
+  requestAnimationFrame(cuadroMapa);
+}
+
+mapaCv.addEventListener("pointerdown", function (ev) {
+  var p = aLogico(mapaCv, ev, MW, MH);
+  for (var i = mapaZonas.length - 1; i >= 0; i--) {
+    var z = mapaZonas[i];
+    if (Math.abs(p.x - z.x) < z.r && Math.abs(p.y - z.y) < z.r * 0.95) {
+      if (z.puerta) { son("abrir"); montarFinal(); return; }
+      if (z.abierta) { son("abrir"); mostrarBrief(z.isla); }
+      else {
+        son("error");
+        el("mapaDice").textContent = "Esa isla sigue cerrada. Te falta " + SALAS[z.isla - 1].llave +
+          ", que está en " + SALAS[z.isla - 1].titulo.toLowerCase() + ".";
+      }
+      return;
+    }
+  }
+});
+
+/* ══════════════ 10 bis · lo que dice el personaje ══════════════ */
+/* Cada personaje tiene una manera de mirar la historia: Sofía pregunta,
+   Teo señala el detalle, Nura recuerda la clase y Bruno piensa en cómo
+   se armó. Hablan al llegar a una isla y cada tanto, si nadie los apura. */
+var charla = { txt: "", hasta: -1, proxima: 4, dichas: [] };
+
+function reiniciarCharla() { charla = { txt: "", hasta: -1, proxima: 3.5, dichas: [] }; }
+
+function frasePersonaje(lista) {
+  if (!lista || !lista.length) { return null; }
+  var libres = lista.filter(function (t) { return charla.dichas.indexOf(t) < 0; });
+  if (!libres.length) { charla.dichas = []; libres = lista; }
+  var t = libres[Math.floor(Math.random() * libres.length)];
+  charla.dichas.push(t);
+  return t;
+}
+
+function hablar(txt) {
+  if (!txt) { charla.proxima = S.reloj + 20; return; }
+  charla.txt = txt;
+  /* el tiempo en pantalla sigue al largo de la frase, con holgura para releer */
+  charla.hasta = S.reloj + Math.min(22, Math.max(11, 6 + txt.length * 0.105));
+  charla.proxima = charla.hasta + 13 + Math.random() * 11;
+  el("vozPj").textContent = J.p.nombre + ": " + txt;
+}
+
+/* parte la frase en renglones que quepan en el globo */
+function renglones(ctx, txt, ancho) {
+  var pal = txt.split(" "), fila = "", fuera = [];
+  for (var i = 0; i < pal.length; i++) {
+    var p = fila ? fila + " " + pal[i] : pal[i];
+    if (fila && ctx.measureText(p).width > ancho) { fuera.push(fila); fila = pal[i]; }
+    else { fila = p; }
+  }
+  if (fila) { fuera.push(fila); }
+  return fuera;
+}
+
+function pintarGlobo(ctx) {
+  if (!charla.txt || !S.cabeza || S.reloj > charla.hasta) { return; }
+  ctx.save();
+  ctx.font = '500 11px "Archivo", Arial, sans-serif';
+  var fs = renglones(ctx, charla.txt, Math.min(210, LW - 40));
+  var an = 0;
+  fs.forEach(function (t) { an = Math.max(an, ctx.measureText(t).width); });
+  var w = an + 20, h = fs.length * 14 + 14;
+  var x = Math.min(Math.max(S.cabeza.x - w / 2, 6), LW - w - 6);
+  var y = Math.max(6, S.cabeza.y - h - 12);
+  var resta = charla.hasta - S.reloj;
+  ctx.globalAlpha = resta < 0.8 ? Math.max(0, resta / 0.8) : 1;
+  var pico = Math.min(Math.max(S.cabeza.x, x + 13), x + w - 13);
+  ctx.fillStyle = "rgba(12,16,24,.94)";
+  ctx.strokeStyle = J.p.color; ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  if (ctx.roundRect) { ctx.roundRect(x, y, w, h, 5); } else { ctx.rect(x, y, w, h); }
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(pico - 6, y + h - 1); ctx.lineTo(pico, y + h + 8); ctx.lineTo(pico + 6, y + h - 1);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(pico - 6, y + h); ctx.lineTo(pico, y + h + 8); ctx.lineTo(pico + 6, y + h); ctx.stroke();
+  ctx.textAlign = "left"; ctx.textBaseline = "top";
+  ctx.fillStyle = "#ece5d4";
+  fs.forEach(function (t, k) { ctx.fillText(t, x + 10, y + 8 + k * 14); });
+  ctx.restore();
+}
+
+/* ══════════════ 11 · instrucciones ══════════════ */
+var briefIsla = 0, briefVuelve = "mapa";
+
+function mostrarBrief(i, desdeSala) {
+  briefIsla = i;
+  briefVuelve = desdeSala ? "sala" : "mapa";
+  var s = SALAS[i];
+  mapaVivo = false; salaVivo = false;
+  document.documentElement.style.setProperty("--epoca", s.color);
+  el("mapa").hidden = true;
+  el("sala").hidden = true;
+  el("final").hidden = true;
+  el("brief").hidden = false;
+  el("bEp").textContent = (s.trasLaPuerta ? "Detrás de la puerta" : "Isla " + (i + 1) + " de " + ANTES) + " · " + s.epoca;
+  el("bTitulo").textContent = s.titulo;
+  el("bGuia").src = "img/guardian.png";
+  el("bAmb").textContent = s.ambiente;
+  el("bMision").textContent = s.instruccion.mision;
+  var ol = el("bPasos");
+  limpiar(ol);
+  s.instruccion.pasos.forEach(function (p) { ol.appendChild(crear("li", null, p)); });
+  el("bEntrar").textContent = briefVuelve === "sala" ? "Volver a la isla" : "Entrar a la isla";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+el("bEntrar").addEventListener("click", function () {
+  son("abrir");
+  el("brief").hidden = true;
+  if (briefVuelve === "sala") { volverASala(); } else { entrarIsla(briefIsla); }
+});
+el("verBrief").addEventListener("click", function () { son("clic"); mostrarBrief(J.isla, true); });
+
+/* ══════════════ 12 · la sala ══════════════ */
+var salaCv = el("lienzo"), salaVivo = false, blancos = [];
+
+/* Cosas sueltas propias de cada época. Se reparten al azar en cada visita,
+   siempre lejos de lo que hay que usar y nunca estorbando el paso. */
+var RELLENO = {
+  columnas:    [["roca", 0.42], ["rocachica", 0.26], ["arbusto-gr", 0.32], ["flor-roja", 0.2],
+                ["flor-amar", 0.2], ["barril", 0.6], ["caja", 0.48], ["lena", 0.3]],
+  imperios:    [["caja", 0.48], ["cubo", 0.4], ["barril", 0.6], ["rocachica", 0.26],
+                ["pergamino", 0.3], ["libro", 0.26], ["lena", 0.3]],
+  claustro:    [["libro", 0.26], ["caja", 0.48], ["barril", 0.6], ["seta", 0.2],
+                ["setas", 0.22], ["helecho", 0.3], ["rocachica", 0.26], ["lena", 0.3]],
+  gabinete:    [["libro", 0.26], ["libro-purpura", 0.32], ["caja", 0.48], ["cubo", 0.4],
+                ["pergamino", 0.3], ["flor-amar", 0.2]],
+  prensa:      [["libro", 0.26], ["libro-rayo", 0.32], ["libro-purpura", 0.32], ["caja", 0.48],
+                ["barril", 0.6], ["cubo", 0.4], ["pergamino", 0.3]],
+  laboratorio: [["cubo", 0.4], ["caja", 0.48], ["barril", 0.6], ["rocachica", 0.26], ["libro", 0.26]],
+  aula:        [["libro", 0.26], ["libro-purpura", 0.32], ["caja", 0.48], ["cubo", 0.4],
+                ["flor-amar", 0.2], ["flor-roja", 0.2]]
+};
+
+/* Casillas donde puede quedar algo suelto: ni ocupadas, ni pegadas a lo que
+   hay que usar (ahí van los rótulos), ni en la entrada. */
+function casillasLibres(cosas, saltar) {
+  var vetado = { "4,7": 1, "0,7": 1 }, duro = {};
+  cosas.forEach(function (c) {
+    if (saltar && saltar(c)) { return; }
+    vetado[c.x + "," + c.y] = 1;
+    if (c.solido) { duro[c.x + "," + c.y] = 1; }
+    if (c.tipo === "decoracion") { return; }
+    for (var a = -1; a <= 1; a++) {
+      for (var b = -1; b <= 1; b++) { vetado[(c.x + a) + "," + (c.y + b)] = 1; }
+    }
+  });
+  var libres = [];
+  for (var x = 0; x <= 9; x++) {
+    for (var y = 0; y <= 7; y++) {
+      if (vetado[x + "," + y]) { continue; }
+      /* tiene que quedar por dónde llegar: al menos un vecino transitable */
+      var sale = false;
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(function (v) {
+        var a = x + v[0], b = y + v[1];
+        if (a >= 0 && a <= 9 && b >= 0 && b <= 7 && !duro[a + "," + b]) { sale = true; }
+      });
+      if (sale) { libres.push({ x: x, y: y }); }
+    }
+  }
+  return libres;
+}
+
+function barajar(a) {
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1)), t = a[i];
+    a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+/* Lo que hay que recoger aparece en otro sitio cada vez que entras. */
+function repartirItems(cosas) {
+  var items = cosas.filter(function (c) { return c.tipo === "item"; });
+  if (!items.length) { return; }
+  var libres = barajar(casillasLibres(cosas, function (c) { return c.tipo === "item"; }));
+  if (libres.length < items.length) { return; }   /* sala apretada: se quedan donde estaban */
+  barajar(items).forEach(function (c, k) { c.x = libres[k].x; c.y = libres[k].y; });
+}
+
+function repartirAmbiente(d, cosas) {
+  var pozo = RELLENO[d.motivo];
+  if (!pozo) { return []; }
+  var vetado = {};
+  cosas.forEach(function (c) {
+    vetado[c.x + "," + c.y] = 1;
+    if (c.tipo === "decoracion") { return; }
+    /* alrededor de lo interactivo no se pone nada: ahí van los rótulos */
+    for (var a = -1; a <= 1; a++) {
+      for (var b = -1; b <= 1; b++) { vetado[(c.x + a) + "," + (c.y + b)] = 1; }
+    }
+  });
+  var libres = [];
+  for (var x = 0; x <= 9; x++) {
+    for (var y = 0; y <= 7; y++) {
+      if (vetado[x + "," + y]) { continue; }
+      if (y >= 6 && (x <= 1 || (x >= 3 && x <= 6))) { continue; }  /* por donde se entra */
+      libres.push({ x: x, y: y });
+    }
+  }
+  barajar(libres);
+  var cuantas = Math.min(libres.length, 4 + Math.floor(Math.random() * 4));
+  return libres.slice(0, cuantas).map(function (p) {
+    var sp = pozo[Math.floor(Math.random() * pozo.length)];
+    return { x: p.x, y: p.y, tipo: "decoracion", m: { sp: sp[0], alto: sp[1] } };
+  });
+}
+
+function montarCosas(d) {
+  var cosas = d.cosas.map(function (c, k) {
+    return { i: k, x: c.x, y: c.y, tipo: c.tipo, m: c.m || null, solido: !!c.solido,
+      nombre: c.nombre, texto: c.texto, destino: c.destino, rotulo: c.rotulo, tag: c.tag, orden: c.orden,
+      visto: false, tomado: false, colocado: false, pisada: 0 };
+  });
+  repartirItems(cosas);
+  repartirAmbiente(d, cosas).forEach(function (c) {
+    cosas.push({ i: cosas.length, x: c.x, y: c.y, tipo: "decoracion", m: c.m, solido: false,
+      visto: false, tomado: false, colocado: false, pisada: 0 });
+  });
+  return cosas;
+}
+
+function entrarIsla(i) {
+  mapaVivo = false;
+  J.isla = i;
+  var s = SALAS[i];
+  S = {
+    def: s,
+    cosas: montarCosas(s),
+    px: 4.5, py: 7.5, ruta: [], alLlegar: null, mirando: "sx", andando: false,
+    reloj: 0, llevo: null, siguiente: 1, resuelta: false, hover: -1,
+    efectos: [], meta: null, fondo: null, cabeza: null
+  };
+  if (bloqueada(4, 7)) { S.px = 0.5; S.py = 7.5; }
+
+  document.documentElement.style.setProperty("--epoca", s.color);
+  el("mapa").hidden = true;
+  el("brief").hidden = true;
+  el("final").hidden = true;
+  el("sala").hidden = false;
+  el("salaEp").textContent = (s.trasLaPuerta ? "Detrás de la puerta" : "Isla " + (i + 1) + " de " + ANTES) + " · " + s.epoca;
+  el("salaTitulo").textContent = s.titulo;
+  actualizarObjetivo();
+  decir(J.p.nombre, "Acabas de llegar. Antes de tocar nada conviene mirar qué hay aquí: te faltan " +
+    faltanFocos() + " cosas por examinar.");
+  reiniciarCharla();
+  construirFondo();
+  pintarMandos(); pintarLlevo(); listaCosas();
+  salaVivo = true;
+  requestAnimationFrame(cuadroSala);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function volverASala() { el("sala").hidden = false; salaVivo = true; requestAnimationFrame(cuadroSala); }
+function focos() { return S.cosas.filter(function (c) { return c.tipo === "foco"; }); }
+function faltanFocos() { return focos().filter(function (c) { return !c.visto; }).length; }
+function actualizarObjetivo() {
+  var f = faltanFocos();
+  el("objetivoTx").textContent = S.resuelta ? "Isla rescatada. Vuelve al archipiélago para abrir la siguiente."
+    : f ? S.def.instruccion.mision + " — primero examina las " + f + " cosas marcadas con ?"
+    : S.def.instruccion.mision;
+}
+
+function bloqueada(x, y) {
+  if (x < 0 || y < 0 || x > 9 || y > 7) { return true; }
+  for (var i = 0; i < S.cosas.length; i++) {
+    var c = S.cosas[i];
+    if (c.solido && !c.tomado && c.x === x && c.y === y) { return true; }
+  }
+  return false;
+}
+
+/* ── el fondo se dibuja una sola vez por sala ── */
+function construirFondo() {
+  var d = S.def;
+  var cv = document.createElement("canvas");
+  cv.width = LW * 2; cv.height = LH * 2;
+  var g = cv.getContext("2d");
+  g.setTransform(2, 0, 0, 2, 0, 0);
+  g.imageSmoothingEnabled = false;
+
+  g.fillStyle = "#0b0f16";
+  g.fillRect(0, 0, LW, LH);
+
+  pintarMuro(g, d.muro, true);
+  pintarMuro(g, d.muro, false);
+
+  var pat = null;
+  if (d.piso.img && IMG[d.piso.img] && IMG[d.piso.img].width) {
+    pat = g.createPattern(IMG[d.piso.img], "repeat");
+  }
+  for (var y = 0; y < 8; y++) {
+    for (var x = 0; x < 10; x++) {
+      var p = iso(x, y);
+      g.save();
+      rombo(g, p.x, p.y, TW, TH);
+      g.clip();
+      if (pat) { g.fillStyle = pat; } else { g.fillStyle = "#6b6356"; }
+      g.fillRect(p.x - TW, p.y - TH, TW * 2, TH * 2);
+      if (d.piso.tinte) {
+        g.globalAlpha = d.piso.alfa === undefined ? 0.2 : d.piso.alfa;
+        g.fillStyle = d.piso.tinte;
+        g.fillRect(p.x - TW, p.y - TH, TW * 2, TH * 2);
+        g.globalAlpha = 1;
+      }
+      g.fillStyle = (x + y) % 2 ? "rgba(255,255,255,.045)" : "rgba(0,0,0,.075)";
+      g.fillRect(p.x - TW, p.y - TH, TW * 2, TH * 2);
+      var som = Math.max(0, 1 - Math.min(x, y) / 2.6) * 0.2;
+      if (som > 0) { g.fillStyle = "rgba(0,0,0," + som.toFixed(3) + ")"; g.fillRect(p.x - TW, p.y - TH, TW * 2, TH * 2); }
+      g.restore();
+      g.strokeStyle = "rgba(0,0,0,.16)"; g.lineWidth = 0.6;
+      rombo(g, p.x, p.y, TW, TH); g.stroke();
+    }
+  }
+  S.fondo = cv;
+}
+
+/* ── los muros, dibujados en el plano de la propia pared ──
+   El sistema de coordenadas se inclina con el muro: u va en casillas a lo
+   largo de la pared y v en píxeles hacia arriba. Así los sillares, los
+   ladrillos y la greca salen con la perspectiva correcta. */
+function enMuro(g, derecho, fn) {
+  var a = iso(-0.5, -0.5);
+  var largo = derecho ? 10 : 8;
+  g.save();
+  g.beginPath();
+  var b = derecho ? iso(9.5, -0.5) : iso(-0.5, 7.5);
+  g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.lineTo(b.x, b.y - MURO); g.lineTo(a.x, a.y - MURO);
+  g.closePath();
+  g.clip();
+  g.transform(derecho ? TW : -TW, TH, 0, -1, a.x, a.y);
+  fn(g, largo);
+  g.restore();
+}
+
+var MUROS = {
+  /* Grecia: estuco claro, zócalo y una greca de terracota */
+  greca: function (g, L, col, base) {
+    g.fillStyle = base; g.fillRect(0, 0, L, MURO);
+    g.fillStyle = "rgba(0,0,0,.12)"; g.fillRect(0, 0, L, 12);
+    g.fillStyle = col; g.fillRect(0, 12, L, 2.5);
+    var v0 = 46, h = 20, t = 2.6, du = 0.62;
+    g.fillStyle = col;
+    for (var u = 0; u < L; u += du) {
+      var w = du * 0.14;
+      g.fillRect(u, v0, du * 0.9, t);
+      g.fillRect(u, v0, w, h);
+      g.fillRect(u, v0 + h - t, du * 0.66, t);
+      g.fillRect(u + du * 0.6, v0 + h * 0.38, w, h * 0.62);
+      g.fillRect(u + du * 0.3, v0 + h * 0.38, du * 0.34, t);
+    }
+    g.fillStyle = col; g.fillRect(0, MURO - 7, L, 7);
+    g.fillStyle = "rgba(255,255,255,.18)"; g.fillRect(0, MURO - 11, L, 3);
+  },
+  /* sillares grandes con junta marcada */
+  sillar: function (g, L, col, base) {
+    g.fillStyle = base; g.fillRect(0, 0, L, MURO);
+    var filas = 5, alt = MURO / filas, du = 1.05;
+    for (var f = 0; f < filas; f++) {
+      for (var u = (f % 2) * du / 2 - du; u < L; u += du) {
+        g.fillStyle = "rgba(255,255,255," + (0.03 + pizca(f, Math.round(u * 3)) * 0.07).toFixed(3) + ")";
+        g.fillRect(u + 0.025, f * alt + 1.5, du - 0.05, alt - 3);
+      }
+      g.fillStyle = "rgba(0,0,0,.3)";
+      g.fillRect(0, f * alt, L, 1.5);
+    }
+    g.fillStyle = col; g.fillRect(0, MURO - 8, L, 8);
+    g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(0, MURO - 10, L, 2);
+  },
+  /* ladrillo de taller */
+  ladrillo: function (g, L, col, base) {
+    g.fillStyle = base; g.fillRect(0, 0, L, MURO);
+    var filas = 9, alt = MURO / filas, du = 0.46;
+    for (var f = 0; f < filas; f++) {
+      for (var u = (f % 2) * du / 2 - du; u < L; u += du) {
+        g.fillStyle = "rgba(255,255,255," + (0.02 + pizca(f * 5, Math.round(u * 7)) * 0.09).toFixed(3) + ")";
+        g.fillRect(u + 0.015, f * alt + 1, du - 0.03, alt - 2);
+      }
+    }
+    g.fillStyle = col; g.fillRect(0, MURO - 6, L, 6);
+  },
+  /* azulejo de laboratorio */
+  azulejo: function (g, L, col, base) {
+    g.fillStyle = base; g.fillRect(0, 0, L, MURO);
+    var filas = 7, alt = MURO / filas, du = 0.36;
+    for (var f = 0; f < filas; f++) {
+      for (var u = (f % 2) * du / 2 - du; u < L; u += du) {
+        g.fillStyle = "rgba(255,255,255,.55)";
+        g.fillRect(u + 0.02, f * alt + 1.4, du - 0.04, alt - 2.8);
+      }
+    }
+    g.fillStyle = col; g.fillRect(0, MURO * 0.5, L, 4);
+    g.fillStyle = col; g.fillRect(0, MURO - 5, L, 5);
+  },
+  /* panelado de gabinete: friso abajo, damasco arriba */
+  panel: function (g, L, col, base) {
+    g.fillStyle = base; g.fillRect(0, 0, L, MURO);
+    g.fillStyle = "rgba(0,0,0,.3)"; g.fillRect(0, 0, L, 34);
+    for (var u = 0; u < L; u += 0.7) {
+      g.fillStyle = "rgba(255,255,255,.06)";
+      g.fillRect(u + 0.06, 4, 0.58, 26);
+      g.fillStyle = "rgba(0,0,0,.25)";
+      g.fillRect(u, 0, 0.06, 34);
+    }
+    g.fillStyle = col; g.fillRect(0, 34, L, 3.5);
+    for (var f = 0; f < 4; f++) {
+      for (var v = (f % 2) * 0.22 - 0.44; v < L; v += 0.44) {
+        g.fillStyle = "rgba(255,255,255,.07)";
+        g.fillRect(v, 46 + f * 11, 0.1, 4);
+      }
+    }
+    g.fillStyle = col; g.fillRect(0, MURO - 7, L, 7);
+  },
+  /* aula: yeso liso y un tablero verde colgado */
+  tablero: function (g, L, col, base) {
+    g.fillStyle = base; g.fillRect(0, 0, L, MURO);
+    g.fillStyle = "rgba(0,0,0,.16)"; g.fillRect(0, 0, L, 16);
+    g.fillStyle = col; g.fillRect(0, 16, L, 2);
+    var u0 = Math.max(0.6, L * 0.14), u1 = Math.min(L - 0.6, L * 0.62);
+    g.fillStyle = "#6b4a2a"; g.fillRect(u0 - 0.07, 30, u1 - u0 + 0.14, 44);
+    g.fillStyle = "#24402f"; g.fillRect(u0, 33, u1 - u0, 38);
+    g.fillStyle = "rgba(255,255,255,.2)";
+    g.fillRect(u0 + 0.2, 60, (u1 - u0) * 0.4, 1.6);
+    g.fillRect(u0 + 0.2, 54, (u1 - u0) * 0.6, 1.6);
+    g.fillRect(u0 + 0.2, 48, (u1 - u0) * 0.3, 1.6);
+    g.fillStyle = col; g.fillRect(0, MURO - 6, L, 6);
+  }
+};
+
+function pintarMuro(g, muro, derecho) {
+  var pintor = MUROS[muro.patron] || MUROS.sillar;
+  enMuro(g, derecho, function (gg, L) {
+    pintor(gg, L, muro.borde || "#888", muro.c || "#3a4150");
+    if (!derecho) { gg.fillStyle = "rgba(0,0,0,.3)"; gg.fillRect(0, 0, L, MURO); }
+    gg.fillStyle = "rgba(0,0,0,.22)";
+    gg.fillRect(0, 0, L, 3);
+  });
+  /* remate superior, ya fuera del plano inclinado */
+  var a = iso(-0.5, -0.5), b = derecho ? iso(9.5, -0.5) : iso(-0.5, 7.5);
+  g.save();
+  g.strokeStyle = muro.borde || "#888"; g.lineWidth = 2.5;
+  g.beginPath(); g.moveTo(a.x, a.y - MURO); g.lineTo(b.x, b.y - MURO); g.stroke();
+  g.restore();
+}
+
+/* ── camino ── */
+function ruta(x0, y0, x1, y1) {
+  if (bloqueada(x1, y1)) { return null; }
+  if (x0 === x1 && y0 === y1) { return []; }
+  var vis = {}, cola = [[x0, y0]], de = {};
+  vis[x0 + "," + y0] = 1;
+  var dirs = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+  while (cola.length) {
+    var a = cola.shift();
+    if (a[0] === x1 && a[1] === y1) {
+      var cam = [], k = a[0] + "," + a[1];
+      while (k) { var pr = k.split(","); cam.unshift([+pr[0], +pr[1]]); k = de[k]; }
+      cam.shift();
+      return cam;
+    }
+    for (var d = 0; d < 8; d++) {
+      var nx = a[0] + dirs[d][0], ny = a[1] + dirs[d][1];
+      if (bloqueada(nx, ny)) { continue; }
+      if (dirs[d][0] && dirs[d][1] && (bloqueada(a[0] + dirs[d][0], a[1]) || bloqueada(a[0], a[1] + dirs[d][1]))) { continue; }
+      var kk = nx + "," + ny;
+      if (vis[kk]) { continue; }
+      vis[kk] = 1; de[kk] = a[0] + "," + a[1];
+      cola.push([nx, ny]);
+    }
+  }
+  return null;
+}
+function vecinaLibre(x, y) {
+  var ox = Math.floor(S.px), oy = Math.floor(S.py);
+  var cand = [[x, y + 1], [x + 1, y], [x - 1, y], [x, y - 1], [x + 1, y + 1], [x - 1, y + 1], [x + 1, y - 1], [x - 1, y - 1]];
+  cand = cand.filter(function (c) { return !bloqueada(c[0], c[1]) && ruta(ox, oy, c[0], c[1]) !== null; });
+  if (!cand.length) { return null; }
+  cand.sort(function (a, b) {
+    return (Math.abs(a[0] - ox) + Math.abs(a[1] - oy)) - (Math.abs(b[0] - ox) + Math.abs(b[1] - oy));
+  });
+  return cand[0];
+}
+function caminarA(x, y, alLlegar) {
+  var r = ruta(Math.floor(S.px), Math.floor(S.py), x, y);
+  if (r === null) { return false; }
+  S.ruta = r; S.alLlegar = alLlegar || null;
+  S.andando = r.length > 0;
+  S.meta = r.length ? { x: x, y: y } : null;
+  if (!r.length && S.alLlegar) { var f = S.alLlegar; S.alLlegar = null; f(); }
+  return true;
+}
+
+function efecto(tipo, x, y, color, tx) { S.efectos.push({ tipo: tipo, x: x, y: y, c: color, tx: tx || "", t: 0 }); }
+
+/* ── usar una cosa ── */
+function usar(c) {
+  var col = S.def.color;
+  if (c.tipo === "foco") {
+    son("examinar");
+    if (!c.visto) {
+      c.visto = true;
+      efecto("anillo", c.x, c.y, "#c9a227");
+      efecto("texto", c.x, c.y, "#c9a227", "✓ examinado");
+      J.vistos[J.isla + ":" + c.i] = true;
+      anotar(S.def.titulo + " · " + c.nombre, c.texto);
+      listaCosas();
+      actualizarObjetivo();
+      conceptosDeFoco(c.nombre);
+      guardarPartida();
+    }
+    var f = faltanFocos();
+    leer("Lo que encuentras", c.nombre, c.texto, false,
+      f ? "Te faltan " + f + " cosas por examinar." : "Ya viste todo lo que hay en esta sala.");
+    decir(c.nombre, f ? "Te faltan " + f + " cosas por examinar en la sala."
+      : "Ya viste todo. Ahora sí: " + minuscula(S.def.instruccion.mision));
+    return;
+  }
+  if (c.tipo === "secreto") {
+    son("secreto");
+    if (!J.secretos[J.isla]) {
+      J.secretos[J.isla] = true;
+      efecto("anillo", c.x, c.y, "#b49ae4");
+      efecto("texto", c.x, c.y, "#b49ae4", "¡secreto!");
+      anotar(S.def.titulo + " · " + c.nombre, c.texto, true);
+      pintarBarra();
+      listaCosas();
+      guardarPartida();
+    }
+    leer("Un secreto de esta isla", c.nombre, c.texto, true,
+      "Llevas " + Object.keys(J.secretos).length + " de " + islasVisibles() + ".");
+    decir(c.nombre, "Encontraste un secreto. Queda anotado en la bitácora.");
+    return;
+  }
+  if (faltanFocos()) {
+    son("error");
+    efecto("texto", Math.floor(S.px), Math.floor(S.py), "#d4706a", "todavía no");
+    decir(J.p.nombre, "Todavía no. Me faltan " + faltanFocos() +
+      " cosas por mirar en esta sala, y no quiero tocar nada antes de entender dónde estoy.", "alerta");
+    return;
+  }
+  if (S.resuelta) { return; }
+
+  if (c.tipo === "item") {
+    if (c.colocado) { decir(J.p.nombre, "Esa ya está en su sitio."); return; }
+    if (S.llevo) {
+      son("error");
+      efecto("texto", Math.floor(S.px), Math.floor(S.py), "#d4706a", "una sola cosa");
+      decir(J.p.nombre, "Solo tengo dos manos. Primero dejo lo que llevo.", "alerta");
+      return;
+    }
+    son("tomar");
+    c.tomado = true;
+    S.llevo = c;
+    efecto("anillo", c.x, c.y, "#c9a227");
+    efecto("texto", c.x, c.y, "#c9a227", "lo llevas en la mano");
+    decir("Lo recoges", c.nombre);
+    leer("Lo recoges", "Ahora lo llevas en la mano", c.nombre, false,
+      "Ciérralo y sigue: abajo queda siempre a la vista mientras lo lleves.");
+    pintarLlevo(); listaCosas();
+    return;
+  }
+  if (c.tipo === "zona") {
+    if (!S.llevo) { decir(c.rotulo, "Aquí va lo que sea de " + c.rotulo + ". No llevas nada todavía."); return; }
+    if (S.llevo.destino === c.rotulo) {
+      son("dejar");
+      var it = S.llevo;
+      it.tomado = false; it.colocado = true; it.x = c.x; it.y = c.y;
+      S.llevo = null;
+      efecto("anillo", c.x, c.y, "#5cc48b");
+      efecto("texto", c.x, c.y, "#5cc48b", "✓ encaja");
+      var faltan = S.cosas.filter(function (z) { return z.tipo === "item" && !z.colocado; }).length;
+      decir(c.rotulo, "Encaja. " + (faltan ? "Quedan " + faltan + "." : "Eso era todo."));
+      pintarLlevo(); listaCosas();
+      if (!faltan) { resolver(); }
+    } else {
+      son("error");
+      J.errores++;
+      efecto("texto", c.x, c.y, "#d4706a", "aquí no");
+      decir(c.rotulo, "Ahí no va. Sigues con ello en la mano.", "alerta");
+    }
+    return;
+  }
+  if (c.tipo === "placa") {
+    if (c.pisada) { decir(c.rotulo, "Esta losa ya está abajo."); return; }
+    if (c.orden === S.siguiente) {
+      son("dejar");
+      c.pisada = S.siguiente;
+      S.siguiente++;
+      efecto("anillo", c.x, c.y, col);
+      efecto("texto", c.x, c.y, col, "losa " + c.pisada);
+      var quedan = S.cosas.filter(function (z) { return z.tipo === "placa"; }).length - (S.siguiente - 1);
+      decir(c.rotulo, quedan ? "La losa se hunde y se queda abajo. Faltan " + quedan + "." : "La última losa cede.");
+      listaCosas();
+      if (!quedan) { resolver(); }
+    } else {
+      son("error");
+      J.errores++;
+      S.cosas.forEach(function (z) { if (z.tipo === "placa") { z.pisada = 0; } });
+      S.siguiente = 1;
+      efecto("texto", c.x, c.y, "#d4706a", "no era esta");
+      decir(c.rotulo, "Esa no era la que seguía. Todas las losas vuelven a subir.", "alerta");
+      listaCosas();
+    }
+  }
+}
+
+function minuscula(s) { return s.charAt(0).toLowerCase() + s.slice(1); }
+
+function resolver() {
+  S.resuelta = true;
+  J.hechas[J.isla] = true;
+  son("isla");
+  efecto("estallido", Math.floor(S.px), Math.floor(S.py), S.def.color);
+  efecto("texto", Math.floor(S.px), Math.floor(S.py), "#c9a227", "✦ " + S.def.letra);
+  anotar(S.def.titulo + " · isla rescatada", S.def.cierre);
+  decir("La isla vuelve a encenderse", S.def.cierre);
+  actualizarObjetivo();
+  pintarBarra(); pintarMandos(); listaCosas();
+
+  var sinLlave = !S.def.letra;
+  el("aviso").querySelector(".rotulo").textContent = sinLlave ? "La última pregunta" : "Isla rescatada";
+  el("avTitulo").textContent = sinLlave ? S.def.titulo : S.def.titulo + " vuelve a la luz";
+  el("aviso").querySelector(".sello-llave").hidden = sinLlave;
+  el("avLlave").hidden = sinLlave;
+  el("avLetra").textContent = S.def.letra;
+  el("avLlave").textContent = "Recoges " + S.def.llave + ", con la letra " + S.def.letra + " grabada.";
+  el("avIr").textContent = sinLlave ? "Cerrar el archipiélago" : "Ir al archipiélago";
+  el("avCierre").textContent = S.def.cierre;
+  el("lectura").hidden = true;
+  conceptosDeReto();
+  guardarPartida();
+  colaAvisos.push({ tipo: "isla" });
+  soltarCola();
+}
+
+Array.prototype.forEach.call(document.querySelectorAll("[data-cerrar-aviso]"), function (b) {
+  b.addEventListener("click", function () { son("clic"); el("aviso").hidden = true; });
+});
+Array.prototype.forEach.call(document.querySelectorAll("[data-ir-mapa]"), function (b) {
+  b.addEventListener("click", function () {
+    son("abrir");
+    el("aviso").hidden = true;
+    /* detrás de la puerta no hay archipiélago al que volver: hay final */
+    if (S && S.def && !S.def.letra) { salaVivo = false; montarCierre(); } else { irAlMapa(); }
+  });
+});
+
+function decir(de, tx, clase) {
+  var d = el("dialogo");
+  d.className = clase || "";
+  d.querySelector(".de").textContent = de;
+  d.querySelector("p").textContent = tx;
+}
+
+function pintarLlevo() {
+  var n = el("llevo");
+  limpiar(n);
+  if (!S.llevo) { n.hidden = true; return; }
+  n.hidden = false;
+  n.appendChild(crear("span", "mano", "✋"));
+  var tx = crear("div", "tx");
+  tx.appendChild(crear("span", "et", "Llevas en la mano"));
+  tx.appendChild(crear("b", null, S.llevo.nombre));
+  n.appendChild(tx);
+  var s = crear("button", "btn fantasma chico", "Dejar en el suelo");
+  s.type = "button";
+  s.setAttribute("data-soltar", "1");
+  s.addEventListener("click", function () {
+    var it = S.llevo;
+    it.tomado = false; it.x = Math.floor(S.px); it.y = Math.floor(S.py);
+    S.llevo = null;
+    son("clic");
+    efecto("texto", it.x, it.y, "#8d96ab", "en el suelo");
+    decir(J.p.nombre, "Lo dejas en el suelo, a tus pies.");
+    pintarLlevo(); listaCosas();
+  });
+  n.appendChild(s);
+}
+
+function pintarMandos() {
+  var h = el("mandos");
+  limpiar(h);
+  var bp = crear("button", "btn fantasma chico", "Pedir una pista");
+  bp.type = "button";
+  bp.disabled = S.resuelta;
+  bp.addEventListener("click", function () {
+    J.pistas++;
+    son("examinar");
+    leer("Una pista de " + J.p.nombre, J.p.nombre + ", " + J.p.oficio, S.def.reto.pistas[J.p.id], false,
+      "Cada personaje da la pista a su manera.");
+    decir(J.p.nombre + ", " + J.p.oficio, S.def.reto.pistas[J.p.id]);
+    bp.disabled = true;
+  });
+  h.appendChild(bp);
+  var bv = crear("button", S.resuelta ? "btn" : "btn fantasma chico",
+    S.resuelta ? "Volver al archipiélago" : "Salir al archipiélago");
+  bv.type = "button";
+  bv.setAttribute("data-volver", "1");
+  bv.addEventListener("click", function () { son("abrir"); irAlMapa(); });
+  h.appendChild(bv);
+}
+
+function listaCosas() {
+  var h = el("listaCosas");
+  limpiar(h);
+  S.cosas.forEach(function (c) {
+    if (c.tipo === "decoracion" || c.tomado) { return; }
+    var et = c.tipo === "foco" ? (c.visto ? "Volver a examinar: " : "Examinar: ") + c.nombre
+      : c.tipo === "item" ? (c.colocado ? "Ya colocada: " : "Recoger: ") + c.nombre
+      : c.tipo === "zona" ? "Dejar en " + c.rotulo
+      : c.tipo === "placa" ? "Pisar la losa: " + c.rotulo
+      : "Mirar de cerca algo que brilla en el suelo";
+    var b = crear("button", null, et);
+    b.type = "button";
+    b.setAttribute("data-cosa", String(c.i));
+    b.setAttribute("data-tipo", c.tipo);
+    b.addEventListener("click", function () { irAUsar(c); });
+    h.appendChild(b);
+  });
+}
+
+function irAUsar(c) {
+  var dest = c.solido ? vecinaLibre(c.x, c.y) : [c.x, c.y];
+  if (!dest || bloqueada(dest[0], dest[1])) { decir(J.p.nombre, "No consigo acercarme a eso."); return; }
+  if (Math.floor(S.px) === dest[0] && Math.floor(S.py) === dest[1]) { usar(c); return; }
+  if (!caminarA(dest[0], dest[1], function () { usar(c); })) {
+    decir(J.p.nombre, "No hay por dónde llegar hasta ahí.");
+  }
+}
+
+/* ── dibujo de la sala ── */
+function anilloSuelo(ctx, x, y, color, grosor, fase) {
+  var p = iso(x, y);
+  var k = 1 + Math.sin(fase) * 0.07;
+  ctx.save();
+  ctx.strokeStyle = color; ctx.lineWidth = grosor;
+  rombo(ctx, p.x, p.y, (TW - 6) * k, (TH - 3) * k);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function cuadroSala() {
+  if (!salaVivo || el("sala").hidden) { salaVivo = false; return; }
+  S.reloj += 1 / 60;
+  ajustarVista(salaCv);
+  UI = 1;                       /* aquí la cámara ya devolvió el tamaño cómodo */
+  var ctx = contexto(salaCv, LW, LH, VIS), d = S.def;
+  blancos = [];
+
+  if (S.fondo) { ctx.drawImage(S.fondo, 0, 0, LW, LH); }
+
+  if (S.meta && S.ruta.length) {
+    anilloSuelo(ctx, S.meta.x, S.meta.y, "rgba(236,229,212,.5)", 1.4, S.reloj * 6);
+  }
+
+  /* marcas y cosas planas */
+  S.cosas.forEach(function (c) {
+    if (c.tomado) { return; }
+    var p = iso(c.x, c.y);
+    if (c.m && (c.m.t === "estera" || c.m.t === "losa")) { dibujarMueble(ctx, c.m, p.x, p.y); }
+    if (c.tipo === "secreto") {
+      var brillo = 0.3 + Math.abs(Math.sin(S.reloj * 1.7 + c.x)) * 0.45;
+      ctx.save();
+      ctx.globalAlpha = S.hover === c.i ? 1 : brillo;
+      ctx.strokeStyle = "#b49ae4"; ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(p.x - 6, p.y + 2); ctx.lineTo(p.x - 1, p.y - 2); ctx.lineTo(p.x + 2, p.y + 1); ctx.lineTo(p.x + 7, p.y - 3);
+      ctx.stroke();
+      ctx.fillStyle = "#d8c8f4";
+      ctx.beginPath(); ctx.arc(p.x + 7, p.y - 3, 1.5, 0, 6.2832); ctx.fill();
+      ctx.restore();
+      marcarBlanco(c, p.x - TW, p.y - TH, TW * 2, TH * 2);
+    }
+    if (c.tipo === "placa") {
+      if (!c.pisada && !S.resuelta) {
+        anilloSuelo(ctx, c.x, c.y, d.color, S.hover === c.i ? 2.4 : 1.5, S.reloj * 2.2 + c.x);
+      } else if (c.pisada) {
+        ctx.save();
+        rombo(ctx, p.x, p.y, TW - 6, TH - 3);
+        ctx.fillStyle = d.color; ctx.globalAlpha = 0.33; ctx.fill();
+        ctx.restore();
+        texto(ctx, String(c.pisada), p.x, p.y, 13, "#f2f6f4", 700);
+      }
+      marcarBlanco(c, p.x - TW, p.y - TH, TW * 2, TH * 2);
+    }
+    if (c.tipo === "zona") {
+      anilloSuelo(ctx, c.x, c.y, S.llevo ? "#c9a227" : tinte(d.color, 0.3),
+        S.llevo ? 2.2 : 1.3, S.reloj * (S.llevo ? 4 : 2));
+      marcarBlanco(c, p.x - TW, p.y - TH, TW * 2, TH * 2);
+    }
+    if (c.tipo === "item" && !c.colocado) {
+      anilloSuelo(ctx, c.x, c.y, "#c9a227", S.hover === c.i ? 2.4 : 1.5, S.reloj * 2.6 + c.y);
+    }
+  });
+
+  /* cosas con altura, por profundidad */
+  var pila = [];
+  S.cosas.forEach(function (c) {
+    if (c.tomado || c.tipo === "secreto") { return; }
+    if (c.m && (c.m.t === "estera" || c.m.t === "losa")) { return; }
+    pila.push({ z: c.x + c.y, c: c });
+  });
+  pila.push({ z: S.px + S.py - 1 + 0.45, heroe: true });
+  pila.sort(function (a, b) { return a.z - b.z; });
+
+  pila.forEach(function (o) {
+    if (o.heroe) { pintarHeroe(ctx); return; }
+    var c = o.c, p = iso(c.x, c.y), alt = alturaDe(c.m);
+
+    if (c.tipo === "item") {
+      pintarPliego(ctx, p.x, p.y, c.colocado);
+      alt = 26;
+    } else if (c.m) {
+      dibujarMueble(ctx, c.m, p.x, p.y);
+    }
+
+    if (S.hover === c.i && c.tipo !== "decoracion") {
+      ctx.save();
+      ctx.globalAlpha = 0.22; ctx.fillStyle = "#ece5d4";
+      rombo(ctx, p.x, p.y, TW - 4, TH - 2); ctx.fill();
+      ctx.restore();
+    }
+    if (c.tipo === "foco") {
+      var ay = p.y - alt - 20;
+      if (!c.visto) {
+        var bob = Math.sin(S.reloj * 3 + c.x) * 2.5;
+        ctx.save();
+        ctx.globalAlpha = 0.9;
+        ctx.beginPath(); ctx.arc(p.x, ay + bob, 10, 0, 6.2832);
+        ctx.fillStyle = "#12161ecc"; ctx.fill();
+        ctx.strokeStyle = d.color; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.restore();
+        texto(ctx, "?", p.x, ay + bob + 0.5, 14, d.color, 700);
+      } else {
+        ctx.save(); ctx.globalAlpha = 0.55;
+        texto(ctx, "✓", p.x, ay, 12, "#c9a227", 700);
+        ctx.restore();
+      }
+    }
+    /* una pieza ya colocada no debe robarle el clic a su estera */
+    if (!(c.tipo === "item" && c.colocado)) {
+      marcarBlanco(c, p.x - TW, p.y - alt - 24, TW * 2, alt + 38);
+    }
+  });
+
+  /* rótulos por encima de todo */
+  S.cosas.forEach(function (c) {
+    if (c.tipo === "zona") {
+      var p = iso(c.x, c.y);
+      pastilla(ctx, c.rotulo, p.x, p.y - 26, "#12161e", S.llevo ? "#e8dcb8" : tinte(d.color, 0.5),
+        S.llevo ? "#c9a227" : null);
+    } else if (c.tipo === "placa" && c.tag) {
+      var q = iso(c.x, c.y);
+      pastilla(ctx, c.tag, q.x, q.y - 22, "#12161e", c.pisada ? "#8d96ab" : tinte(d.color, 0.5));
+    }
+  });
+
+  pintarEfectos(ctx);
+
+  if (S.hover >= 0) {
+    var hc = S.cosas[S.hover];
+    if (hc && hc.tipo !== "decoracion") {
+      var hp = iso(hc.x, hc.y);
+      var et = hc.tipo === "foco" ? (hc.visto ? "Ya examinado" : "Examinar")
+        : hc.tipo === "item" ? (hc.colocado ? "Ya colocada" : "Recoger")
+        : hc.tipo === "zona" ? "Dejar aquí"
+        : hc.tipo === "placa" ? "Pisar" : "Mirar de cerca";
+      pastilla(ctx, et, hp.x, hp.y + 22, "#c9a227", "#15110a");
+    }
+  }
+
+  if (S.reloj > charla.proxima && !S.andando && el("lectura").hidden
+      && el("aviso").hidden && el("logro").hidden) {
+    hablar(frasePersonaje((S.def.voces || {})[J.p.id]));
+  }
+  pintarGlobo(ctx);
+
+  requestAnimationFrame(cuadroSala);
+  avanzar();
+}
+
+function pintarPliego(ctx, cx, cy, colocado) {
+  var fl = colocado ? 0 : Math.sin(S.reloj * 2.2 + cx * 0.1) * 2;
+  ctx.save();
+  ctx.globalAlpha = 0.3; ctx.fillStyle = "#000";
+  ctx.beginPath(); ctx.ellipse(cx, cy, 11, 4.5, 0, 0, 6.2832); ctx.fill();
+  ctx.restore();
+  if (!colocado) {
+    ctx.save();
+    ctx.globalAlpha = 0.2; ctx.fillStyle = "#c9a227";
+    ctx.beginPath(); ctx.ellipse(cx, cy - 13 + fl, 15, 14, 0, 0, 6.2832); ctx.fill();
+    ctx.restore();
+  }
+  sprite(ctx, "pergamino", cx, cy + fl, colocado ? 0.5 : 0.62, false, colocado ? 0.62 : 1);
+}
+
+function marcarBlanco(c, x, y, w, h) {
+  if (c.tipo === "decoracion") { return; }
+  blancos.push({ c: c, x: x, y: y, w: w, h: h });
+}
+
+function pintarHeroe(ctx) {
+  var p = iso(S.px - 0.5, S.py - 0.5);
+  var mirandoIzq = S.mirando === "sy" || S.mirando === "nx";
+  var bob = S.andando ? Math.abs(Math.sin(S.reloj * 9)) * 2.4 : 0;
+
+  ctx.save();
+  ctx.globalAlpha = 0.34; ctx.fillStyle = "#000";
+  ctx.beginPath(); ctx.ellipse(p.x, p.y + 4, 12, 5.5, 0, 0, 6.2832); ctx.fill();
+  ctx.restore();
+
+  if (S.llevo) {
+    ctx.save();
+    ctx.globalAlpha = 0.16 + Math.sin(S.reloj * 3) * 0.05;
+    ctx.fillStyle = "#c9a227";
+    ctx.beginPath(); ctx.ellipse(p.x, p.y - 20, 24, 34, 0, 0, 6.2832); ctx.fill();
+    ctx.restore();
+  }
+
+  var h = sprite(ctx, J.p.sp, p.x, p.y + 4 - bob, 1.62, mirandoIzq) || 55;
+  S.cabeza = { x: p.x, y: p.y + 4 - bob - h };
+
+  if (S.llevo) {
+    var ty = p.y + 4 - bob - h - 6 + Math.sin(S.reloj * 3) * 1.6;
+    ctx.save();
+    ctx.globalAlpha = 0.3; ctx.fillStyle = "#c9a227";
+    ctx.beginPath(); ctx.ellipse(p.x, ty - 11, 17, 15, 0, 0, 6.2832); ctx.fill();
+    ctx.restore();
+    sprite(ctx, "pergamino", p.x, ty, 0.6);
+  }
+}
+
+function pintarEfectos(ctx) {
+  for (var i = S.efectos.length - 1; i >= 0; i--) {
+    var e = S.efectos[i];
+    e.t += 1 / 60;
+    var p = iso(e.x, e.y);
+    if (e.tipo === "anillo" || e.tipo === "estallido") {
+      var dur = e.tipo === "estallido" ? 1.1 : 0.65;
+      var k = e.t / dur;
+      if (k >= 1) { S.efectos.splice(i, 1); continue; }
+      ctx.save();
+      ctx.globalAlpha = (1 - k) * 0.9;
+      ctx.strokeStyle = e.c; ctx.lineWidth = 2.5 * (1 - k) + 0.6;
+      rombo(ctx, p.x, p.y, (TW - 6) * (0.4 + k * 1.5), (TH - 3) * (0.4 + k * 1.5));
+      ctx.stroke();
+      if (e.tipo === "estallido") {
+        for (var a = 0; a < 8; a++) {
+          var an = a * Math.PI / 4, r = 10 + k * 46;
+          ctx.fillStyle = e.c;
+          ctx.beginPath();
+          ctx.arc(p.x + Math.cos(an) * r, p.y - 14 + Math.sin(an) * r * 0.5 - k * 16, 2.4 * (1 - k), 0, 6.2832);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    } else if (e.tipo === "texto") {
+      var kt = e.t / 1.5;
+      if (kt >= 1) { S.efectos.splice(i, 1); continue; }
+      ctx.save();
+      ctx.globalAlpha = kt < 0.75 ? 1 : (1 - kt) * 4;
+      pastilla(ctx, e.tx, p.x, p.y - 34 - kt * 24, "#12161ee6", e.c, e.c);
+      ctx.restore();
+    }
+  }
+}
+
+/* ── movimiento ── */
+var TECLA = { dir: null, cual: null };
+var DIRS = { ArrowUp: [-1, -1], ArrowDown: [1, 1], ArrowLeft: [-1, 1], ArrowRight: [1, -1],
+             w: [-1, -1], s: [1, 1], a: [-1, 1], d: [1, -1] };
+function dirDeTecla(k) { return DIRS[k] || DIRS[String(k).toLowerCase()] || null; }
+
+function pasoDeTecla() {
+  if (!TECLA.dir || !S || S.ruta.length) { return false; }
+  var nx = Math.floor(S.px) + TECLA.dir[0], ny = Math.floor(S.py) + TECLA.dir[1];
+  if (bloqueada(nx, ny)) { return false; }
+  return caminarA(nx, ny, null);
+}
+
+function avanzar() {
+  if (!S.ruta.length) {
+    S.andando = false; S.meta = null;
+    pasoDeTecla();
+    return;
+  }
+  var obj = S.ruta[0], tx = obj[0] + 0.5, ty = obj[1] + 0.5;
+  var dx = tx - S.px, dy = ty - S.py, dist = Math.hypot(dx, dy), v = 0.045;
+  if (Math.abs(dx) > Math.abs(dy)) { S.mirando = dx > 0 ? "sx" : "nx"; }
+  else if (dy !== 0) { S.mirando = dy > 0 ? "sy" : "ny"; }
+  if (dist <= v) {
+    S.px = tx; S.py = ty;
+    S.ruta.shift();
+    son("paso");
+    if (!S.ruta.length) {
+      S.andando = false; S.meta = null;
+      if (S.alLlegar) { var f = S.alLlegar; S.alLlegar = null; f(); }
+      /* si la tecla sigue pulsada, sigue andando sin activar la casilla */
+      else if (!pasoDeTecla()) { pisarSiHay(Math.floor(S.px), Math.floor(S.py)); }
+    }
+  } else {
+    S.px += dx / dist * v; S.py += dy / dist * v;
+    S.andando = true;
+  }
+}
+
+function pisarSiHay(gx, gy) {
+  for (var k = 0; k < S.cosas.length; k++) {
+    var c = S.cosas[k];
+    if (c.tomado || c.solido) { continue; }
+    if (c.tipo === "item" && c.colocado) { continue; }
+    if (c.x === gx && c.y === gy && ["placa", "zona", "item", "secreto"].indexOf(c.tipo) >= 0) { usar(c); return; }
+  }
+}
+
+/* Qué hay bajo el puntero. Manda la casilla que se pisa: las siluetas altas
+   se solapan entre casillas vecinas, así que si se eligiera solo por la caja
+   de cada dibujo, tocar una tablilla recogería la de al lado. Solo cuando en
+   esa casilla no hay nada se mira el dibujo, que es como se alcanzan los
+   muebles altos apoyados en una casilla que no se pisa. */
+var PRIORIDAD_LIBRE = ["item", "zona", "placa", "secreto", "foco"];
+var PRIORIDAD_CARGADO = ["zona", "item", "placa", "secreto", "foco"];
+
+function cosaEn(px, py) {
+  var g = casillaEn(px, py), gx = g.x, gy = g.y;
+  var aqui = [];
+  S.cosas.forEach(function (c) {
+    if (c.tomado || c.solido || c.tipo === "decoracion") { return; }
+    if (c.tipo === "item" && c.colocado) { return; }
+    if (c.x === gx && c.y === gy) { aqui.push(c); }
+  });
+  if (aqui.length) {
+    var orden = S.llevo ? PRIORIDAD_CARGADO : PRIORIDAD_LIBRE;
+    aqui.sort(function (a, b) { return orden.indexOf(a.tipo) - orden.indexOf(b.tipo); });
+    return aqui[0];
+  }
+  for (var i = blancos.length - 1; i >= 0; i--) {
+    var b = blancos[i];
+    if (px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) { return b.c; }
+  }
+  return null;
+}
+
+salaCv.addEventListener("pointermove", function (ev) {
+  if (!S || el("sala").hidden) { return; }
+  var p = aLogico(salaCv, ev, LW, LH, VIS);
+  var c = cosaEn(p.x, p.y);
+  S.hover = c ? c.i : -1;
+  salaCv.style.cursor = c ? "pointer" : "default";
+});
+salaCv.addEventListener("pointerleave", function () { if (S) { S.hover = -1; } });
+
+salaCv.addEventListener("pointerdown", function (ev) {
+  if (!S) { return; }
+  TECLA.dir = null; TECLA.cual = null;
+  var p = aLogico(salaCv, ev, LW, LH, VIS);
+  var c = cosaEn(p.x, p.y);
+  if (c) { irAUsar(c); return; }
+  var g = casillaEn(p.x, p.y);
+  if (bloqueada(g.x, g.y)) { return; }
+  caminarA(g.x, g.y, function () { pisarSiHay(g.x, g.y); });
+});
+
+document.addEventListener("keydown", function (ev) {
+  if (el("sala").hidden || !S) { return; }
+  if (!el("lectura").hidden || !el("aviso").hidden) { return; }
+  var t = ev.target;
+  var enControl = t && (t.tagName === "BUTTON" || t.tagName === "SUMMARY" || t.tagName === "INPUT" || t.tagName === "A");
+  var d = dirDeTecla(ev.key);
+  if (d) {
+    ev.preventDefault();
+    TECLA.dir = d; TECLA.cual = ev.key;
+    S.alLlegar = null;
+    pasoDeTecla();
+    return;
+  }
+  if ((ev.key === " " || ev.key === "Enter") && !enControl) {
+    ev.preventDefault();
+    var mx = Math.floor(S.px), my = Math.floor(S.py), mejor = null, md = 9;
+    S.cosas.forEach(function (c) {
+      if (c.tipo === "decoracion" || c.tomado) { return; }
+      if (c.tipo === "item" && c.colocado) { return; }
+      /* con algo en la mano, la estera de destino tiene prioridad */
+      var peso = (S.llevo && c.tipo === "zona") ? -0.5 : 0;
+      var dd = Math.max(Math.abs(c.x - mx), Math.abs(c.y - my)) + peso;
+      if (dd <= 1 && dd < md) { md = dd; mejor = c; }
+    });
+    if (mejor) { usar(mejor); }
+    else { decir(J.p.nombre, "No tienes nada al alcance. Acércate primero a algo."); }
+  }
+});
+document.addEventListener("keyup", function (ev) {
+  if (TECLA.cual && String(ev.key).toLowerCase() === String(TECLA.cual).toLowerCase()) {
+    TECLA.dir = null; TECLA.cual = null;
+  }
+});
+window.addEventListener("blur", function () { TECLA.dir = null; TECLA.cual = null; });
+
+window.addEventListener("resize", function () {
+  if (S && !el("sala").hidden) { fijarVista(salaCv); contexto(salaCv, LW, LH, VIS); }
+  if (!el("mapa").hidden) { contexto(mapaCv, MW, MH); }
+});
+
+/* sólo para los recorridos automáticos de prueba; en el juego no existe */
+if (location.hash === "#pruebas") {
+  window.pruebaPos = function () { return S ? { x: S.px, y: S.py } : null; };
+  window.pruebaPuerta = function () { montarFinal(); epilogo(); };
+  window.pruebaLMS = function () { return { hay: LMS.hay(), estado: serializar() }; };
+  window.pruebaEstado = function () {
+    return { pj: J.p && J.p.id, islas: Object.keys(J.hechas).length,
+      con: Object.keys(J.conceptos).length, sec: Object.keys(J.secretos).length,
+      notas: J.notas.length, puerta: !!J.puerta };
+  };
+  window.pruebaCosas = function () {
+    return S ? S.cosas.map(function (c) {
+      return { i: c.i, tipo: c.tipo, x: c.x, y: c.y, destino: c.destino, rotulo: c.rotulo };
+    }) : [];
+  };
+  window.pruebaAmbiente = function (cual) {
+    return S ? S.cosas.filter(function (c) { return c.tipo === (cual || "decoracion"); })
+      .map(function (c) { return c.x + "," + c.y + ":" + (c.m && c.m.sp); }).join("|") : "";
+  };
+  window.pruebaTodo = function () {
+    for (var i = 0; i < ANTES; i++) { J.hechas[i] = true; }
+    pintarBarra(); irAlMapa();
+  };
+}
+
+/* ══════════════ 13 · la puerta del centro ══════════════ */
+function montarFinal() {
+  mapaVivo = false; salaVivo = false;
+  el("aviso").hidden = true;
+  cerrarLectura();
+  el("mapa").hidden = true;
+  el("sala").hidden = true;
+  el("brief").hidden = true;
+  el("final").hidden = false;
+  document.documentElement.style.setProperty("--epoca", "#c9a227");
+
+  var host = el("finalCuerpo");
+  limpiar(host);
+  var arco = document.createElement("img");
+  arco.className = "px arco-final";
+  arco.src = "img/puerta.png";
+  arco.alt = "";
+  host.appendChild(arco);
+  host.appendChild(crear("p", "rotulo", "El centro del archipiélago"));
+  var h = crear("h2", null, "Siete llaves, una palabra");
+  h.style.fontSize = "clamp(1.8rem, 6vw, 2.7rem)";
+  h.style.margin = ".25rem 0 .7rem";
+  host.appendChild(h);
+  var en = crear("p", null, FINAL.enunciado);
+  en.style.color = "#cfc9ba"; en.style.maxWidth = "40rem";
+  host.appendChild(en);
+
+  var objetivo = FINAL.palabra.split(""), puestas = [];
+  var ranuras = crear("div", "ranuras"), sueltas = crear("div", "sueltas"), estado = crear("p", "estado", "");
+  var bolsa = [3, 0, 5, 1, 6, 2, 4].map(function (i) { return { l: objetivo[i], usada: false }; });
+
+  function pintar() {
+    limpiar(ranuras);
+    for (var i = 0; i < objetivo.length; i++) {
+      ranuras.appendChild(crear("div", puestas[i] ? "ranura llena" : "ranura vacia", puestas[i] || "·"));
+    }
+    limpiar(sueltas);
+    bolsa.forEach(function (b) {
+      var bt = crear("button", "suelta", b.l);
+      bt.type = "button";
+      bt.disabled = b.usada;
+      bt.addEventListener("click", function () {
+        if (b.usada) { return; }
+        if (b.l === objetivo[puestas.length]) {
+          son("dejar");
+          puestas.push(b.l); b.usada = true;
+          estado.textContent = ""; estado.className = "estado";
+          pintar();
+          if (puestas.length === objetivo.length) { epilogo(); }
+        } else {
+          son("error");
+          J.errores++;
+          estado.textContent = "Esa llave no entra en esa ranura.";
+          estado.className = "estado mal";
+        }
+      });
+      sueltas.appendChild(bt);
+    });
+  }
+
+  host.appendChild(ranuras);
+  host.appendChild(sueltas);
+  host.appendChild(estado);
+
+  var acc = crear("div");
+  acc.style.marginTop = ".8rem";
+  var bp = crear("button", "btn fantasma", "Pedir una pista");
+  bp.type = "button";
+  bp.addEventListener("click", function () {
+    J.pistas++;
+    son("examinar");
+    var c = crear("div", "pista");
+    c.innerHTML = '<img class="px" src="img/' + J.p.sp + '.png" alt="" height="44">' +
+      '<div><span class="de">' + J.p.nombre + "</span><p>" + FINAL.pista + "</p></div>";
+    c.style.marginTop = ".8rem";
+    acc.appendChild(c);
+    bp.disabled = true;
+  });
+  acc.appendChild(bp);
+  host.appendChild(acc);
+
+  pintar();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* Con la palabra puesta, la puerta cede. Si detrás queda una isla, el juego
+   no termina aquí: termina después de cruzarla. */
+function epilogo() {
+  var queda = -1;
+  for (var i = 0; i < SALAS.length; i++) { if (trasLaPuerta(i) && !J.hechas[i]) { queda = i; break; } }
+  if (queda >= 0) { umbral(queda); return; }
+  montarCierre();
+}
+
+function umbral(i) {
+  son("puerta");
+  J.puerta = true;
+  guardarPartida();
+  var host = el("finalCuerpo");
+  var caja = crear("div", "epilogo");
+  caja.id = "epilogo";
+  caja.appendChild(crear("p", "rotulo", "La puerta se abre"));
+  caja.appendChild(crear("p", "texto", FINAL.umbral));
+  var acc = crear("div");
+  acc.style.marginTop = "1.1rem";
+  var b = crear("button", "btn", "Cruzar la puerta");
+  b.type = "button";
+  b.setAttribute("data-cruzar", "1");
+  b.addEventListener("click", function () { son("abrir"); el("final").hidden = true; entrarIsla(i); });
+  acc.appendChild(b);
+  caja.appendChild(acc);
+  host.appendChild(caja);
+  pintarBarra();
+  caja.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function montarCierre() {
+  el("sala").hidden = true;
+  el("brief").hidden = true;
+  el("mapa").hidden = true;
+  el("final").hidden = false;
+  var viejo = el("epilogo");
+  if (viejo && viejo.parentNode) { viejo.parentNode.removeChild(viejo); }
+  epilogoFinal();
+}
+
+function epilogoFinal() {
+  son("puerta");
+  var host = el("finalCuerpo");
+  var caja2 = crear("div", "epilogo");
+  caja2.id = "epilogo";
+  caja2.appendChild(crear("p", "rotulo", "La puerta se abre"));
+  caja2.appendChild(crear("p", "texto", FINAL.texto));
+  caja2.appendChild(crear("p", "personal", FINAL.cierres[J.p.id]));
+
+  var nSec = Object.keys(J.secretos).length;
+  if (nSec === SALAS.length) { caja2.appendChild(crear("p", "bonus", FINAL.secretosTodos)); }
+
+  var m = crear("div", "marcador");
+  m.innerHTML = "<span>Islas rescatadas <b>" + Object.keys(J.hechas).length + "</b></span>" +
+    "<span>Secretos encontrados <b>" + nSec + "</b>/" + SALAS.length + "</span>" +
+    "<span>Hallazgos anotados <b>" + J.notas.length + "</b></span>" +
+    "<span>Pistas pedidas <b>" + J.pistas + "</b></span>" +
+    "<span>Intentos fallidos <b>" + J.errores + "</b></span>";
+  caja2.appendChild(m);
+
+  if (nSec < SALAS.length) {
+    var av = crear("p", null, "Te quedaron " + (SALAS.length - nSec) +
+      " secretos sin encontrar: están en los rincones de las salas, apenas un brillo violeta en el suelo, y ninguno hacía falta para salir.");
+    av.style.color = "#8d96ab"; av.style.fontSize = ".92rem"; av.style.maxWidth = "40rem";
+    caja2.appendChild(av);
+  }
+
+  var nCon = Object.keys(J.conceptos).length;
+  var cab = crear("p", "rotulo", "Tu cuaderno de conceptos clave · " + nCon + " de " + CONCEPTOS.length);
+  cab.style.marginTop = ".6rem";
+  caja2.appendChild(cab);
+  var rej = crear("div", "rejilla");
+  CONCEPTOS.forEach(function (c) {
+    if (!J.conceptos[c.clave]) { return; }
+    var d = crear("div", "tarjetilla");
+    d.style.setProperty("--epc", SALAS[c.isla].color);
+    d.appendChild(crear("p", "isla", SALAS[c.isla].titulo));
+    d.appendChild(crear("p", "term", c.termino));
+    d.appendChild(crear("p", "def", c.def));
+    rej.appendChild(d);
+  });
+  caja2.appendChild(rej);
+
+  var acc = crear("div");
+  acc.style.display = "flex"; acc.style.gap = ".6rem"; acc.style.flexWrap = "wrap";
+  var bc = crear("button", "btn", "Copiar mis apuntes");
+  bc.type = "button";
+  bc.addEventListener("click", function () {
+    var tx = apuntes();
+    son("clic");
+    try {
+      navigator.clipboard.writeText(tx).then(function () { bc.textContent = "Copiado"; },
+        function () { mostrarTexto(tx); });
+    } catch (e) { mostrarTexto(tx); }
+  });
+  acc.appendChild(bc);
+  var b = crear("button", "btn fantasma", "Volver a empezar");
+  b.type = "button";
+  b.addEventListener("click", function () { olvidarPartida(); location.reload(); });
+  acc.appendChild(b);
+  caja2.appendChild(acc);
+
+  host.appendChild(caja2);
+  caja2.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+})();
+</script>
+
+</body>
+</html>

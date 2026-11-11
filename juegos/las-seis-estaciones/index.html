@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Las Seis Estaciones</title>
+<style>
+  /* Reinicio mínimo: replica el entorno en el que se diseñó la página. */
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { max-width: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Archivo:wght@400;600;700&display=swap">
+<style>
+/* Layout: dos rutas de investigación; galería de personajes y ficha de la estación elegida.
+   Mundo visual: gabinete de estudio del XVII — tapete verde, latón y marfil.
+   Los seis personajes son pixel art de 20x24 dibujados por rectángulos. */
+:root {
+  --bg: #15201c;
+  --surface: #1e2b26;
+  --surface-2: #273831;
+  --fg: #ece7da;
+  --muted: #94a69c;
+  --line: #334840;
+  --laton: #c0a060;
+  --ciencia: #6a9ec4;
+  --mujer: #9b7fc4;
+  --font-display: "EB Garamond", Georgia, "Times New Roman", serif;
+  --font-ui: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #eff0e8; --surface: #ffffff; --surface-2: #e8ece4;
+    --fg: #16201b; --muted: #5a6b61; --line: #ccd6ce;
+    --laton: #87682a; --ciencia: #2f6b94; --mujer: #6a4d9b;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #eff0e8; --surface: #ffffff; --surface-2: #e6ebe3;
+  --fg: #16201b; --muted: #5a6b61; --line: #ccd6ce;
+  --laton: #87682a; --ciencia: #2f6b94; --mujer: #6a4d9b;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-display); font-size: 1.0625rem; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+.wrap { max-width: 56rem; margin: 0 auto; padding-block: 2rem 3rem; }
+
+.eyebrow {
+  font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--laton); margin: 0 0 0.6rem;
+}
+h1 {
+  font-weight: 600; font-size: clamp(2rem, 6vw, 3.1rem);
+  line-height: 1.05; text-wrap: balance; margin: 0 0 0.75rem;
+}
+h2 {
+  font-weight: 600; font-size: clamp(1.35rem, 4vw, 1.8rem);
+  line-height: 1.15; text-wrap: balance; margin: 0 0 0.6rem;
+}
+h3 {
+  font-family: var(--font-ui); font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 0.7rem;
+}
+p { margin: 0 0 1rem; max-width: 42rem; }
+.muted { color: var(--muted); }
+svg.sprite { display: block; image-rendering: pixelated; shape-rendering: crispEdges; height: auto; margin: 0 auto; }
+
+/* ── selector de ruta ── */
+.routes { display: grid; gap: 1rem; margin: 1.75rem 0; }
+@media (min-width: 44rem) { .routes { grid-template-columns: 1fr 1fr; } }
+button.route {
+  text-align: left; cursor: pointer; min-width: 0;
+  background: var(--surface); border: 1px solid var(--line);
+  border-top-width: 4px; border-radius: 3px; padding: 1.15rem;
+  font-family: var(--font-display); color: var(--fg);
+  transition: background 0.18s, border-color 0.18s;
+}
+button.route:hover { background: var(--surface-2); }
+button.route:focus-visible { outline: 2px solid var(--laton); outline-offset: 2px; }
+button.route.a { border-top-color: var(--ciencia); }
+button.route.b { border-top-color: var(--mujer); }
+button.route .tag {
+  font-family: var(--font-ui); font-size: 0.64rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; display: block; margin-bottom: 0.35rem;
+}
+button.route.a .tag { color: var(--ciencia); }
+button.route.b .tag { color: var(--mujer); }
+button.route h4 { font-size: 1.3rem; font-weight: 600; margin: 0 0 0.4rem; line-height: 1.15; }
+button.route p { font-size: 0.95rem; margin: 0 0 0.85rem; color: var(--muted); }
+button.route .crew { display: flex; gap: 0.5rem; justify-content: flex-start; }
+button.route .crew > span { flex: 0 0 auto; }
+button.route .progress {
+  font-family: var(--font-ui); font-size: 0.7rem; color: var(--muted);
+  margin-top: 0.7rem; display: block;
+}
+
+/* ── galería ── */
+.back {
+  font-family: var(--font-ui); font-size: 0.74rem; font-weight: 600;
+  letter-spacing: 0.06em; color: var(--muted); background: transparent;
+  border: 0; padding: 0.4rem 0; cursor: pointer; text-decoration: underline;
+  text-underline-offset: 3px; margin-bottom: 1rem;
+}
+.back:hover { color: var(--fg); }
+.back:focus-visible { outline: 2px solid var(--laton); outline-offset: 2px; }
+
+.gallery { display: grid; gap: 0.85rem; margin: 1.25rem 0 1.75rem; }
+@media (min-width: 38rem) { .gallery { grid-template-columns: repeat(3, 1fr); } }
+button.person {
+  cursor: pointer; min-width: 0; text-align: center;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 3px; padding: 1rem 0.6rem 0.85rem;
+  font-family: var(--font-display); color: var(--fg);
+  transition: border-color 0.18s, background 0.18s, transform 0.15s;
+}
+button.person:hover { border-color: var(--laton); transform: translateY(-2px); }
+button.person:focus-visible { outline: 2px solid var(--laton); outline-offset: 2px; }
+button.person[aria-pressed="true"] { background: var(--surface-2); border-color: var(--laton); }
+button.person .st {
+  font-family: var(--font-ui); font-size: 0.6rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+  display: block; margin-bottom: 0.5rem;
+}
+button.person .nm { display: block; font-size: 1.05rem; font-weight: 600; line-height: 1.2; margin-top: 0.6rem; }
+button.person .yr {
+  display: block; font-family: var(--font-ui); font-size: 0.68rem;
+  color: var(--muted); font-variant-numeric: tabular-nums; margin-top: 0.1rem;
+}
+button.person .seen {
+  display: inline-block; font-family: var(--font-ui); font-size: 0.6rem;
+  font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--laton); margin-top: 0.4rem;
+}
+
+/* ── ficha ── */
+.station {
+  background: var(--surface); border: 1px solid var(--line);
+  border-left: 4px solid var(--laton); border-radius: 3px; padding: 1.5rem;
+}
+.station .head { display: flex; gap: 1.25rem; align-items: flex-start; flex-wrap: wrap; }
+.station .head .fig { flex: 0 0 auto; }
+.station .head .id { min-width: 12rem; flex: 1; }
+.station h4 { font-size: clamp(1.4rem, 4vw, 1.9rem); font-weight: 600; line-height: 1.1; margin: 0 0 0.15rem; }
+.station .life {
+  font-family: var(--font-ui); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+  margin: 0 0 0.3rem; font-variant-numeric: tabular-nums;
+}
+.station .work { font-style: italic; color: var(--laton); margin: 0 0 0.75rem; }
+.block { margin-top: 1.25rem; }
+.block .lbl {
+  font-family: var(--font-ui); font-size: 0.64rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  display: block; margin-bottom: 0.4rem;
+}
+.block.q {
+  background: var(--surface-2); border-radius: 3px; padding: 1rem 1.1rem;
+}
+.block.q p { margin: 0; font-size: 1.0625rem; }
+.markrow { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.5rem; }
+button.mark {
+  font-family: var(--font-ui); font-weight: 700; font-size: 0.74rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--bg); background: var(--laton);
+  border: 0; border-radius: 2px; padding: 0.75rem 1.4rem; cursor: pointer;
+}
+button.mark:hover { opacity: 0.87; }
+button.mark:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+button.mark[disabled] { background: transparent; color: var(--muted); border: 1px solid var(--line); cursor: default; }
+
+/* ── cierre de ruta ── */
+.closing {
+  margin-top: 1.75rem; padding: 1.5rem; border-radius: 3px;
+  background: var(--surface-2); border: 1px solid var(--line);
+}
+.closing.a { border-top: 3px solid var(--ciencia); }
+.closing.b { border-top: 3px solid var(--mujer); }
+.closing .seal {
+  font-family: var(--font-ui); font-size: 0.64rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--laton);
+  display: block; margin-bottom: 0.5rem;
+}
+.closing h4 { font-size: 1.3rem; font-weight: 600; margin: 0 0 0.6rem; }
+.closing .deliver {
+  background: var(--surface); border-radius: 2px; padding: 1rem 1.1rem; margin-top: 1rem;
+}
+.closing .deliver b {
+  font-family: var(--font-ui); font-size: 0.64rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  display: block; margin-bottom: 0.35rem;
+}
+.closing .deliver p { margin: 0; }
+
+footer {
+  margin-top: 2.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line);
+  font-family: var(--font-ui); font-size: 0.8rem; color: var(--muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body><div id="cinta-sitio">
+  <a href="../../unidades/unidad-4.html"><span aria-hidden="true">&#8592;</span>&nbsp;Unidad 4</a>
+  <span class="nombre">Las seis estaciones</span>
+  <a class="casa" href="../../index.html">Veinticinco siglos de pedagogía</a>
+</div>
+<style>
+#cinta-sitio {
+  --tira-hondo: #7D22AE; --tira-acento: #F6E477;
+  font: 600 13px/1.2 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 10px max(14px, env(safe-area-inset-left, 0px));
+  background: var(--tira-hondo); color: #ffffffa8;
+  border-bottom: 2px solid var(--tira-acento);
+}
+#cinta-sitio a { color: var(--tira-acento); text-decoration: none; white-space: nowrap;
+  transition: opacity .18s ease; }
+#cinta-sitio a:hover { opacity: .75; text-decoration: underline; }
+#cinta-sitio .nombre { margin-right: auto; color: #ffffff9c; }
+#cinta-sitio .casa { font-weight: 400; color: #ffffff8a; }
+@media (max-width: 560px) { #cinta-sitio .nombre { display: none } }
+@media print { #cinta-sitio { display: none } }
+
+/* ── microinteracciones comunes ────────────────────────────────────── */
+button, [role="button"], .boton, summary {
+  transition: transform .18s ease, background-color .2s ease,
+              border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+button:not([disabled]):hover, [role="button"]:not([aria-disabled="true"]):hover {
+  transform: translateY(-1px);
+}
+button:not([disabled]):active, [role="button"]:active { transform: translateY(0); }
+:focus-visible { outline: 3px solid var(--tira-acento, #f0c169); outline-offset: 2px; }
+
+/* las barras de avance se mueven en vez de saltar */
+div[style*="width"] { transition: width .55s cubic-bezier(.2,.75,.3,1); }
+
+/* ── entrada y aparición ───────────────────────────────────────────── */
+html.realce .surge { opacity: 0; transform: translateY(14px); }
+html.realce .surge.puesto {
+  opacity: 1; transform: none;
+  transition: opacity .55s cubic-bezier(.2,.7,.3,1), transform .55s cubic-bezier(.2,.7,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.realce .surge, html.realce .surge.puesto { opacity: 1; transform: none; transition: none; }
+  button, [role="button"], .boton, summary, div[style*="width"] { transition: none !important; }
+  button:hover, [role="button"]:hover { transform: none; }
+}
+</style>
+<script>
+(function () {
+  // Nada de esto es necesario para jugar: si algo falla, el juego queda como estaba.
+  try {
+    var quieto = matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (quieto) return;
+    var raiz = document.documentElement;
+
+    function arrancar() {
+      // busca el envoltorio que de verdad contiene el juego
+      var caja = document.body, hijos;
+      for (var i = 0; i < 3; i++) {
+        hijos = [].filter.call(caja.children, function (e) {
+          return e.id !== "cinta-sitio" &&
+                 ["SCRIPT", "STYLE", "LINK", "NOSCRIPT", "TEMPLATE"].indexOf(e.tagName) < 0;
+        });
+        if (hijos.length > 1) break;
+        if (hijos.length === 1) caja = hijos[0]; else return;
+      }
+      if (!hijos || hijos.length < 2) return;
+
+      raiz.classList.add("realce");
+      hijos.forEach(function (e) { e.classList.add("surge"); });
+
+      var alto = innerHeight;
+      var tarde = [];
+      hijos.forEach(function (e, i) {
+        if (e.getBoundingClientRect().top < alto * 0.92) {
+          setTimeout(function () { e.classList.add("puesto"); }, 70 + i * 90);
+        } else { tarde.push(e); }
+      });
+
+      if (!tarde.length || !("IntersectionObserver" in window)) {
+        tarde.forEach(function (e) { e.classList.add("puesto"); });
+        return;
+      }
+      var ojo = new IntersectionObserver(function (es) {
+        es.forEach(function (x) {
+          if (!x.isIntersecting) return;
+          x.target.classList.add("puesto");
+          ojo.unobserve(x.target);
+        });
+      }, { rootMargin: "0px 0px -6% 0px", threshold: 0.05 });
+      tarde.forEach(function (e) { ojo.observe(e); });
+
+      // red de seguridad: pase lo que pase, a los 4 segundos todo está visible
+      setTimeout(function () {
+        hijos.forEach(function (e) { e.classList.add("puesto"); });
+      }, 4000);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", arrancar);
+    } else { arrancar(); }
+  } catch (e) { /* el juego sigue funcionando igual */ }
+})();
+</script>
+<div class="wrap">
+  <p class="eyebrow">Historia de la Pedagogía · Clase 4</p>
+  <h1>Las seis estaciones</h1>
+  <p>El taller reparte dos investigaciones distintas sobre la Edad Moderna: una sigue el nacimiento de la ciencia en la pedagogía y la otra, el lugar que esa misma época le dio a la mujer. Aquí están las seis estaciones con su pista y su pregunta, para que prepares la tuya o revises la del otro equipo.</p>
+
+  <!-- ░░ SELECCIÓN DE RUTA ░░ -->
+  <section id="pick">
+    <div class="routes">
+      <button class="route a" id="goA" type="button">
+        <span class="tag">Ruta A · tres estaciones</span>
+        <h4>La ciencia entra en la escuela</h4>
+        <p>Del saber dogmático a la observación y el experimento. Bacon, Comenio y Locke.</p>
+        <span class="crew" id="crewA"></span>
+        <span class="progress" id="progA">0 de 3 estaciones investigadas</span>
+      </button>
+      <button class="route b" id="goB" type="button">
+        <span class="tag">Ruta B · tres estaciones</span>
+        <h4>La mujer en la educación moderna</h4>
+        <p>La razón se proclama universal, pero no para todos. Sor Juana, Rousseau y Wollstonecraft.</p>
+        <span class="crew" id="crewB"></span>
+        <span class="progress" id="progB">0 de 3 estaciones investigadas</span>
+      </button>
+    </div>
+    <p class="muted" style="font-size:0.95rem">Las dos rutas terminan en la misma pregunta de fondo: si la Modernidad puso la razón en el centro, ¿para quién la puso?</p>
+  </section>
+
+  <!-- ░░ RUTA ░░ -->
+  <section id="routeView" hidden>
+    <button class="back" id="back" type="button">← Volver a las dos rutas</button>
+    <h2 id="routeTitle"></h2>
+    <p class="muted" id="routeIntro"></p>
+    <div class="gallery" id="gallery"></div>
+    <div id="stationBox"></div>
+    <div id="closingBox"></div>
+  </section>
+
+  <footer>Basado en el taller colaborativo de la cuarta clase, en sus dos versiones. Cada estación conserva la pista conceptual y la pregunta del documento original.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ══════════ pixel art: seis retratos de medio cuerpo, grilla 20x24 ══════════ */
+  var C = {
+    piel: "#d9a877", pielS: "#b5854f", ojo: "#2a1f16",
+    negro: "#2b2b33", negroS: "#1c1c22",
+    lino: "#e8e4d8", linoS: "#c2bdae",
+    marron: "#6b5338", madera: "#8a6a42",
+    vino: "#7a3530", azul: "#44607e",
+    canoso: "#b4b4bc", castano: "#53402f", gris: "#8a8a92",
+    oro: "#c9a227", habito: "#36363e", papel: "#ddd6c0"
+  };
+  C.linoS = "#c2bdae";
+
+  function base(parts) { return { w: 20, h: 24, parts: parts }; }
+
+  /* Francis Bacon · sombrero de ala y golilla isabelina */
+  var BACON = base([
+    [7,0,6,2,C.negro],                                  /* copa del sombrero */
+    [4,2,12,1,C.negroS],                                /* ala */
+    [7,3,6,6,C.piel],                                   /* rostro */
+    [8,5,1,1,C.ojo], [11,5,1,1,C.ojo],
+    [9,7,2,1,C.pielS],
+    [8,9,4,2,C.castano],                                /* barba */
+    [4,11,12,3,C.lino], [4,11,12,1,C.linoS],            /* golilla isabelina */
+    [9,11,2,2,C.castano],                               /* punta de la barba sobre la golilla */
+    [5,14,10,9,C.negro], [5,14,10,1,C.negroS],
+    [9,15,2,8,C.negroS],
+    [3,16,2,7,C.negro], [15,16,2,7,C.negro]
+  ]);
+
+  /* Comenio · gorro académico, barba larga y libro abierto */
+  var COMENIO = base([
+    [5,2,10,3,C.negro], [5,2,10,1,C.negroS],            /* gorro académico */
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo],
+    [5,11,10,9,C.negro], [5,11,10,1,C.negroS],          /* toga */
+    [3,13,2,7,C.negro], [15,13,2,7,C.negro],            /* brazos */
+    [7,11,6,4,C.canoso], [8,15,4,2,C.canoso], [9,17,2,1,C.canoso],  /* barba larga */
+    [3,20,14,3,C.papel], [3,20,14,1,C.linoS],           /* libro abierto */
+    [9,20,2,3,C.madera],
+    [4,21,4,1,C.gris], [12,21,4,1,C.gris]
+  ]);
+
+  /* John Locke · peluca barroca larga */
+  var LOCKE = base([
+    [5,2,10,4,C.canoso], [5,2,10,1,"#cfcfd6"],          /* peluca */
+    [3,5,3,9,C.canoso], [14,5,3,9,C.canoso],            /* bucles laterales */
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo],
+    [9,9,2,1,C.pielS],
+    [7,11,6,2,C.lino],                                  /* corbatín */
+    [9,13,2,2,C.lino],
+    [5,14,10,9,C.vino], [5,14,10,1,"#8f4039"],
+    [9,15,2,8,"#5e2824"],
+    [3,16,2,7,C.vino], [15,16,2,7,C.vino],
+    [8,16,1,6,C.oro], [11,16,1,6,C.oro]                 /* botonadura */
+  ]);
+
+  /* Sor Juana Inés de la Cruz · toca blanca, hábito y escudo de monja */
+  var JUANA = base([
+    [5,1,10,4,C.lino], [4,3,12,5,C.lino], [4,3,12,1,C.linoS],  /* toca */
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo],
+    [9,9,2,1,C.pielS],
+    [4,8,2,7,C.lino], [14,8,2,7,C.lino],                /* velo a los lados */
+    [5,11,10,2,C.lino],                                 /* griñón */
+    [5,13,10,10,C.habito], [5,13,10,1,C.negroS],
+    [3,15,2,8,C.habito], [15,15,2,8,C.habito],
+    [8,15,4,4,C.oro], [9,16,2,2,C.habito],              /* escudo de monja */
+    [1,18,5,4,C.papel], [1,18,5,1,C.linoS], [3,18,1,4,C.madera]  /* libro en la mano */
+  ]);
+
+  /* Rousseau · gorro de piel y casaca */
+  var ROUSSEAU = base([
+    [5,1,10,4,C.marron], [5,1,10,1,"#4e3c28"],          /* gorro de piel */
+    [4,4,12,1,C.marron],
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo],
+    [9,9,2,1,C.pielS],
+    [7,11,6,2,C.lino],
+    [5,13,10,10,C.azul], [5,13,10,1,"#33485f"],
+    [9,14,2,9,"#33485f"],
+    [3,15,2,8,C.azul], [15,15,2,8,C.azul],
+    [8,15,1,7,C.oro], [11,15,1,7,C.oro],
+    [1,18,5,4,C.papel], [1,18,5,1,C.linoS], [3,18,1,4,C.madera]  /* el Emilio en la mano */
+  ]);
+
+  /* Mary Wollstonecraft · peinado recogido, vestido de talle alto y pluma */
+  var MARY = base([
+    [6,2,8,3,C.castano], [5,3,10,3,C.castano],          /* cabello recogido */
+    [4,4,2,3,C.castano], [14,4,2,3,C.castano],
+    [7,5,6,6,C.piel],
+    [8,7,1,1,C.ojo], [11,7,1,1,C.ojo],
+    [9,9,2,1,C.pielS],
+    [6,11,8,2,C.lino], [6,11,8,1,C.linoS],              /* pañoleta */
+    [5,13,10,3,C.lino],                                  /* corpiño de talle alto */
+    [5,16,10,7,"#6d7f93"], [5,16,10,1,C.azul],          /* falda */
+    [3,17,2,6,"#6d7f93"], [15,17,2,6,"#6d7f93"],
+    [9,17,2,6,C.azul],
+    [16,12,1,6,C.lino], [16,11,1,1,C.gris],             /* pluma */
+    [15,18,3,2,C.papel]
+  ]);
+
+  function spriteOf(def, px, label) {
+    var s = '<svg class="sprite" viewBox="0 0 ' + def.w + ' ' + def.h +
+            '" width="' + (def.w * px) + '" height="' + (def.h * px) +
+            '" role="img" aria-label="' + label + '">';
+    for (var i = 0; i < def.parts.length; i++) {
+      var p = def.parts[i];
+      s += '<rect x="' + p[0] + '" y="' + p[1] + '" width="' + p[2] + '" height="' + p[3] + '" fill="' + p[4] + '"/>';
+    }
+    return s + '</svg>';
+  }
+
+  /* ══════════ contenido de las estaciones ══════════ */
+  var ROUTES = {
+    A: {
+      title: "Ruta A · La ciencia entra en la escuela",
+      intro: "La Edad Moderna dejó de repetir lo que decían los antiguos y empezó a observar la naturaleza. Estas tres estaciones siguen esa entrada del método científico en la forma de enseñar.",
+      color: "var(--ciencia)",
+      integration: "¿Cómo transformó la Revolución Científica de la Edad Moderna el propósito y los métodos de la escuela frente a la educación medieval?",
+      product: "Un manifiesto o decálogo corto, de 300 a 400 palabras, escrito desde la perspectiva de la naciente ciencia moderna: «Manifiesto por una escuela basada en la razón, la experiencia y la ciencia».",
+      stations: [
+        { sprite: BACON, name: "Francis Bacon", life: "1561 – 1626", work: "Siglo XVII · el método empírico",
+          hint: "Fue uno de los grandes filósofos de la Modernidad. Criticó duramente la educación de su época por estar llena de palabras vacías y debates inútiles. Propuso que la ciencia debía basarse en la inducción, la observación directa de la naturaleza y la experimentación útil para mejorar la vida humana: «el saber es poder».",
+          q: "¿Qué criticaba Bacon de la forma en que se enseñaba en su época y qué proponía cambiar mediante el método científico?" },
+        { sprite: COMENIO, name: "Juan Amós Comenio", life: "1592 – 1670", work: "Didáctica Magna · la Pansofia",
+          hint: "Considerado el padre de la didáctica moderna. Sostenía que la enseñanza debía organizarse imitando las leyes de la naturaleza, es decir, con un orden científico. Creía que la educación debía ser universal —enseñar todo a todos— y que los niños debían aprender viendo las cosas reales, no solo memorizando libros en latín.",
+          q: "¿De qué manera compara Comenio la enseñanza con las leyes de la naturaleza y por qué su propuesta se considera científica para su época?" },
+        { sprite: LOCKE, name: "John Locke", life: "1632 – 1704", work: "Pensamientos sobre la educación",
+          hint: "Introdujo el empirismo en la educación. Argumentaba que la mente del niño al nacer es una tabula rasa, una hoja en blanco, y que todo el conocimiento real proviene de la experiencia sensorial y del contacto con el mundo físico, alejándose de las ideas innatas medievales.",
+          q: "¿Cómo cambia la concepción del aprendizaje y del alumno al proponer que la mente es una hoja en blanco que se llena a través de los sentidos y la experiencia?" }
+      ]
+    },
+    B: {
+      title: "Ruta B · La mujer en la educación moderna",
+      intro: "La Modernidad proclamó la razón, la libertad y los derechos. Estas tres estaciones examinan qué pasó, mientras tanto, con el acceso de las mujeres al conocimiento.",
+      color: "var(--mujer)",
+      integration: "¿Cómo transformó —o dejó de transformar— la Edad Moderna la educación de las mujeres frente a lo que ya se traía de la Edad Media?",
+      product: "Una carta abierta o nota crítica de unas 300 a 400 palabras, escrita desde la época moderna: «Carta abierta a los filósofos de la Ilustración sobre la educación de las mujeres». Debe incluir los nombres de los cuatro integrantes.",
+      stations: [
+        { sprite: JUANA, name: "Sor Juana Inés de la Cruz", life: "1648 – 1695", work: "Siglos XV–XVI · las excepciones letradas",
+          hint: "Durante el Renacimiento el Humanismo revalorizó el estudio, pero para las mujeres el acceso al saber era un privilegio exclusivo de la realeza o de quienes ingresaban a los conventos, como Sor Juana en la Nueva España. La regla general seguía siendo la ignorancia formal.",
+          q: "¿Por qué el acceso al conocimiento de una mujer en el Renacimiento se consideraba una excepción y no un derecho? ¿Qué papel jugaron los conventos y la nobleza en esto?" },
+        { sprite: ROUSSEAU, name: "Jean-Jacques Rousseau", life: "1712 – 1778", work: "Emilio · la educación de «Sofía»",
+          hint: "Filósofos ilustrados muy influyentes en pedagogía defendían que la educación debía ser distinta según el sexo: el hombre se educaba para la vida pública, la política y la ciencia, mientras que la mujer —a la que Rousseau llama Sofía en el Emilio— debía educarse para ser buena esposa, complacer al hombre y cuidar el hogar.",
+          q: "¿Cómo justificaba un pensador de la razón como Rousseau que la mujer quedara excluida del pensamiento científico y filosófico?" },
+        { sprite: MARY, name: "Mary Wollstonecraft", life: "1759 – 1797", work: "Vindicación de los derechos de la mujer, 1792",
+          hint: "Frente a las ideas de Rousseau surgieron voces críticas. Wollstonecraft argumentó que, si la razón es universal, las mujeres también tienen intelecto, y que mantenerlas en la ignorancia solo daña la educación de los niños y de toda la sociedad.",
+          q: "¿Cuál es la contradicción principal que señala Wollstonecraft entre los ideales de la Ilustración —libertad e igualdad— y lo que efectivamente se le enseñaba a las mujeres?" }
+      ]
+    }
+  };
+
+  var seen = { A: {}, B: {} };
+  var currentRoute = null, currentStation = null;
+
+  var el = {
+    pick: document.getElementById("pick"),
+    routeView: document.getElementById("routeView"),
+    routeTitle: document.getElementById("routeTitle"),
+    routeIntro: document.getElementById("routeIntro"),
+    gallery: document.getElementById("gallery"),
+    stationBox: document.getElementById("stationBox"),
+    closingBox: document.getElementById("closingBox"),
+    crewA: document.getElementById("crewA"),
+    crewB: document.getElementById("crewB"),
+    progA: document.getElementById("progA"),
+    progB: document.getElementById("progB")
+  };
+
+  ["A", "B"].forEach(function (k) {
+    var host = k === "A" ? el.crewA : el.crewB;
+    host.innerHTML = ROUTES[k].stations.map(function (s) {
+      return "<span>" + spriteOf(s.sprite, 2, s.name) + "</span>";
+    }).join("");
+  });
+
+  function updateProgress() {
+    ["A", "B"].forEach(function (k) {
+      var n = Object.keys(seen[k]).length;
+      var host = k === "A" ? el.progA : el.progB;
+      host.textContent = n + " de 3 estaciones investigadas";
+    });
+  }
+
+  function openRoute(k) {
+    currentRoute = k;
+    currentStation = null;
+    var R = ROUTES[k];
+    el.pick.hidden = true;
+    el.routeView.hidden = false;
+    el.routeTitle.textContent = R.title;
+    el.routeIntro.textContent = R.intro;
+    el.stationBox.innerHTML = "";
+    el.closingBox.innerHTML = "";
+
+    el.gallery.innerHTML = "";
+    R.stations.forEach(function (s, idx) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "person";
+      b.setAttribute("aria-pressed", "false");
+      b.innerHTML = "<span class='st'>Estación " + (idx + 1) + "</span>" +
+        spriteOf(s.sprite, 4, s.name) +
+        "<span class='nm'>" + s.name + "</span>" +
+        "<span class='yr'>" + s.life + "</span>" +
+        (seen[k][idx] ? "<span class='seen'>Investigada</span>" : "");
+      b.addEventListener("click", function () { openStation(idx); });
+      el.gallery.appendChild(b);
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    renderClosing();
+  }
+
+  function openStation(idx) {
+    currentStation = idx;
+    var R = ROUTES[currentRoute];
+    var s = R.stations[idx];
+
+    var btns = el.gallery.querySelectorAll("button.person");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute("aria-pressed", i === idx ? "true" : "false");
+    }
+
+    el.stationBox.innerHTML =
+      "<article class='station'>" +
+        "<div class='head'>" +
+          "<div class='fig'>" + spriteOf(s.sprite, 6, s.name) + "</div>" +
+          "<div class='id'>" +
+            "<p class='life'>Estación " + (idx + 1) + " · " + s.life + "</p>" +
+            "<h4>" + s.name + "</h4>" +
+            "<p class='work'>" + s.work + "</p>" +
+          "</div>" +
+        "</div>" +
+        "<div class='block'><span class='lbl'>Pista conceptual</span><p>" + s.hint + "</p></div>" +
+        "<div class='block q'><span class='lbl'>Pregunta a investigar y responder</span><p>" + s.q + "</p></div>" +
+        "<div class='markrow'><button class='mark' id='markBtn' type='button'></button></div>" +
+      "</article>";
+
+    var mk = document.getElementById("markBtn");
+    function paintMark() {
+      if (seen[currentRoute][idx]) {
+        mk.textContent = "Estación investigada";
+        mk.disabled = true;
+      } else {
+        mk.textContent = "Marcar como investigada";
+        mk.disabled = false;
+      }
+    }
+    paintMark();
+    mk.addEventListener("click", function () {
+      seen[currentRoute][idx] = true;
+      paintMark();
+      updateProgress();
+      var card = el.gallery.querySelectorAll("button.person")[idx];
+      if (card && !card.querySelector(".seen")) {
+        var tagEl = document.createElement("span");
+        tagEl.className = "seen";
+        tagEl.textContent = "Investigada";
+        card.appendChild(tagEl);
+      }
+      renderClosing();
+    });
+
+    el.stationBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function renderClosing() {
+    var k = currentRoute;
+    var R = ROUTES[k];
+    var n = Object.keys(seen[k]).length;
+    if (n < 3) { el.closingBox.innerHTML = ""; return; }
+    el.closingBox.innerHTML =
+      "<div class='closing " + k.toLowerCase() + "'>" +
+        "<span class='seal'>Ruta completa · 3 de 3 estaciones</span>" +
+        "<h4>Fase 3 · Puesta en común</h4>" +
+        "<p>Cada integrante comparte lo que descubrió en su estación. Después, el equipo discute la pregunta de integración:</p>" +
+        "<p style='font-size:1.0625rem;color:var(--fg)'><strong>" + R.integration + "</strong></p>" +
+        "<div class='deliver'><b>Fase 4 · Entregable del grupo</b><p>" + R.product + "</p></div>" +
+      "</div>";
+  }
+
+  document.getElementById("goA").addEventListener("click", function () { openRoute("A"); });
+  document.getElementById("goB").addEventListener("click", function () { openRoute("B"); });
+  document.getElementById("back").addEventListener("click", function () {
+    el.routeView.hidden = true;
+    el.pick.hidden = false;
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  updateProgress();
+})();
+</script>
+</body>
+</html>
