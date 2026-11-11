@@ -305,6 +305,108 @@ section.conmotivo > .centro { position: relative; z-index: 1; }
   font-family: var(--display); font-size: 3.1rem; line-height: .82; float: left;
   padding: .22rem .5rem 0 0; color: var(--acento); font-weight: 600; }
 
+
+/* ─── la invitación a jugar ──────────────────────────────────────────── */
+.convite { position: relative; display: block; text-decoration: none; color: #fff;
+  background: var(--hondo); border-radius: 18px; overflow: hidden; isolation: isolate;
+  transition: transform .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s ease; }
+.convite:hover { transform: translateY(-4px);
+  box-shadow: 0 22px 54px color-mix(in srgb, var(--hondo) 42%, transparent); }
+.convite .ornato { position: absolute; inset: 0; z-index: -1; opacity: .42; }
+.convite::after { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(103deg,
+    color-mix(in srgb, var(--hondo) 96%, transparent) 42%,
+    color-mix(in srgb, var(--hondo) 55%, transparent)); }
+.convite .dentro { display: block; padding: clamp(1.7rem, 4vw, 3rem); max-width: 44rem; }
+.convite .gancho { display: block; font-family: var(--display); font-style: italic;
+  font-size: clamp(1.25rem, 2.9vw, 1.72rem); line-height: 1.32; color: #fff;
+  text-wrap: balance; }
+.convite .gancho::before { content: "«"; opacity: .45; }
+.convite .gancho::after { content: "»"; opacity: .45; }
+.convite .nombre-juego { display: block; margin-top: 1.25rem; font-family: var(--seco);
+  font-size: .76rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--acento); }
+.convite .pitch { display: block; margin-top: .6rem; color: #ffffffc4; font-size: 1rem;
+  line-height: 1.6; }
+.convite .senas { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.2rem; }
+.convite .sena { font-size: .78rem; font-weight: 600; color: #ffffffb0;
+  border: 1px solid #ffffff2e; border-radius: 999px; padding: .32rem .8rem; }
+.convite .entrar { display: inline-flex; align-items: center; gap: .6rem; margin-top: 1.5rem;
+  background: var(--acento); color: #16120a; font-weight: 700; font-size: 1rem;
+  padding: .85rem 1.7rem; border-radius: 999px;
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--acento) 55%, transparent);
+  animation: latido 2.8s ease-in-out infinite; }
+.convite .punta { transition: transform .25s ease; }
+.convite:hover .punta { transform: translateX(5px); }
+.convite .susurro { display: block; margin-top: 1.1rem; font-size: .9rem; color: #ffffff85;
+  max-width: 42ch; font-style: italic; }
+@keyframes latido {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--acento) 50%, transparent) }
+  55% { box-shadow: 0 0 0 .85rem transparent }
+}
+
+/* ─── caja de comentarios ────────────────────────────────────────────── */
+.comentar { display: grid; gap: 1rem; margin-top: 1.5rem; max-width: 36rem; }
+.comentar label { display: grid; gap: .4rem; }
+.comentar label span { font-size: .8rem; font-weight: 600; letter-spacing: .04em;
+  color: var(--suave); }
+.comentar label em { font-style: normal; font-weight: 400; opacity: .8; }
+.comentar input, .comentar textarea {
+  font: inherit; font-size: .98rem; color: var(--tinta); background: var(--caja);
+  border: 1px solid var(--linea); border-radius: 10px; padding: .75rem .9rem;
+  width: 100%; resize: vertical;
+  transition: border-color .2s ease, box-shadow .2s ease; }
+.comentar input:focus, .comentar textarea:focus { outline: 0;
+  border-color: color-mix(in srgb, var(--acento) 65%, var(--linea));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--acento) 18%, transparent); }
+.comentar .boton { border: 0; cursor: pointer; font-family: var(--seco); }
+.aviso-envio { margin: 0; font-size: .9rem; color: var(--acento); min-height: 1.3em; }
+
+/* ─── la tarjeta de perfil ───────────────────────────────────────────── */
+.tarjeta-perfil { background: var(--caja); border: 1px solid var(--linea);
+  border-radius: 16px; padding: clamp(1.4rem, 3.4vw, 2.4rem); max-width: 48rem; }
+.tarjeta-perfil .encabeza { display: flex; gap: 1.2rem; align-items: flex-start;
+  flex-wrap: wrap; }
+.tarjeta-perfil .iniciales { flex: 0 0 auto; display: grid; place-items: center;
+  width: 4.2rem; height: 4.2rem; border-radius: 50%;
+  background: var(--hondo); color: var(--acento);
+  font-family: var(--display); font-size: 1.4rem; font-weight: 600; letter-spacing: .02em; }
+.tarjeta-perfil h2 { font-size: clamp(1.4rem, 3.2vw, 1.85rem); margin: 0 0 .35rem; }
+.tarjeta-perfil .titular { margin: 0 0 .25rem; color: var(--tinta); font-size: .97rem;
+  line-height: 1.5; max-width: 34ch; }
+.tarjeta-perfil .lugar { margin: 0; color: var(--suave); font-size: .9rem; }
+.tarjeta-perfil .extracto { margin-top: 1.4rem; color: var(--suave); line-height: 1.68; }
+.tarjeta-perfil .extracto p { margin: 0 0 .85rem; }
+.tarjeta-perfil .ahora { list-style: none; margin: 0 0 1.6rem; padding: 0; display: grid;
+  gap: .55rem; }
+.tarjeta-perfil .ahora li { display: grid; gap: .1rem; padding-left: 1.1rem;
+  position: relative; }
+.tarjeta-perfil .ahora li::before { content: ""; position: absolute; left: 0; top: .55rem;
+  width: .42rem; height: .42rem; border-radius: 50%; background: var(--acento); }
+.tarjeta-perfil .ahora b { font-weight: 600; }
+.tarjeta-perfil .ahora span { color: var(--suave); font-size: .9rem; }
+
+.trayectoria, .formacion { list-style: none; margin: 0; padding: 0; max-width: 46rem; }
+.trayectoria li { display: flex; gap: 1.4rem; padding: 1.05rem 0;
+  border-bottom: 1px solid var(--linea); }
+.trayectoria li:last-child { border-bottom: 0; }
+.trayectoria .cuando { flex: 0 0 7rem; font-family: var(--display); color: var(--acento);
+  font-size: .92rem; font-weight: 600; padding-top: .1rem; }
+.trayectoria b { display: block; margin-bottom: .25rem; }
+.trayectoria p { margin: 0; color: var(--suave); font-size: .94rem; }
+.formacion li { display: grid; gap: .15rem; padding: .85rem 0;
+  border-bottom: 1px solid var(--linea); }
+.formacion li:last-child { border-bottom: 0; }
+.formacion span { color: var(--suave); font-size: .9rem; }
+@media (max-width: 620px) {
+  .trayectoria li { flex-direction: column; gap: .3rem; }
+  .trayectoria .cuando { flex: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .convite .entrar { animation: none; }
+}
+
 /* ─── movimiento ─────────────────────────────────────────────────────── */
 .asoma { opacity: 0; transform: translateY(18px);
   transition: opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1); }

@@ -22,6 +22,30 @@
     });
   }
 
+
+  // la caja de comentarios: si no hay formulario configurado, se prepara el
+  // mensaje en el correo del visitante. La dirección va codificada.
+  var forma = document.querySelector("form.comentar");
+  if (forma && forma.dataset.correo) {
+    forma.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var texto = forma.comentario.value.trim();
+      if (!texto) return;
+      var quien = forma.nombre.value.trim();
+      var unidad = forma.unidad.value;
+      var destino;
+      try { destino = atob(forma.dataset.correo); } catch (e) { return; }
+      var asunto = "Comentario sobre la " + unidad + " — Veinticinco siglos";
+      var cuerpo = texto + "\n\n" + (quien ? "— " + quien : "") +
+                   "\n(" + location.href + ")";
+      forma.querySelector(".aviso-envio").textContent =
+        "Abriendo tu correo con el comentario listo para enviar…";
+      location.href = "mailto:" + destino +
+        "?subject=" + encodeURIComponent(asunto) +
+        "&body=" + encodeURIComponent(cuerpo);
+    });
+  }
+
   var indice = document.querySelector(".indice-lateral");
   if (indice) {
     var cabeza = indice.querySelector(".cabeza");
