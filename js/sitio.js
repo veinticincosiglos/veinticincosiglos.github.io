@@ -22,6 +22,28 @@
     });
   }
 
+  var indice = document.querySelector(".indice-lateral");
+  if (indice) {
+    var cabeza = indice.querySelector(".cabeza");
+    var CLAVE = "indice.unidades.abierto";
+    var angosto = innerWidth < 1100;
+    try {
+      var guardado = localStorage.getItem(CLAVE);
+      if (guardado) indice.dataset.abierto = guardado;
+      else if (angosto) indice.dataset.abierto = "no";
+    } catch (e) { if (angosto) indice.dataset.abierto = "no"; }
+    var pintarEstado = function () {
+      var abierto = indice.dataset.abierto !== "no";
+      cabeza.setAttribute("aria-expanded", abierto ? "true" : "false");
+    };
+    pintarEstado();
+    cabeza.addEventListener("click", function () {
+      indice.dataset.abierto = indice.dataset.abierto === "no" ? "si" : "no";
+      pintarEstado();
+      try { localStorage.setItem(CLAVE, indice.dataset.abierto); } catch (e) {}
+    });
+  }
+
   var lamina = document.querySelector(".porton .lamina");
   if (lamina && !quieto) {
     var pendiente = false;

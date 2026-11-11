@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lector de láminas · Veinticinco siglos de pedagogía</title>
+<meta name="description" content="Las presentaciones del curso, para pasar como un libro.">
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;600;700&display=swap">
+<style>
+:root {
+  --papel: #15130f; --tinta: #efe9df; --suave: #a39a8c; --linea: #2f2a23;
+  --hondo: #2f3a3a; --acento: #c9a227; --mesa: #0d0b09;
+  --display: "Fraunces", Georgia, serif;
+  --seco: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--mesa); color: var(--tinta);
+  font-family: var(--seco); overflow: hidden;
+  display: flex; flex-direction: column; }
+
+/* ─── barra ─────────────────────────────────────────────────────────── */
+.barra { display: flex; align-items: center; gap: 1rem; flex: 0 0 auto;
+  padding: .7rem max(14px, env(safe-area-inset-left, 0px));
+  padding-top: calc(.7rem + env(safe-area-inset-top, 0px));
+  background: #110f0d; border-bottom: 1px solid var(--linea); }
+.barra .atras { color: var(--acento); text-decoration: none; font-weight: 600;
+  font-size: .88rem; white-space: nowrap; }
+.barra .atras:hover { text-decoration: underline; }
+.titulo { font-family: var(--display); font-size: 1.02rem; margin: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barra .sep { margin-left: auto; }
+select, .pill {
+  font: 600 .85rem var(--seco); color: var(--tinta); background: #1b1813;
+  border: 1px solid var(--linea); border-radius: 999px; padding: .5rem .9rem; }
+select { cursor: pointer; max-width: 15rem; }
+.pill { white-space: nowrap; color: var(--suave); }
+
+/* ─── mesa y libro ──────────────────────────────────────────────────── */
+.mesa { flex: 1 1 auto; min-height: 0; position: relative;
+  display: grid; place-items: center; padding: clamp(.6rem, 2vw, 1.6rem);
+  background:
+    radial-gradient(120% 90% at 50% 0%, #241f19 0%, transparent 60%),
+    var(--mesa); }
+
+#libro { position: relative; perspective: 2600px; }
+.par { display: flex; position: relative;
+  box-shadow: 0 30px 70px #000a, 0 2px 0 #ffffff0d inset; }
+.cara { position: relative; background: #fff; overflow: hidden; }
+.cara canvas { display: block; width: 100%; height: 100%; }
+/* el lomo: una sombra hacia el centro, que es lo que hace que parezca libro */
+.izq::after, .der::after { content: ""; position: absolute; top: 0; bottom: 0;
+  width: 13%; pointer-events: none; }
+.izq::after { right: 0; background: linear-gradient(90deg, transparent, #0006); }
+.der::after { left: 0; background: linear-gradient(270deg, transparent, #0006); }
+.vacia { background: #16130f; }
+
+/* la hoja que gira */
+#hoja { position: absolute; top: 0; height: 100%;
+  transform-style: preserve-3d; transition: transform .78s cubic-bezier(.4,.05,.25,1);
+  z-index: 5; pointer-events: none; }
+#hoja .lado { position: absolute; inset: 0; backface-visibility: hidden;
+  background: #fff; overflow: hidden; box-shadow: 0 14px 40px #0009; }
+#hoja .lado canvas { display: block; width: 100%; height: 100%; }
+#hoja .reves { transform: rotateY(180deg); }
+#hoja.adelante { transform-origin: left center; }
+#hoja.atras { transform-origin: right center; }
+
+/* zonas para pasar con el dedo o el ratón */
+.toque { position: absolute; top: 0; bottom: 0; width: 42%; z-index: 6;
+  cursor: pointer; background: none; border: 0; }
+.toque.a-izq { left: 0; } .toque.a-der { right: 0; }
+.toque:disabled { cursor: default; }
+
+/* ─── pie ───────────────────────────────────────────────────────────── */
+.pie { flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+  gap: .9rem; padding: .7rem max(14px, env(safe-area-inset-left, 0px));
+  padding-bottom: calc(.7rem + env(safe-area-inset-bottom, 0px));
+  background: #110f0d; border-top: 1px solid var(--linea); }
+button.mando { font: 700 .9rem var(--seco); color: #16120a; background: var(--acento);
+  border: 0; border-radius: 999px; padding: .6rem 1.2rem; cursor: pointer;
+  transition: transform .15s ease, filter .15s ease; }
+button.mando:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
+button.mando:disabled { background: #2a2620; color: #6d6558; cursor: default; }
+button.fino { background: transparent; color: var(--tinta);
+  border: 1px solid var(--linea); }
+.cuenta { font-variant-numeric: tabular-nums; color: var(--suave);
+  font-size: .9rem; min-width: 6.5rem; text-align: center; }
+
+.cargando { position: absolute; inset: 0; display: grid; place-items: center;
+  color: var(--suave); font-size: .92rem; gap: .8rem; text-align: center; }
+.cargando .rueda { width: 34px; height: 34px; border: 3px solid var(--linea);
+  border-top-color: var(--acento); border-radius: 50%; margin: 0 auto .7rem;
+  animation: gira 1s linear infinite; }
+@keyframes gira { to { transform: rotate(360deg) } }
+.fallo { max-width: 32ch; line-height: 1.6; }
+.fallo a { color: var(--acento); }
+
+@media (max-width: 680px) {
+  .titulo { font-size: .92rem; }
+  select { max-width: 9rem; }
+  .pill.laminas { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #hoja { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <a class="atras" id="volver" href="index.html">&#8592;&nbsp;Volver</a>
+  <h1 class="titulo" id="titulo">Lector de láminas</h1>
+  <span class="sep"></span>
+  <span class="pill laminas" id="formato">Doble página</span>
+  <select id="elegir" aria-label="Elegir unidad"></select>
+</header>
+
+<div class="mesa">
+  <div id="libro" hidden>
+    <div class="par">
+      <div class="cara izq" id="caraIzq"><canvas id="lienzoIzq"></canvas></div>
+      <div class="cara der" id="caraDer"><canvas id="lienzoDer"></canvas></div>
+    </div>
+    <div id="hoja" hidden>
+      <div class="lado haz"><canvas id="lienzoHaz"></canvas></div>
+      <div class="lado reves"><canvas id="lienzoReves"></canvas></div>
+    </div>
+    <button class="toque a-izq" id="toqueIzq" aria-label="Página anterior"></button>
+    <button class="toque a-der" id="toqueDer" aria-label="Página siguiente"></button>
+  </div>
+
+  <div class="cargando" id="aviso">
+    <div><div class="rueda"></div>Abriendo la presentación…</div>
+  </div>
+</div>
+
+<footer class="pie">
+  <button class="mando fino" id="atras" disabled>&#8592;&ensp;Anterior</button>
+  <span class="cuenta" id="cuenta">—</span>
+  <button class="mando" id="adelante" disabled>Siguiente&ensp;&#8594;</button>
+  <a class="mando fino" id="bajar" href="#" download style="text-decoration:none">Descargar</a>
+</footer>
+
+<script src="js/pdf/pdf.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var UNIDADES = [{"n": 1, "titulo": "La educación en la antigua Grecia", "pdf": "recursos/pdf/unidad-1.pdf"}, {"n": 2, "titulo": "Las civilizaciones imperiales", "pdf": "recursos/pdf/unidad-2.pdf"}, {"n": 3, "titulo": "La educación medieval", "pdf": "recursos/pdf/unidad-3.pdf"}, {"n": 4, "titulo": "La escuela de la modernidad", "pdf": "recursos/pdf/unidad-4.pdf"}, {"n": 5, "titulo": "La Edad Moderna", "pdf": "recursos/pdf/unidad-5.pdf"}, {"n": 6, "titulo": "La psicología conductista", "pdf": "recursos/pdf/unidad-6.pdf"}, {"n": 7, "titulo": "De recibir a construir", "pdf": "recursos/pdf/unidad-7.pdf"}, {"n": 8, "titulo": "Nadie educa a nadie", "pdf": "recursos/pdf/unidad-8.pdf"}];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var quieto = window.matchMedia &&
+               window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ── qué unidad estamos leyendo ──────────────────────────────────────
+  function unidadPedida() {
+    var m = /[?&]u=(\d+)/.exec(location.search);
+    var n = m ? parseInt(m[1], 10) : 1;
+    for (var i = 0; i < UNIDADES.length; i++) if (UNIDADES[i].n === n) return UNIDADES[i];
+    return UNIDADES[0];
+  }
+
+  var unidad = unidadPedida();
+  var pdf = null, total = 0, izquierda = 0;   // índice de la página de la izquierda
+  var doble = false, girando = false;
+  var cacheLienzos = {};
+
+  // ── el selector de unidades ─────────────────────────────────────────
+  var elegir = $("elegir");
+  UNIDADES.forEach(function (u) {
+    var o = document.createElement("option");
+    o.value = u.n;
+    o.textContent = "Unidad " + u.n + " · " + u.titulo;
+    elegir.appendChild(o);
+  });
+  elegir.value = unidad.n;
+  elegir.onchange = function () { location.search = "?u=" + elegir.value; };
+
+  $("titulo").textContent = unidad.titulo;
+  $("volver").href = "unidades/unidad-" + unidad.n + ".html";
+  $("bajar").href = unidad.pdf;
+
+  // ── medidas: cuánto cabe en pantalla ────────────────────────────────
+  var RELACION = 16 / 9;   // las láminas del curso son apaisadas
+
+  function medir() {
+    var mesa = document.querySelector(".mesa");
+    var dispo = { an: mesa.clientWidth - 24, al: mesa.clientHeight - 24 };
+    doble = dispo.an / dispo.al > 2.1 && dispo.an > 820;
+    var caras = doble ? 2 : 1;
+    var an = Math.min(dispo.an, dispo.al * RELACION * caras);
+    var al = an / (RELACION * caras);
+    if (al > dispo.al) { al = dispo.al; an = al * RELACION * caras; }
+    return { pagAn: Math.floor(an / caras), pagAl: Math.floor(al), caras: caras };
+  }
+
+  var med = medir();
+
+  function aplicarMedidas() {
+    med = medir();
+    $("formato").textContent = doble ? "Doble página" : "Página simple";
+    ["caraIzq", "caraDer"].forEach(function (id) {
+      var e = $(id);
+      e.style.width = med.pagAn + "px";
+      e.style.height = med.pagAl + "px";
+    });
+    $("caraIzq").style.display = doble ? "" : "none";
+    var h = $("hoja");
+    h.style.width = med.pagAn + "px";
+    h.style.height = med.pagAl + "px";
+    h.style.left = doble ? med.pagAn + "px" : "0px";
+  }
+
+  // ── dibujar una página del PDF en un lienzo ─────────────────────────
+  function pintar(lienzo, numero) {
+    lienzo.width = 0; lienzo.height = 0;
+    if (!pdf || numero < 1 || numero > total) return Promise.resolve(false);
+    return pdf.getPage(numero).then(function (pag) {
+      var base = pag.getViewport({ scale: 1 });
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var escala = (med.pagAn * dpr) / base.width;
+      var vista = pag.getViewport({ scale: escala });
+      lienzo.width = Math.floor(vista.width);
+      lienzo.height = Math.floor(vista.height);
+      return pag.render({ canvasContext: lienzo.getContext("2d"), viewport: vista }).promise
+        .then(function () { return true; });
+    }).catch(function () { return false; });
+  }
+
+  // ── el par visible ──────────────────────────────────────────────────
+  function mostrarPar() {
+    var izq = doble ? izquierda : izquierda;
+    var der = doble ? izquierda + 1 : izquierda;
+    var tareas = [];
+    if (doble) {
+      tareas.push(pintar($("lienzoIzq"), izq).then(function (ok) {
+        $("caraIzq").classList.toggle("vacia", !ok);
+      }));
+    }
+    tareas.push(pintar($("lienzoDer"), der).then(function (ok) {
+      $("caraDer").classList.toggle("vacia", !ok);
+    }));
+    return Promise.all(tareas).then(actualizarMandos);
+  }
+
+  function actualizarMandos() {
+    var paso = doble ? 2 : 1;
+    var primera = doble ? izquierda : izquierda;
+    var ultima = doble ? Math.min(izquierda + 1, total) : izquierda;
+    $("cuenta").textContent = (primera === ultima || !doble)
+      ? ("Lámina " + Math.max(1, ultima) + " de " + total)
+      : (Math.max(1, primera) + "–" + ultima + " de " + total);
+    var hayAtras = izquierda > (doble ? 0 : 1);
+    var hayAdelante = (doble ? izquierda + 2 : izquierda + 1) <= total;
+    $("atras").disabled = !hayAtras;
+    $("adelante").disabled = !hayAdelante;
+    $("toqueIzq").disabled = !hayAtras;
+    $("toqueDer").disabled = !hayAdelante;
+    try { history.replaceState(null, "", "?u=" + unidad.n + "#l" + Math.max(1, ultima)); }
+    catch (e) { /* da igual */ }
+  }
+
+  // ── pasar la hoja ───────────────────────────────────────────────────
+  function pasar(adelante) {
+    if (girando || !pdf) return;
+    var paso = doble ? 2 : 1;
+    var destino = izquierda + (adelante ? paso : -paso);
+    if (adelante && (doble ? izquierda + 2 : izquierda + 1) > total) return;
+    if (!adelante && izquierda <= (doble ? 0 : 1)) return;
+
+    if (quieto) { izquierda = destino; mostrarPar(); return; }
+
+    girando = true;
+    var hoja = $("hoja");
+    // el haz es la página que se ve ahora de ese lado; el revés, la que viene
+    var numHaz = adelante ? (doble ? izquierda + 1 : izquierda)
+                          : (doble ? izquierda : izquierda);
+    var numReves = adelante ? (doble ? izquierda + 2 : izquierda + 1)
+                            : (doble ? destino + 1 : destino);
+
+    hoja.className = adelante ? "adelante" : "atras";
+    hoja.style.left = adelante ? (doble ? med.pagAn + "px" : "0px")
+                               : (doble ? "0px" : "0px");
+    hoja.style.transition = "none";
+    hoja.style.transform = adelante ? "rotateY(0deg)" : "rotateY(0deg)";
+
+    Promise.all([pintar($("lienzoHaz"), numHaz), pintar($("lienzoReves"), numReves)])
+      .then(function () {
+        hoja.hidden = false;
+        // fuerza un reflujo para que la transición arranque desde el ángulo cero
+        void hoja.offsetWidth;
+        hoja.style.transition = "";
+        hoja.style.transform = adelante ? "rotateY(-172deg)" : "rotateY(172deg)";
+        var fin = function () {
+          hoja.removeEventListener("transitionend", fin);
+          izquierda = destino;
+          mostrarPar().then(function () {
+            hoja.hidden = true;
+            hoja.style.transition = "none";
+            hoja.style.transform = "rotateY(0deg)";
+            void hoja.offsetWidth;
+            hoja.style.transition = "";
+            girando = false;
+          });
+        };
+        hoja.addEventListener("transitionend", fin);
+        setTimeout(function () { if (girando) fin(); }, 1100);   // red de seguridad
+      });
+  }
+
+  // ── mandos ──────────────────────────────────────────────────────────
+  $("adelante").onclick = function () { pasar(true); };
+  $("atras").onclick = function () { pasar(false); };
+  $("toqueDer").onclick = function () { pasar(true); };
+  $("toqueIzq").onclick = function () { pasar(false); };
+
+  document.addEventListener("keydown", function (e) {
+    if (e.target.tagName === "SELECT") return;
+    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
+      e.preventDefault(); pasar(true);
+    } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      e.preventDefault(); pasar(false);
+    } else if (e.key === "Home") {
+      izquierda = doble ? 0 : 1; mostrarPar();
+    } else if (e.key === "End") {
+      izquierda = doble ? (total % 2 ? total - 1 : total) : total; mostrarPar();
+    } else if (e.key === "Escape") {
+      location.href = $("volver").href;
+    }
+  });
+
+  // dedo
+  var x0 = null;
+  var mesa = document.querySelector(".mesa");
+  mesa.addEventListener("touchstart", function (e) {
+    x0 = e.changedTouches[0].clientX;
+  }, { passive: true });
+  mesa.addEventListener("touchend", function (e) {
+    if (x0 === null) return;
+    var d = e.changedTouches[0].clientX - x0;
+    x0 = null;
+    if (Math.abs(d) > 45) pasar(d < 0);
+  }, { passive: true });
+
+  var temporizador;
+  addEventListener("resize", function () {
+    clearTimeout(temporizador);
+    temporizador = setTimeout(function () {
+      var antes = doble;
+      aplicarMedidas();
+      if (antes !== doble) izquierda = doble ? (izquierda % 2 ? izquierda - 1 : izquierda)
+                                             : Math.max(1, izquierda);
+      mostrarPar();
+    }, 180);
+  });
+
+  // ── abrir el PDF ────────────────────────────────────────────────────
+  function fallar(texto) {
+    $("aviso").innerHTML = '<p class="fallo">' + texto +
+      ' <a href="' + unidad.pdf + '">Descargar la presentación</a>.</p>';
+  }
+
+  if (!window.pdfjsLib) {
+    fallar("No pude cargar el lector de páginas.");
+  } else {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "js/pdf/pdf.worker.min.js";
+    aplicarMedidas();
+    pdfjsLib.getDocument(unidad.pdf).promise.then(function (doc) {
+      pdf = doc;
+      total = doc.numPages;
+      izquierda = doble ? 0 : 1;          // en doble, la primera lámina va a la derecha
+      var m = /#l(\d+)/.exec(location.hash);
+      if (m) {
+        var l = Math.min(Math.max(1, parseInt(m[1], 10)), total);
+        izquierda = doble ? (l % 2 ? l - 1 : l) : l;
+      }
+      $("aviso").hidden = true;
+      $("libro").hidden = false;
+      return mostrarPar();
+    }).catch(function () {
+      fallar("No pude abrir esta presentación dentro del navegador.");
+    });
+  }
+})();
+</script>
+</body>
+</html>
