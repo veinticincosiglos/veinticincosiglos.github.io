@@ -1,252 +1,132 @@
 VEINTICINCO SIGLOS DE PEDAGOGÍA
-Revisar, publicar y hacer cambios en vivo
 ═══════════════════════════════════════════════════════════════════════════
 
-Todo lo que hay en esta carpeta es el sitio. No hay nada que instalar para
-que funcione: son archivos que cualquier navegador abre tal cual.
+El sitio está publicado y en línea:
 
-Pesa 19 MB y ningún archivo pasa de 4,3 MB.
+      https://veinticincosiglos.github.io/
 
-
-───────────────────────────────────────────────────────────────────────────
-0 · ANTES QUE NADA: DESCOMPRIME
-───────────────────────────────────────────────────────────────────────────
-
-  Si llegaste aquí desde el archivo .zip, descomprímelo primero.
-
-  Windows te deja «entrar» a un .zip como si fuera una carpeta, pero eso es
-  un espejismo: si abres el sitio desde ahí dentro, el navegador solo saca
-  el archivo que abriste y todo lo demás —imágenes, estilos, juegos— falla.
-
-  Clic derecho sobre el .zip → «Extraer todo…» → «Extraer».
-  Trabaja siempre sobre la carpeta extraída.
+Esta carpeta es el sitio. Lo que cambies aquí y subas, cambia allá.
 
 
 ───────────────────────────────────────────────────────────────────────────
-1 · REVISARLO EN TU COMPUTADOR
+CÓMO ESTÁ MONTADO
 ───────────────────────────────────────────────────────────────────────────
 
-  Haz doble clic en:
+  · El repositorio vive en la organización «veinticincosiglos», no en tu
+    cuenta personal. Por eso la dirección no lleva tu nombre.
+
+  · Esta carpeta de tu computador está enlazada con ese repositorio a
+    través de GitHub Desktop. Son la misma cosa en dos lugares.
+
+  · GitHub Pages está encendido y publica lo que haya en la rama «main».
+    No hay que volver a configurarlo nunca.
+
+
+───────────────────────────────────────────────────────────────────────────
+1 · VER EL SITIO ANTES DE PUBLICAR
+───────────────────────────────────────────────────────────────────────────
+
+  Doble clic en:
 
         VER EL SITIO.bat
 
-  Se abre una ventana negra y enseguida el navegador, con el sitio corriendo
-  en tu propio computador. Nada sale a internet: nadie más lo ve.
-
-  Deja la ventana negra abierta mientras revisas. Para terminar, ciérrala.
+  Se abre el navegador con el sitio corriendo en tu computador. Nada sale a
+  internet: es solo para ti. Deja abierta la ventana negra mientras revisas
+  y ciérrala al terminar.
 
   Si Windows muestra el aviso azul «Windows protegió su PC», haz clic en
-  «Más información» y luego en «Ejecutar de todas formas». Pasa porque el
-  archivo vino de internet.
+  «Más información» y luego en «Ejecutar de todas formas».
 
   COMPROBAR QUE NO FALTE NADA
-  Con el servidor andando, entra en el navegador a:
+  Con el servidor andando, entra a:
 
         http://localhost:8080/revision.html
 
-  Esa página revisa uno por uno todos los archivos del sitio y te dice
-  cuáles cargan y cuáles no. Si alguno sale en rojo, hay un botón para
-  copiar la lista: mándamela y lo arreglo.
+  Revisa todos los archivos del sitio y te dice si alguno no carga. También
+  funciona sobre el sitio publicado:
 
-  Nota sobre las imágenes de fondo: en los encabezados y en las fichas de
-  las unidades las imágenes se ven a propósito muy tenues, por debajo del
-  texto. No están mal cargadas, están atenuadas para que el título se lea.
+        https://veinticincosiglos.github.io/revision.html
 
 
 ───────────────────────────────────────────────────────────────────────────
-2 · PUBLICARLO CON GITHUB DESKTOP
+2 · PUBLICAR UN CAMBIO
 ───────────────────────────────────────────────────────────────────────────
 
-  Este es el camino que te deja hacer cambios en vivo después. Se hace una
-  sola vez y toma unos veinte minutos.
+  Siempre los mismos dos botones, siempre en este orden:
 
-  2.1 · CREA LA CUENTA
-       Entra a github.com y regístrate. Elige bien el nombre de usuario:
-       va a quedar en la dirección de tu sitio.
+  1. Haz el cambio en los archivos de esta carpeta.
+  2. Abre GitHub Desktop. Abajo a la izquierda ves qué cambió.
+  3. En «Summary» escribe qué hiciste. Por ejemplo: Corrijo la unidad 3.
+  4. Haz clic en **Commit to main**.
+  5. Arriba aparece **Push origin**. Haz clic.
 
-  2.2 · INSTALA GITHUB DESKTOP
-       Descárgalo de desktop.github.com e instálalo. Ábrelo e inicia sesión
-       con la cuenta que acabas de crear.
+  Un minuto después está publicado.
 
-  2.3 · CREA EL REPOSITORIO
-       En GitHub Desktop: File → New repository.
-
-       · Name:  USUARIO.github.io
-         Cambiando USUARIO por tu nombre de usuario de GitHub. Si tu usuario
-         es «jpvillamil», el nombre tiene que ser «jpvillamil.github.io».
-         Ese nombre no es decorativo: es lo que hace que GitHub publique el
-         sitio en esa dirección.
-
-       · Local path:  elige dónde quieres la carpeta en tu computador,
-         por ejemplo Documentos.
-
-       · Deja lo demás como está y haz clic en «Create repository».
-
-  2.4 · METE EL SITIO EN ESA CARPETA
-       GitHub Desktop acaba de crear una carpeta con el nombre del
-       repositorio. En el menú: Repository → Show in Explorer.
-
-       Abre la carpeta del sitio que descomprimiste, selecciona TODO lo que
-       hay dentro (Ctrl+E o Ctrl+A) y cópialo a la carpeta del repositorio.
-
-       Si te pregunta por archivos repetidos, reemplázalos.
-
-  2.5 · PUBLICA
-       Vuelve a GitHub Desktop. Abajo a la izquierda aparecen todos los
-       archivos nuevos.
-
-       · En «Summary» escribe algo como: Primera versión del sitio
-       · Haz clic en «Commit to main»
-       · Arriba, haz clic en «Publish repository»
-       · IMPORTANTE: desmarca la casilla «Keep this code private».
-         Tiene que ser público para que GitHub Pages lo publique gratis.
-       · «Publish repository»
-
-       La subida de los 19 MB tarda unos minutos.
-
-  2.6 · ENCIENDE GITHUB PAGES
-       En github.com, entra a tu repositorio y ve a:
-
-            Settings → Pages
-
-       · Source: «Deploy from a branch»
-       · Branch: «main» y carpeta «/ (root)»
-       · Save
-
-  2.7 · ENTRA
-       Espera entre uno y tres minutos y abre:
-
-            https://USUARIO.github.io
-
-       Ahí está.
-
-
-───────────────────────────────────────────────────────────────────────────
-3 · HACER CAMBIOS EN VIVO
-───────────────────────────────────────────────────────────────────────────
-
-  Esta es la parte buena. De aquí en adelante, cambiar el sitio son cuatro
-  pasos y un minuto de espera.
-
-  1. Abre la carpeta del repositorio en tu computador y edita lo que
-     quieras: un texto, una imagen, una presentación.
-
-     Los textos están en archivos .html y se editan con el Bloc de notas,
-     aunque es mucho más cómodo con Notepad++ o Visual Studio Code, que son
-     gratis y colorean el código para que no te pierdas.
-
-  2. Revisa antes de publicar: doble clic en VER EL SITIO.bat, dentro de esa
-     misma carpeta. Verás el cambio al instante, todavía sin publicarlo.
-
-  3. Abre GitHub Desktop. Te muestra exactamente qué cambió, línea por
-     línea, en verde y rojo. Escribe en «Summary» qué hiciste —por ejemplo
-     «Corrijo el enlace de LinkedIn»— y haz clic en «Commit to main».
-
-  4. Arriba, haz clic en «Push origin».
-
-  Un minuto después el sitio está actualizado para todo el mundo.
+  EL ORDEN IMPORTA. «Push origin» no existe hasta que hayas hecho el commit.
+  Si no lo ves, es que falta el paso 4.
 
   SI TE ARREPIENTES
-  Antes de hacer commit, en GitHub Desktop puedes hacer clic derecho sobre
-  un archivo cambiado y elegir «Discard changes»: vuelve como estaba.
-  Y aunque ya hayas publicado, en la pestaña «History» está cada versión
-  anterior, así que nada se pierde nunca.
-
-  CAMBIOS RÁPIDOS SIN ABRIR NADA
-  Para una corrección de una palabra también puedes editar directamente en
-  github.com: entra al archivo, haz clic en el lápiz de arriba a la derecha,
-  corrige y «Commit changes». Si haces esto, acuérdate después de abrir
-  GitHub Desktop y hacer clic en «Fetch origin» para traer el cambio a tu
-  computador y que las dos copias queden iguales.
+  Antes del commit: clic derecho sobre el archivo → «Discard changes».
+  Después del commit: en la pestaña «History» está cada versión anterior.
+  Nada se pierde nunca.
 
 
 ───────────────────────────────────────────────────────────────────────────
-4 · LO QUE SEGURAMENTE VAS A QUERER CAMBIAR
+3 · O SIMPLEMENTE PÍDEMELO
 ───────────────────────────────────────────────────────────────────────────
 
-  TU ENLACE DE LINKEDIN
-  Está en el pie de todas las páginas, y hoy apunta a una dirección
-  genérica. En github.com puedes usar la lupa de búsqueda dentro del
-  repositorio, buscar «linkedin.com» y corregir los archivos que aparezcan:
-  index, las ocho unidades, acerca, escritos, archipielago y 404.
-  Si prefieres, mándame tu dirección de perfil y te lo dejo cambiado.
+  Esta carpeta está conectada a nuestra conversación. Puedes pedirme los
+  cambios en palabras y yo los hago directamente aquí:
 
-  AGREGAR UNA ENTRADA AL BLOG
-  1. Copia el archivo «escritos/jugar-no-es-premio.html» y pégalo en la
-     misma carpeta con otro nombre, terminado en .html.
-  2. Ábrelo y cambia el título, la fecha y los párrafos.
-  3. Abre «escritos.html» y duplica el bloque que empieza por
-     <a class="ficha asoma" ...>, cambiando el enlace y el título, para que
-     la entrada aparezca en la lista.
+      «Cambia el título de la unidad 4.»
+      «En el juego de Freire, la tercera escena no se entiende, reescríbela.»
+      «Ponle otro color a la unidad 6, que se parece mucho a la 7.»
+      «Agrega una escena nueva al juego de la Edad Media.»
+      «Súbelo.»
 
-  CAMBIAR UNA PRESENTACIÓN
-  Reemplaza el archivo correspondiente en «recursos/pdf». Los nombres van de
-  «unidad-1.pdf» a «unidad-8.pdf» y tienen que conservarse igual.
+  Yo edito los archivos, reviso que nada se haya roto y, si me lo pides,
+  hago el commit y el push por ti.
 
-  QUITAR LA PÁGINA DE REVISIÓN
-  «revision.html» es una herramienta, no parte del sitio: no hay ningún
-  enlace que lleve a ella. Puedes dejarla —sirve para comprobar también el
-  sitio ya publicado— o borrarla sin que nada se rompa.
+  Lo único que necesito es que tu computador esté encendido, con la
+  aplicación de Claude abierta. Si no lo está, te digo y lo hacemos después.
 
 
 ───────────────────────────────────────────────────────────────────────────
-5 · SI ALGO NO APARECE
+4 · DÓNDE ESTÁ CADA COSA
 ───────────────────────────────────────────────────────────────────────────
 
-  · Sale la lista de archivos en vez del sitio.
-    Falta «index.html» en la raíz del repositorio. Copiaste la carpeta
-    entera en vez de su contenido: entra un nivel y vuelve a copiar.
-
-  · Se ve el texto pero sin colores ni tipografías.
-    No se subió la carpeta «css». Cópiala y haz commit otra vez.
-
-  · Sale «404» al entrar a la dirección.
-    El repositorio no se llama USUARIO.github.io, o falta encender Pages en
-    Settings → Pages, o todavía no pasan los dos minutos de publicación.
-
-  · Los juegos no cargan.
-    Revisa que esté el archivo «.nojekyll» en la raíz. Es un archivo vacío y
-    sin él GitHub ignora algunas carpetas. Como empieza por punto puede
-    estar oculto: en el explorador de Windows, pestaña «Vista», marca
-    «Elementos ocultos».
-
-  · «Yowza, that's a big file.»
-    Eso sale al intentar subir un archivo de más de 25 MB por la web.
-    Con GitHub Desktop no pasa, y además ningún archivo del sitio llega a
-    ese tamaño. Si te aparece, estás subiendo el .zip: no lo subas.
-
-  · Una imagen funciona en tu computador pero no en internet.
-    GitHub distingue mayúsculas de minúsculas y Windows no. Revisa que el
-    nombre del archivo esté escrito igual en el disco y en el HTML.
-
-
-───────────────────────────────────────────────────────────────────────────
-6 · QUÉ HAY EN CADA CARPETA
-───────────────────────────────────────────────────────────────────────────
-
-  VER EL SITIO.bat ........ arranca la revisión local
-  servidor.ps1 ............ lo usa el anterior; no se toca
-  revision.html ........... comprueba que no falte ningún archivo
   index.html .............. la portada
-  acerca.html ............. la página de presentación
-  escritos.html ........... el índice del blog
-  escritos/ ............... las entradas del blog
-  archipielago.html ....... la página del juego grande
-  404.html ................ lo que se ve si alguien escribe mal la dirección
-  unidades/ ............... las ocho unidades del curso
+  unidades/ ............... las ocho unidades, una por archivo
   juegos/ ................. los nueve juegos, cada uno en su carpeta
+  escritos/ ............... las entradas del blog
+  acerca.html ............. la página de presentación
+  archipielago.html ....... la página del juego grande
+  404.html ................ lo que se ve si escriben mal la dirección
   recursos/img/ ........... banderolas, motivos y portadas
   recursos/pdf/ ........... las presentaciones de cada clase
   css/ y js/ .............. el diseño y las animaciones
-  icono.svg ............... el icono de la pestaña del navegador
-  .nojekyll ............... archivo vacío, necesario para GitHub Pages
+  revision.html ........... la comprobación de archivos
+  VER EL SITIO.bat ........ la revisión local
+  servidor.ps1 ............ lo usa el anterior; no se toca
+  .nojekyll ............... archivo vacío, pero necesario: no lo borres
 
 
 ───────────────────────────────────────────────────────────────────────────
-7 · UN DOMINIO PROPIO (OPCIONAL)
+5 · PENDIENTES
 ───────────────────────────────────────────────────────────────────────────
 
-  Si más adelante quieres una dirección como «tunombre.co» en vez de
-  «usuario.github.io», se compra en cualquier registrador por unos 10 a 20
-  dólares al año y se conecta en Settings → Pages → Custom domain. El sitio
-  no hay que tocarlo: sigue siendo el mismo.
+  · El enlace de LinkedIn del pie todavía apunta a una dirección genérica.
+    Cuando me pases la de tu perfil, la cambio en todas las páginas.
+
+  · En esta carpeta quedó una subcarpeta vacía llamada
+    «historia_pedagogia.github.io», de un intento anterior. No afecta nada;
+    puedes borrarla cuando quieras.
+
+
+───────────────────────────────────────────────────────────────────────────
+6 · UN DOMINIO PROPIO, SI ALGÚN DÍA QUIERES
+───────────────────────────────────────────────────────────────────────────
+
+  Una dirección como «veinticincosiglos.co» cuesta entre 10 y 20 dólares al
+  año y se conecta en Settings → Pages → Custom domain del repositorio. El
+  sitio no hay que tocarlo: sigue siendo el mismo.
